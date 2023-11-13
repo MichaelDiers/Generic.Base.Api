@@ -1,6 +1,6 @@
 ﻿namespace WebApi.NetCore.Api.Contracts.Services
 {
-    internal interface IJwtTokenService
+    public interface IJwtTokenService
     {
         /// <summary>
         ///     Creates the token.
