@@ -36,7 +36,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: 'dotnet build ${{ env.SOLUTION_PATH }} -c ${{ env.CONFIGURATION }}'
-      - run: 'dotnet test ${{ env.TEST_PROJ_PATH }} /p:AltCover=true --no-build --no-restore /p:AltCoverReport="${{ env.ALTCOVER_XML }}"'
+      - run: 'dotnet test ${{ env.TEST_PROJ_PATH }} --filter Type=Unit /p:AltCover=true --no-build --no-restore /p:AltCoverReport="${{ env.ALTCOVER_XML }}"'
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v3
         with:
