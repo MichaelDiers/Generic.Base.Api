@@ -9,6 +9,11 @@
     internal class ApiKeyMiddleware
     {
         /// <summary>
+        ///     The name of the header that contains the api key.
+        /// </summary>
+        private const string ApiKeyHeaderName = "x-api-key";
+
+        /// <summary>
         ///     The request delegate.
         /// </summary>
         private readonly RequestDelegate next;
@@ -28,8 +33,9 @@
         /// <param name="context">The current context.</param>
         public Task Invoke(HttpContext context)
         {
-            var header = context.Request.Headers["x-api-key"].ToString();
-            if (string.IsNullOrWhiteSpace(header))
+            var apiKey = this.ReadApiKey(context);
+
+            if (string.IsNullOrWhiteSpace(apiKey))
             {
                 return ApiKeyMiddleware.SetResponse(
                     context,
@@ -37,7 +43,7 @@
                     "Missing api key.");
             }
 
-            if (header != "foobar")
+            if (apiKey != "foobar")
             {
                 return ApiKeyMiddleware.SetResponse(
                     context,
@@ -46,6 +52,26 @@
             }
 
             return this.next(context);
+        }
+
+        /// <summary>
+        ///     Reads the API key.
+        /// </summary>
+        /// <param name="context">The current http context.</param>
+        /// <returns>The found api key or an empty string if no api key is found.</returns>
+        private string ReadApiKey(HttpContext context)
+        {
+            var header = context.Request.Headers[ApiKeyMiddleware.ApiKeyHeaderName].ToString();
+            if (!string.IsNullOrWhiteSpace(header))
+            {
+                return header;
+            }
+
+            return context.Request.Query.TryGetValue(
+                ApiKeyMiddleware.ApiKeyHeaderName,
+                out var apiKey)
+                ? apiKey.ToString()
+                : string.Empty;
         }
 
         /// <summary>
