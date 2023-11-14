@@ -12,7 +12,7 @@
         /// <returns>An <see cref="IApplicationBuilder" />.</returns>
         public static IApplicationBuilder UseErrorHandling(this WebApplication app)
         {
-            return app.UseMiddleware<ApiKeyMiddleware>();
+            return app.UseMiddleware<ErrorHandlingMiddleware>();
         }
     }
 }

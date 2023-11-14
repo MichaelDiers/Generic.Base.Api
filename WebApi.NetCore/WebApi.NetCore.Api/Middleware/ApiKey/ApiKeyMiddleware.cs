@@ -1,4 +1,4 @@
-﻿namespace WebApi.NetCore.Api.Middleware
+﻿namespace WebApi.NetCore.Api.Middleware.ApiKey
 {
     using System.Net;
     using System.Text.Json;

@@ -1,5 +1,6 @@
 using WebApi.NetCore.Api.Extensions;
 using WebApi.NetCore.Api.HealthChecks;
+using WebApi.NetCore.Api.Middleware.ApiKey;
 using WebApi.NetCore.Api.Middleware.ErrorHandling;
 using WebApi.NetCore.Api.Models.Configuration;
 
@@ -34,6 +35,7 @@ if (app.Environment.IsDevelopment())
 app.MapCustomHealthChecks();
 
 app.UseErrorHandling();
+app.UseApiKey();
 
 app.UseHttpsRedirection();
 
