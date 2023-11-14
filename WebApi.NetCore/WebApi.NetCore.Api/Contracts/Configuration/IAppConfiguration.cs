@@ -11,6 +11,11 @@
         IEnvNameConfiguration EnvNames { get; }
 
         /// <summary>
+        ///     Gets the health check configuration.
+        /// </summary>
+        IHealthCheckConfiguration HealthCheck { get; }
+
+        /// <summary>
         ///     Gets the jwt configuration.
         /// </summary>
         IJwtConfiguration Jwt { get; }

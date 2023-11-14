@@ -33,6 +33,7 @@
 
             services.AddSingleton<IAppConfiguration>(_ => appConfiguration);
             services.AddSingleton<IJwtConfiguration>(_ => appConfiguration.Jwt);
+            services.AddSingleton<IHealthCheckConfiguration>(_ => appConfiguration.HealthCheck);
 
             return services;
         }
@@ -55,8 +56,8 @@
         /// </summary>
         /// <param name="services">The services.</param>
         /// <param name="envNames">The environment names configuration.</param>
-        /// <returns>The given <paramref name="services" />.</returns>
-        public static IServiceCollection AddEnvEnvironment(
+        /// <returns>The created environment configuration.</returns>
+        public static IEnvConfiguration AddEnvEnvironment(
             this IServiceCollection services,
             IEnvNameConfiguration? envNames
         )
@@ -76,7 +77,7 @@
 
             services.AddSingleton<IEnvConfiguration>(_ => envConfiguration);
 
-            return services;
+            return envConfiguration;
         }
 
         /// <summary>
@@ -84,22 +85,18 @@
         /// </summary>
         /// <param name="services">The services collection.</param>
         /// <param name="jwtConfiguration">The jwt configuration.</param>
+        /// <param name="envConfiguration">The environment configuration.</param>
         /// <returns>The given <paramref name="services" />.</returns>
         /// <exception cref="System.ArgumentException">key</exception>
         public static IServiceCollection AddJwtAuthentication(
             this IServiceCollection services,
-            IJwtConfiguration? jwtConfiguration
+            IJwtConfiguration? jwtConfiguration,
+            IEnvConfiguration envConfiguration
         )
         {
             if (jwtConfiguration is null)
             {
                 throw new ArgumentNullException(nameof(jwtConfiguration));
-            }
-
-            var key = Environment.GetEnvironmentVariable(jwtConfiguration.KeyName);
-            if (string.IsNullOrWhiteSpace(key))
-            {
-                throw new ArgumentException(nameof(key));
             }
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -108,7 +105,8 @@
                     {
                         options.TokenValidationParameters = new TokenValidationParameters
                         {
-                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
+                            IssuerSigningKey =
+                                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(envConfiguration.JwtKey)),
                             ValidateIssuerSigningKey = true,
                             ValidAudience = jwtConfiguration.Audience,
                             ValidateAudience = true,

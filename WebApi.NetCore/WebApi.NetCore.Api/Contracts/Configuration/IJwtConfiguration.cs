@@ -14,10 +14,5 @@
         ///     Gets the issuer.
         /// </summary>
         string Issuer { get; }
-
-        /// <summary>
-        ///     Gets the name of the key used by the secret manager.
-        /// </summary>
-        string KeyName { get; }
     }
 }

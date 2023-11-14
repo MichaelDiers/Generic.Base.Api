@@ -27,10 +27,6 @@
 
             Assert.NotNull(configuration);
 
-            Environment.SetEnvironmentVariable(
-                configuration.Jwt.KeyName,
-                "Yh2k7QSu4l8CZg5p6X3Pna9L0Miy4D3Bvt0JVr87UcOj69Kqw5R2Nmf4FWs03Hdx");
-
             var builder = new HostApplicationBuilder();
             builder.Services.AddDependencies();
             builder.Services.AddConfiguration(configuration);
