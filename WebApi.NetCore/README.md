@@ -3,5 +3,8 @@
 - api key middleware
 - jwt authentication
 - authorization
-- configuration access
 - dependency injection
+- global error handling
+- health checks
+- configuration access
+- environment variables access
