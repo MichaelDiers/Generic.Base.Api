@@ -2,6 +2,7 @@
 {
     using System.Net;
     using System.Text.Json;
+    using WebApi.NetCore.Api.Contracts.Configuration;
 
     /// <summary>
     ///     Api key validation middleware.
@@ -31,7 +32,8 @@
         ///     Invokes the middleware.
         /// </summary>
         /// <param name="context">The current context.</param>
-        public Task Invoke(HttpContext context)
+        /// <param name="envConfiguration">The environment configuration.</param>
+        public Task Invoke(HttpContext context, IEnvConfiguration envConfiguration)
         {
             var apiKey = this.ReadApiKey(context);
 
@@ -43,7 +45,7 @@
                     "Missing api key.");
             }
 
-            if (apiKey != "foobar")
+            if (apiKey != envConfiguration.ApiKey)
             {
                 return ApiKeyMiddleware.SetResponse(
                     context,

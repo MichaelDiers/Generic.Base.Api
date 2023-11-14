@@ -14,9 +14,9 @@
     internal class JwtTokenService : IJwtTokenService
     {
         /// <summary>
-        ///     The environment service for accessing environment variables.
+        ///     The environment configuration.
         /// </summary>
-        private readonly IEnvironmentService environmentService;
+        private readonly IEnvConfiguration envConfiguration;
 
         /// <summary>
         ///     The jwt configuration.
@@ -27,11 +27,11 @@
         ///     Initializes a new instance of the <see cref="JwtTokenService" /> class.
         /// </summary>
         /// <param name="jwtConfiguration">The jwt configuration.</param>
-        /// <param name="environmentService">The environment service.</param>
-        public JwtTokenService(IJwtConfiguration jwtConfiguration, IEnvironmentService environmentService)
+        /// <param name="envConfiguration">The environment configuration.</param>
+        public JwtTokenService(IJwtConfiguration jwtConfiguration, IEnvConfiguration envConfiguration)
         {
             this.jwtConfiguration = jwtConfiguration;
-            this.environmentService = environmentService;
+            this.envConfiguration = envConfiguration;
         }
 
         /// <summary>
@@ -51,8 +51,7 @@
                         Guid.NewGuid().ToString()))
                 .ToArray();
 
-            var securityKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(this.environmentService.Get(this.jwtConfiguration.KeyName)));
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(this.envConfiguration.JwtKey));
             var signingCredentials = new SigningCredentials(
                 securityKey,
                 SecurityAlgorithms.HmacSha512Signature);

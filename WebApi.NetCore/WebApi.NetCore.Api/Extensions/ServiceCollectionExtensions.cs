@@ -6,6 +6,7 @@
     using Microsoft.OpenApi.Models;
     using WebApi.NetCore.Api.Contracts.Configuration;
     using WebApi.NetCore.Api.Contracts.Services;
+    using WebApi.NetCore.Api.Models.Configuration;
     using WebApi.NetCore.Api.Services;
 
     /// <summary>
@@ -44,8 +45,36 @@
         public static IServiceCollection AddDependencies(this IServiceCollection services)
         {
             services.AddScoped<IAuthService, AuthService>();
-            services.AddScoped<IEnvironmentService, EnvironmentService>();
             services.AddScoped<IJwtTokenService, JwtTokenService>();
+
+            return services;
+        }
+
+        /// <summary>
+        ///     Adds the environment information.
+        /// </summary>
+        /// <param name="services">The services.</param>
+        /// <param name="envNames">The environment names configuration.</param>
+        /// <returns>The given <paramref name="services" />.</returns>
+        public static IServiceCollection AddEnvEnvironment(
+            this IServiceCollection services,
+            IEnvNameConfiguration? envNames
+        )
+        {
+            if (envNames is null)
+            {
+                throw new ArgumentNullException(nameof(envNames));
+            }
+
+            var service = new EnvironmentService();
+
+            var envConfiguration = new EnvConfiguration
+            {
+                ApiKey = service.Get(envNames.ApiKeyName),
+                JwtKey = service.Get(envNames.JwtKeyName)
+            };
+
+            services.AddSingleton<IEnvConfiguration>(_ => envConfiguration);
 
             return services;
         }
