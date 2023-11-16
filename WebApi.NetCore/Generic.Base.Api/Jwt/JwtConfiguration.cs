@@ -31,6 +31,11 @@
         public string KeyName { get; set; }
 
         /// <summary>
+        ///     Gets or sets a value that specifies after how many minutes the access token expires.
+        /// </summary>
+        public int AccessTokenExpires { get; set; }
+
+        /// <summary>
         ///     Gets or sets the audience.
         /// </summary>
         public string Audience { get; set; }
@@ -45,5 +50,10 @@
         /// </summary>
         [JsonIgnore]
         public string Key { get; set; }
+
+        /// <summary>
+        ///     Gets or sets a value that specifies after how many minutes the refresh token expires.
+        /// </summary>
+        public int RefreshTokenExpires { get; set; }
     }
 }

@@ -6,6 +6,11 @@
     public interface IJwtConfiguration
     {
         /// <summary>
+        ///     Gets a value that specifies after how many minutes the access token expires.
+        /// </summary>
+        int AccessTokenExpires { get; }
+
+        /// <summary>
         ///     Gets the audience.
         /// </summary>
         string Audience { get; }
@@ -19,5 +24,10 @@
         ///     Gets the symmetric key.
         /// </summary>
         string Key { get; }
+
+        /// <summary>
+        ///     Gets a value that specifies after how many minutes the refresh token expires.
+        /// </summary>
+        int RefreshTokenExpires { get; }
     }
 }

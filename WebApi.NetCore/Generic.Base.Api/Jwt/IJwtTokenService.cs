@@ -10,8 +10,9 @@
         /// <summary>
         ///     Creates the json web token.
         /// </summary>
+        /// <param name="id">The identifier of the user.</param>
         /// <param name="claims">The claims of the user.</param>
-        /// <returns>The token as a string.</returns>
-        string CreateToken(IEnumerable<Claim> claims);
+        /// <returns>An <see cref="IToken" /> that contains access and refresh token.</returns>
+        IToken CreateToken(string id, IEnumerable<Claim> claims);
     }
 }
