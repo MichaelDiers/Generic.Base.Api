@@ -113,7 +113,7 @@
             return this.Ok(
                 this.transformer.Transform(
                     result,
-                    this.CreateUrns($"{this.Request.Path.Value}/..")));
+                    CrudController<TCreate, TEntry, TUpdate, TResult>.CreateUrns($"{this.Request.Path.Value}/..")));
         }
 
         /// <summary>
@@ -145,7 +145,7 @@
                 result.Select(
                     entry => this.transformer.Transform(
                         entry,
-                        this.CreateUrns(
+                        CrudController<TCreate, TEntry, TUpdate, TResult>.CreateUrns(
                             this.Request.Path.Value,
                             entry.Id))));
         }
@@ -153,7 +153,7 @@
         /// <summary>
         ///     An options request for the available operations of the api.
         /// </summary>
-        /// <returns>A <see cref="OkObjectResult" /> with the availble operations.</returns>
+        /// <returns>A <see cref="OkObjectResult" /> with the available operations.</returns>
         /// <remarks>
         ///     Sample request:
         ///     OPTIONS /
@@ -173,7 +173,8 @@
         [HttpOptions]
         public ActionResult Options()
         {
-            return this.Ok(new LinkResult(this.CreateUrns(this.Request.Path.Value)));
+            return this.Ok(
+                new LinkResult(CrudController<TCreate, TEntry, TUpdate, TResult>.CreateUrns(this.Request.Path.Value)));
         }
 
         /// <summary>
@@ -214,7 +215,7 @@
                 new {id = result.Id},
                 this.transformer.Transform(
                     result,
-                    this.CreateUrns(
+                    CrudController<TCreate, TEntry, TUpdate, TResult>.CreateUrns(
                         this.Request.Path.Value,
                         result.Id)));
         }
@@ -262,7 +263,7 @@
         /// <param name="baseUrl">The base url of the urn.</param>
         /// <param name="id">The optional identifier that is added to the url.</param>
         /// <returns>An <see cref="IEnumerable{T}" /> containing the available links.</returns>
-        private IEnumerable<ILink> CreateUrns(string? baseUrl, string? id = null)
+        private static IEnumerable<ILink> CreateUrns(string? baseUrl, string? id = null)
         {
             if (string.IsNullOrWhiteSpace(baseUrl))
             {

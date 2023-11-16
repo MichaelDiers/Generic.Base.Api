@@ -36,7 +36,7 @@
         /// <param name="configuration">The api key configuration.</param>
         public Task Invoke(HttpContext context, IApiKeyConfiguration configuration)
         {
-            var apiKey = this.ReadApiKey(context);
+            var apiKey = ApiKeyMiddleware.ReadApiKey(context);
 
             if (string.IsNullOrWhiteSpace(apiKey))
             {
@@ -60,7 +60,7 @@
         /// </summary>
         /// <param name="context">The current http context.</param>
         /// <returns>The found api key or an empty string if no api key is found.</returns>
-        private string ReadApiKey(HttpContext context)
+        private static string ReadApiKey(HttpContext context)
         {
             var header = context.Request.Headers[ApiKeyMiddleware.ApiKeyHeaderName].ToString();
             if (!string.IsNullOrWhiteSpace(header))
