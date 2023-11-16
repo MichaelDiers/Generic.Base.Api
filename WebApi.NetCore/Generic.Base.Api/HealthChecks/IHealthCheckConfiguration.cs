@@ -1,4 +1,4 @@
-﻿namespace Generic.Base.Api.Configuration
+﻿namespace Generic.Base.Api.HealthChecks
 {
     /// <summary>
     ///     The configuration of the health checks.

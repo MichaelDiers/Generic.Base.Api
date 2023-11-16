@@ -1,7 +1,6 @@
 ﻿namespace Generic.Base.Api.Middleware.ApiKey
 {
     using System.Net;
-    using Generic.Base.Api.Configuration;
     using Generic.Base.Api.Extensions;
     using Microsoft.AspNetCore.Http;
 

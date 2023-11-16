@@ -1,6 +1,6 @@
 ﻿namespace Generic.Base.Api.HealthChecks
 {
-    using Generic.Base.Api.Configuration;
+    using Generic.Base.Api.Extensions;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Diagnostics.HealthChecks;
     using Microsoft.AspNetCore.Routing;
@@ -19,6 +19,23 @@
         public static IHealthChecksBuilder AddCustomHealthChecks(this IServiceCollection services)
         {
             return services.AddHealthChecks();
+        }
+
+        /// <summary>
+        ///     Maps the custom health checks.
+        /// </summary>
+        /// <param name="app">The application.</param>
+        /// <returns>
+        ///     The result of
+        ///     <see
+        ///         cref="MapCustomHealthChecks(WebApplication,IHealthCheckConfiguration)" />
+        /// </returns>
+        public static IEndpointConventionBuilder MapCustomHealthChecks(this WebApplication app)
+        {
+            var configuration =
+                app.ReadFromConfiguration<HealthCheckConfiguration>(HealthCheckConfiguration.ConfigurationSection);
+
+            return app.MapCustomHealthChecks(configuration);
         }
 
         /// <summary>

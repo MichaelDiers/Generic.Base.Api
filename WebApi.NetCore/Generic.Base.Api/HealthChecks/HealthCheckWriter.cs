@@ -7,7 +7,7 @@
     /// <summary>
     ///     Provides a simple health check result writer.
     /// </summary>
-    public static class HealthCheckWriter
+    internal static class HealthCheckWriter
     {
         /// <summary>
         ///     Writes the health report response.

@@ -1,10 +1,13 @@
-﻿namespace Generic.Base.Api.Models
+﻿namespace Generic.Base.Api.HealthChecks
 {
-    using Generic.Base.Api.Configuration;
-
     /// <inheritdoc cref="IHealthCheckConfiguration" />
-    public class HealthCheckConfiguration : IHealthCheckConfiguration
+    internal class HealthCheckConfiguration : IHealthCheckConfiguration
     {
+        /// <summary>
+        ///     The configuration section name in appSettings.json file.
+        /// </summary>
+        public static string ConfigurationSection = "HealthCheck";
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="HealthCheckConfiguration" /> class.
         /// </summary>
