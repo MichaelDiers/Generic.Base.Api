@@ -1,4 +1,4 @@
-﻿namespace Generic.Base.Api.Configuration
+﻿namespace Generic.Base.Api.Middleware.ApiKey
 {
     /// <summary>
     ///     The configuration of the api key validation.
