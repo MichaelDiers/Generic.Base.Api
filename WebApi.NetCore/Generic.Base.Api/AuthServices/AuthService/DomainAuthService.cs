@@ -108,7 +108,10 @@
                     session);
 
                 var token = this.CreateToken(user);
-
+                await this.DeleteInvitation(
+                    invitation.Id,
+                    cancellationToken,
+                    session);
                 await session.CommitTransactionAsync(cancellationToken);
                 return token;
             }
@@ -202,6 +205,24 @@
 
             return await this.atomicUserService.CreateAsync(
                 user,
+                cancellationToken,
+                transactionHandle);
+        }
+
+        /// <summary>
+        ///     Deletes the invitation.
+        /// </summary>
+        /// <param name="id">The identifier of the invitation.</param>
+        /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
+        /// <param name="transactionHandle">The database transaction handle.</param>
+        private async Task DeleteInvitation(
+            string id,
+            CancellationToken cancellationToken,
+            ITransactionHandle<TClientSessionHandle> transactionHandle
+        )
+        {
+            await this.atomicInvitationService.DeleteAsync(
+                id,
                 cancellationToken,
                 transactionHandle);
         }
