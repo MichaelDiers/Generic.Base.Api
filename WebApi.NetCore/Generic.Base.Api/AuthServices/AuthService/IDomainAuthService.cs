@@ -30,6 +30,18 @@
         Task DeleteAsync(SignIn signIn, string userId, CancellationToken cancellationToken);
 
         /// <summary>
+        ///     Create a new access token.
+        /// </summary>
+        /// <param name="refreshToken">The refresh token.</param>
+        /// <param name="userId">The identifier of the current user.</param>
+        /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
+        /// <returns>
+        ///     A <see cref="Task{T}" /> whose result contains the given <paramref name="refreshToken" /> and a new access
+        ///     token.
+        /// </returns>
+        Task<IToken> RefreshAsync(string refreshToken, string userId, CancellationToken cancellationToken);
+
+        /// <summary>
         ///     Sign in an existing user.
         /// </summary>
         /// <param name="signIn">The sign in data.</param>

@@ -129,6 +129,40 @@
         }
 
         /// <summary>
+        ///     Create a new access token.
+        /// </summary>
+        /// <param name="refreshToken">The refresh token.</param>
+        /// <param name="userId">The identifier of the current user.</param>
+        /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
+        /// <returns>
+        ///     A <see cref="Task{T}" /> whose result contains the given <paramref name="refreshToken" /> and a new access
+        ///     token.
+        /// </returns>
+        public async Task<IToken> RefreshAsync(string refreshToken, string userId, CancellationToken cancellationToken)
+        {
+            using var session = await this.transactionHandler.StartTransactionAsync(cancellationToken);
+            try
+            {
+                var user = await this.ReadUser(
+                    userId,
+                    cancellationToken,
+                    session);
+                var token = new Token(
+                    this.CreateToken(user).AccessToken,
+                    refreshToken);
+
+                await session.CommitTransactionAsync(cancellationToken);
+
+                return token;
+            }
+            catch
+            {
+                await session.AbortTransactionAsync(cancellationToken);
+                throw;
+            }
+        }
+
+        /// <summary>
         ///     Sign in an existing user.
         /// </summary>
         /// <param name="signIn">The sign in data.</param>
