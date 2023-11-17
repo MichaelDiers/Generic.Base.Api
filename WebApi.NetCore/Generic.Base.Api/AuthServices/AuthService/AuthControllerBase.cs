@@ -1,5 +1,7 @@
 ﻿namespace Generic.Base.Api.AuthServices.AuthService
 {
+    using System.Security.Claims;
+    using Generic.Base.Api.Exceptions;
     using Generic.Base.Api.Jwt;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
@@ -52,6 +54,32 @@
         {
             var result = await this.domainAuthService.SignInAsync(
                 signIn,
+                cancellationToken);
+            return this.Ok(result);
+        }
+
+        /// <summary>
+        ///     Change the password of an existing user.
+        /// </summary>
+        /// <param name="changePassword">The change password data.</param>
+        /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
+        /// <returns>A <see cref="Task{T}" /> whose result are access and refresh tokens.</returns>
+        [AllowAnonymous]
+        [HttpPost("change-password")]
+        public async Task<ActionResult<IToken>> Post(
+            [FromBody] ChangePassword changePassword,
+            CancellationToken cancellationToken
+        )
+        {
+            var claim = this.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+            if (claim is null)
+            {
+                throw new UnauthorizedException();
+            }
+
+            var result = await this.domainAuthService.ChangePasswordAsync(
+                changePassword,
+                claim.Value,
                 cancellationToken);
             return this.Ok(result);
         }

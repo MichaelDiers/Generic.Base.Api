@@ -54,6 +54,46 @@
         }
 
         /// <summary>
+        ///     Changes the password of a user.
+        /// </summary>
+        /// <param name="changePassword">The change password data.</param>
+        /// <param name="userId">The user identifier.</param>
+        /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
+        /// <returns>A <see cref="Task{T}" /> whose result is a new pair of access and refresh token.</returns>
+        public async Task<IToken> ChangePasswordAsync(
+            ChangePassword changePassword,
+            string userId,
+            CancellationToken cancellationToken
+        )
+        {
+            DomainAuthService<TClientSessionHandle>.CheckData(changePassword);
+            using var session = await this.transactionHandler.StartTransactionAsync(cancellationToken);
+            try
+            {
+                var user = await this.ReadUser(
+                    userId,
+                    cancellationToken,
+                    session);
+                this.CheckPassword(
+                    user,
+                    changePassword.OldPassword);
+                user = await this.UpdateUser(
+                    user,
+                    changePassword.NewPassword,
+                    cancellationToken,
+                    session);
+                var token = this.CreateToken(user);
+                await session.CommitTransactionAsync(cancellationToken);
+                return token;
+            }
+            catch
+            {
+                await session.AbortTransactionAsync(cancellationToken);
+                throw;
+            }
+        }
+
+        /// <summary>
         ///     Sign in an existing user.
         /// </summary>
         /// <param name="signIn">The sign in data.</param>
@@ -119,6 +159,19 @@
             {
                 await session.AbortTransactionAsync(cancellationToken);
                 throw;
+            }
+        }
+
+        /// <summary>
+        ///     Checks the data.
+        /// </summary>
+        /// <param name="changePassword">The change password data.</param>
+        /// <exception cref="BadRequestException"></exception>
+        private static void CheckData(ChangePassword changePassword)
+        {
+            if (changePassword.NewPassword == changePassword.OldPassword)
+            {
+                throw new BadRequestException();
             }
         }
 
@@ -272,6 +325,30 @@
                 id,
                 cancellationToken,
                 transactionHandle);
+        }
+
+        /// <summary>
+        ///     Updates the user and sets the new password.
+        /// </summary>
+        /// <param name="user">The user to be updated.</param>
+        /// <param name="newPassword">The new password.</param>
+        /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
+        /// <param name="transactionHandle">The database transaction handle.</param>
+        /// <returns>A <see cref="Task" /> whose result is the updated user.</returns>
+        private async Task<User> UpdateUser(
+            User user,
+            string newPassword,
+            CancellationToken cancellationToken,
+            ITransactionHandle<TClientSessionHandle> transactionHandle
+        )
+        {
+            user.Password = this.hashService.Hash(newPassword);
+            await this.atomicUserService.UpdateAsync(
+                user,
+                user.Id,
+                cancellationToken,
+                transactionHandle);
+            return user;
         }
     }
 }

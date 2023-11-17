@@ -8,6 +8,19 @@
     public interface IDomainAuthService
     {
         /// <summary>
+        ///     Changes the password of a user.
+        /// </summary>
+        /// <param name="changePassword">The change password data.</param>
+        /// <param name="userId">The user identifier.</param>
+        /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
+        /// <returns>A <see cref="Task{T}" /> whose result is a new pair of access and refresh token.</returns>
+        Task<IToken> ChangePasswordAsync(
+            ChangePassword changePassword,
+            string userId,
+            CancellationToken cancellationToken
+        );
+
+        /// <summary>
         ///     Sign in an existing user.
         /// </summary>
         /// <param name="signIn">The sign in data.</param>
