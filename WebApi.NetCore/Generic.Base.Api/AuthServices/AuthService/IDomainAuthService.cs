@@ -13,12 +13,8 @@
         /// <param name="changePassword">The change password data.</param>
         /// <param name="userId">The user identifier.</param>
         /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
-        /// <returns>A <see cref="Task{T}" /> whose result is a new pair of access and refresh token.</returns>
-        Task<IToken> ChangePasswordAsync(
-            ChangePassword changePassword,
-            string userId,
-            CancellationToken cancellationToken
-        );
+        /// <returns>A <see cref="Task" /> whose result indicates success.</returns>
+        Task ChangePasswordAsync(ChangePassword changePassword, string userId, CancellationToken cancellationToken);
 
         /// <summary>
         ///     Deletes the current user.

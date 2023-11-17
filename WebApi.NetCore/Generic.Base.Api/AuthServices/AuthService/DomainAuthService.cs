@@ -1,7 +1,9 @@
 ﻿namespace Generic.Base.Api.AuthServices.AuthService
 {
+    using System.IdentityModel.Tokens.Jwt;
     using System.Security.Claims;
     using Generic.Base.Api.AuthServices.InvitationService;
+    using Generic.Base.Api.AuthServices.TokenService;
     using Generic.Base.Api.AuthServices.UserService;
     using Generic.Base.Api.Database;
     using Generic.Base.Api.Exceptions;
@@ -13,10 +15,21 @@
     internal class DomainAuthService<TClientSessionHandle> : IDomainAuthService
     {
         /// <summary>
+        ///     The token valid to format.
+        /// </summary>
+        private const string TokenValidToFormat = "yyyy.MM.dd - HH:mm:ss";
+
+        /// <summary>
         ///     The atomic invitation service.
         /// </summary>
         private readonly IAtomicService<Invitation, Invitation, Invitation, TClientSessionHandle>
             atomicInvitationService;
+
+        /// <summary>
+        ///     The atomic token entry service.
+        /// </summary>
+        private readonly IAtomicService<TokenEntry, TokenEntry, TokenEntry, TClientSessionHandle>
+            atomicTokenEntryService;
 
         /// <summary>
         ///     The atomic user service for user handling.
@@ -43,7 +56,8 @@
             ITransactionHandler<TClientSessionHandle> transactionHandler,
             IHashService hashService,
             IAtomicService<Invitation, Invitation, Invitation, TClientSessionHandle> atomicInvitationService,
-            IJwtTokenService jwtTokenService
+            IJwtTokenService jwtTokenService,
+            IAtomicService<TokenEntry, TokenEntry, TokenEntry, TClientSessionHandle> atomicTokenEntryService
         )
         {
             this.atomicUserService = atomicUserService;
@@ -51,6 +65,7 @@
             this.hashService = hashService;
             this.atomicInvitationService = atomicInvitationService;
             this.jwtTokenService = jwtTokenService;
+            this.atomicTokenEntryService = atomicTokenEntryService;
         }
 
         /// <summary>
@@ -59,8 +74,8 @@
         /// <param name="changePassword">The change password data.</param>
         /// <param name="userId">The user identifier.</param>
         /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
-        /// <returns>A <see cref="Task{T}" /> whose result is a new pair of access and refresh token.</returns>
-        public async Task<IToken> ChangePasswordAsync(
+        /// <returns>A <see cref="Task" /> whose result indicates success.</returns>
+        public async Task ChangePasswordAsync(
             ChangePassword changePassword,
             string userId,
             CancellationToken cancellationToken
@@ -77,14 +92,12 @@
                 this.CheckPassword(
                     user,
                     changePassword.OldPassword);
-                user = await this.UpdateUser(
+                await this.UpdateUser(
                     user,
                     changePassword.NewPassword,
                     cancellationToken,
                     session);
-                var token = this.CreateToken(user);
                 await session.CommitTransactionAsync(cancellationToken);
-                return token;
             }
             catch
             {
@@ -135,22 +148,24 @@
         /// <param name="userId">The identifier of the current user.</param>
         /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
         /// <returns>
-        ///     A <see cref="Task{T}" /> whose result contains the given <paramref name="refreshToken" /> and a new access
-        ///     token.
+        ///     A <see cref="Task{T}" /> whose result contains new refresh and access tokens.
         /// </returns>
         public async Task<IToken> RefreshAsync(string refreshToken, string userId, CancellationToken cancellationToken)
         {
             using var session = await this.transactionHandler.StartTransactionAsync(cancellationToken);
             try
             {
+                await this.RevokeRefreshToken(
+                    refreshToken,
+                    cancellationToken,
+                    session);
+
                 var user = await this.ReadUser(
                     userId,
                     cancellationToken,
                     session);
-                var token = new Token(
-                    this.CreateToken(user).AccessToken,
-                    refreshToken);
 
+                var token = this.CreateToken(user);
                 await session.CommitTransactionAsync(cancellationToken);
 
                 return token;
@@ -181,6 +196,10 @@
                     user,
                     signIn.Password);
                 var token = this.CreateToken(user);
+                await this.SaveRefreshToken(
+                    token.RefreshToken,
+                    cancellationToken,
+                    session);
                 await session.CommitTransactionAsync(cancellationToken);
                 return token;
             }
@@ -221,6 +240,12 @@
                     invitation.Id,
                     cancellationToken,
                     session);
+
+                await this.SaveRefreshToken(
+                    token.RefreshToken,
+                    cancellationToken,
+                    session);
+
                 await session.CommitTransactionAsync(cancellationToken);
                 return token;
             }
@@ -413,6 +438,26 @@
         }
 
         /// <summary>
+        ///     Reads the jwt security token.
+        /// </summary>
+        /// <param name="token">The token.</param>
+        /// <returns>An instance of <see cref="JwtSecurityToken" />.</returns>
+        private static JwtSecurityToken ReadJwtSecurityToken(string token)
+        {
+            return new JwtSecurityTokenHandler().ReadJwtToken(token);
+        }
+
+        /// <summary>
+        ///     Reads the refresh token identifier.
+        /// </summary>
+        /// <param name="token">The token.</param>
+        /// <returns>The id of the refresh token.</returns>
+        private static string ReadRefreshTokenId(JwtSecurityToken token)
+        {
+            return token.Claims.First(claim => claim.Type == ClaimTypes.Sid).Value;
+        }
+
+        /// <summary>
         ///     Reads the user.
         /// </summary>
         /// <param name="id">The identifier if the user.</param>
@@ -432,14 +477,62 @@
         }
 
         /// <summary>
+        ///     Checks the refresh token.
+        /// </summary>
+        /// <param name="refreshToken">The refresh token.</param>
+        /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
+        /// <param name="transactionHandle">The database transaction handle.</param>
+        /// <returns>A <see cref="Task" /> whose result indicates success.</returns>
+        private async Task RevokeRefreshToken(
+            string refreshToken,
+            CancellationToken cancellationToken,
+            ITransactionHandle<TClientSessionHandle> transactionHandle
+        )
+        {
+            var token = DomainAuthService<TClientSessionHandle>.ReadJwtSecurityToken(refreshToken);
+            var refreshTokenId = DomainAuthService<TClientSessionHandle>.ReadRefreshTokenId(token);
+            await this.atomicTokenEntryService.DeleteAsync(
+                refreshTokenId,
+                cancellationToken,
+                transactionHandle);
+        }
+
+        /// <summary>
+        ///     Saves the refresh token.
+        /// </summary>
+        /// <param name="refreshToken">The refresh token.</param>
+        /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
+        /// <param name="transactionHandle">The database transaction handle.</param>
+        private async Task SaveRefreshToken(
+            string refreshToken,
+            CancellationToken cancellationToken,
+            ITransactionHandle<TClientSessionHandle> transactionHandle
+        )
+        {
+            var token = DomainAuthService<TClientSessionHandle>.ReadJwtSecurityToken(refreshToken);
+
+            var refreshTokenId = token.Claims.First(claim => claim.Type == ClaimTypes.Sid).Value;
+            var userId = token.Claims.First(claim => claim.Type == ClaimTypes.NameIdentifier).Value;
+            var validTo = token.ValidTo.ToString(DomainAuthService<TClientSessionHandle>.TokenValidToFormat);
+
+            await this.atomicTokenEntryService.CreateAsync(
+                new TokenEntry(
+                    refreshTokenId,
+                    userId,
+                    validTo),
+                cancellationToken,
+                transactionHandle);
+        }
+
+        /// <summary>
         ///     Updates the user and sets the new password.
         /// </summary>
         /// <param name="user">The user to be updated.</param>
         /// <param name="newPassword">The new password.</param>
         /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
         /// <param name="transactionHandle">The database transaction handle.</param>
-        /// <returns>A <see cref="Task" /> whose result is the updated user.</returns>
-        private async Task<User> UpdateUser(
+        /// <returns>A <see cref="Task" /> whose result indicates success.</returns>
+        private async Task UpdateUser(
             User user,
             string newPassword,
             CancellationToken cancellationToken,
@@ -452,7 +545,6 @@
                 user.Id,
                 cancellationToken,
                 transactionHandle);
-            return user;
         }
     }
 }

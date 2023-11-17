@@ -4,6 +4,8 @@
     using Generic.Base.Api.AuthServices.UserService;
     using Generic.Base.Api.Exceptions;
     using Generic.Base.Api.Jwt;
+    using Generic.Base.Api.Models;
+    using Generic.Base.Api.Result;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
@@ -13,6 +15,26 @@
     /// <seealso cref="Microsoft.AspNetCore.Mvc.ControllerBase" />
     public abstract class AuthControllerBase : ControllerBase
     {
+        /// <summary>
+        /// The change password template.
+        /// </summary>
+        private const string ChangePasswordTemplate = "change-password";
+
+        /// <summary>
+        /// The refresh template.
+        /// </summary>
+        private const string RefreshTemplate = "refresh";
+
+        /// <summary>
+        /// The sign in template.
+        /// </summary>
+        private const string SignInTemplate = "sign-in";
+
+        /// <summary>
+        /// The sign up template.
+        /// </summary>
+        private const string SignUpTemplate = "sign-up";
+
         /// <summary>
         ///     The domain authentication service.
         /// </summary>
@@ -51,13 +73,49 @@
         }
 
         /// <summary>
+        ///     An options request for the available operations of the api.
+        /// </summary>
+        [HttpOptions]
+        public LinkResult Options()
+        {
+            var baseUrl = this.Request.Path.Value;
+            if (string.IsNullOrWhiteSpace(baseUrl))
+            {
+                return new LinkResult(Enumerable.Empty<ILink>());
+            }
+
+            return new LinkResult(
+                new[]
+                {
+                    new Link(
+                        Urn.Delete,
+                        baseUrl),
+                    new Link(
+                        Urn.SignUp,
+                        $"{baseUrl}/{AuthControllerBase.SignUpTemplate}"),
+                    new Link(
+                        Urn.SignIn,
+                        $"{baseUrl}/{AuthControllerBase.SignInTemplate}"),
+                    new Link(
+                        Urn.ChangePassword,
+                        $"{baseUrl}/{AuthControllerBase.ChangePasswordTemplate}"),
+                    new Link(
+                        Urn.Refresh,
+                        $"{baseUrl}/{AuthControllerBase.RefreshTemplate}"),
+                    new Link(
+                        Urn.Options,
+                        baseUrl)
+                });
+        }
+
+        /// <summary>
         ///     Sign up a new user.
         /// </summary>
         /// <param name="signUp">The sign up data.</param>
         /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
         /// <returns>A <see cref="Task{T}" /> whose result are access and refresh tokens.</returns>
         [AllowAnonymous]
-        [HttpPost("sign-up")]
+        [HttpPost(AuthControllerBase.SignUpTemplate)]
         public async Task<ActionResult<IToken>> Post([FromBody] SignUp signUp, CancellationToken cancellationToken)
         {
             var result = await this.domainAuthService.SignUpAsync(
@@ -90,7 +148,7 @@
         /// <returns>A <see cref="Task{T}" /> whose result are access and refresh tokens.</returns>
         [HttpPost("change-password")]
         [Authorize(Roles = nameof(Role.Accessor))]
-        public async Task<ActionResult<IToken>> Post(
+        public async Task<ActionResult> Post(
             [FromBody] ChangePassword changePassword,
             CancellationToken cancellationToken
         )
@@ -101,11 +159,11 @@
                 throw new UnauthorizedException();
             }
 
-            var result = await this.domainAuthService.ChangePasswordAsync(
+            await this.domainAuthService.ChangePasswordAsync(
                 changePassword,
                 claim.Value,
                 cancellationToken);
-            return this.Ok(result);
+            return this.Ok();
         }
 
         /// <summary>
@@ -123,7 +181,7 @@
                 throw new UnauthorizedException();
             }
 
-            var refreshToken = this.Request.Headers.Authorization.ToString();
+            var refreshToken = this.Request.Headers.Authorization.ToString().Replace("Bearer ", string.Empty);
 
             var result = await this.domainAuthService.RefreshAsync(
                 refreshToken,
