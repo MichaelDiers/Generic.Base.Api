@@ -38,6 +38,26 @@
         /// <summary>
         ///     Read the available operations.
         /// </summary>
-        Options
+        Options,
+
+        /// <summary>
+        ///     The sign up operation.
+        /// </summary>
+        SignUp,
+
+        /// <summary>
+        ///     The sign in operation.
+        /// </summary>
+        SignIn,
+
+        /// <summary>
+        ///     The change password operation.
+        /// </summary>
+        ChangePassword,
+
+        /// <summary>
+        ///     The token refresh operation.
+        /// </summary>
+        Refresh
     }
 }
