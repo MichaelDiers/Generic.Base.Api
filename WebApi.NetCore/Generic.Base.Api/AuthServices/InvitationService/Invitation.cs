@@ -1,5 +1,6 @@
 ﻿namespace Generic.Base.Api.AuthServices.InvitationService
 {
+    using System.ComponentModel.DataAnnotations;
     using Generic.Base.Api.AuthServices.UserService;
     using Generic.Base.Api.Database;
 
@@ -23,11 +24,18 @@
         /// <summary>
         ///     Gets the roles.
         /// </summary>
+        [Required]
+        [MinLength(AuthServicesValidation.InvitationRolesMin)]
+        [MaxLength(AuthServicesValidation.InvitationRolesMax)]
         public IEnumerable<Role> Roles { get; }
 
         /// <summary>
         ///     Gets the identifier.
         /// </summary>
+        [Required]
+        [StringLength(
+            AuthServicesValidation.InvitationIdMax,
+            MinimumLength = AuthServicesValidation.InvitationIdMin)]
         public string Id { get; }
     }
 }

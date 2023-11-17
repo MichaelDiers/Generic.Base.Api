@@ -1,5 +1,6 @@
 ﻿namespace Generic.Base.Api.AuthServices.UserService
 {
+    using System.ComponentModel.DataAnnotations;
     using Generic.Base.Api.Database;
 
     /// <summary>
@@ -31,21 +32,36 @@
         /// <summary>
         ///     Gets the display name.
         /// </summary>
+        [Required]
+        [StringLength(
+            AuthServicesValidation.DisplayNameMaxLength,
+            MinimumLength = AuthServicesValidation.DisplayNameMinLength)]
         public string DisplayName { get; }
 
         /// <summary>
         ///     Gets or sets the password.
         /// </summary>
+        [Required]
+        [StringLength(
+            AuthServicesValidation.PasswordMaxLength,
+            MinimumLength = AuthServicesValidation.PasswordMinLength)]
         public string Password { get; set; }
 
         /// <summary>
         ///     Gets the roles that are assigned to the user.
         /// </summary>
+        [Required]
+        [MinLength(AuthServicesValidation.InvitationRolesMin)]
+        [MaxLength(AuthServicesValidation.InvitationRolesMax)]
         public IEnumerable<Role> Roles { get; }
 
         /// <summary>
         ///     Gets the identifier of the user.
         /// </summary>
+        [Required]
+        [StringLength(
+            AuthServicesValidation.UserIdMaxLength,
+            MinimumLength = AuthServicesValidation.UserIdMinLength)]
         public string Id { get; }
     }
 }
