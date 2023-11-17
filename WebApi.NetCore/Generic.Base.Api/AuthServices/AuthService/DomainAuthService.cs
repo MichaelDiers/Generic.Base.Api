@@ -102,7 +102,7 @@
         /// <returns>A <see cref="Task" /> whose result indicates success.</returns>
         public async Task DeleteAsync(SignIn signIn, string userId, CancellationToken cancellationToken)
         {
-            this.CheckData(
+            DomainAuthService<TClientSessionHandle>.CheckData(
                 signIn,
                 userId);
             using var session = await this.transactionHandler.StartTransactionAsync(cancellationToken);
@@ -200,13 +200,13 @@
         /// <summary>
         ///     Checks the data.
         /// </summary>
-        /// <param name="signIn">The sign in data.</param>
+        /// <param name="idEntry">The sign in data.</param>
         /// <param name="userId">The user identifier from the current user.</param>
         /// <exception cref="BadRequestException"></exception>
-        private void CheckData(SignIn signIn, string userId)
+        private static void CheckData(IIdEntry idEntry, string userId)
         {
             if (!string.Equals(
-                    signIn.Id,
+                    idEntry.Id,
                     userId,
                     StringComparison.OrdinalIgnoreCase))
             {
