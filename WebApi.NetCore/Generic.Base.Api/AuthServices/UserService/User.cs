@@ -36,7 +36,7 @@
         /// <summary>
         ///     Gets the password.
         /// </summary>
-        public string Password { get; }
+        public string Password { get; set; }
 
         /// <summary>
         ///     Gets the roles that are assigned to the user.
