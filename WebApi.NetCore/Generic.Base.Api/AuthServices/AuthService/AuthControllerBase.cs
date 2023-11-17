@@ -29,13 +29,29 @@
         /// </summary>
         /// <param name="signUp">The sign up data.</param>
         /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
-        /// <returns>A <see cref="Task{T}" /> whose result is the created user.</returns>
+        /// <returns>A <see cref="Task{T}" /> whose result are access and refresh tokens.</returns>
         [AllowAnonymous]
         [HttpPost("sign-up")]
         public async Task<ActionResult<IToken>> Post([FromBody] SignUp signUp, CancellationToken cancellationToken)
         {
             var result = await this.domainAuthService.SignUpAsync(
                 signUp,
+                cancellationToken);
+            return this.Ok(result);
+        }
+
+        /// <summary>
+        ///     Sign in an existing user.
+        /// </summary>
+        /// <param name="signIn">The sign in data.</param>
+        /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
+        /// <returns>A <see cref="Task{T}" /> whose result are access and refresh tokens.</returns>
+        [AllowAnonymous]
+        [HttpPost("sign-in")]
+        public async Task<ActionResult<IToken>> Post([FromBody] SignIn signIn, CancellationToken cancellationToken)
+        {
+            var result = await this.domainAuthService.SignInAsync(
+                signIn,
                 cancellationToken);
             return this.Ok(result);
         }

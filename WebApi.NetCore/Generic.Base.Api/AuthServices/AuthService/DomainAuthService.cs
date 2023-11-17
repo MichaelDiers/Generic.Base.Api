@@ -54,6 +54,35 @@
         }
 
         /// <summary>
+        ///     Sign in an existing user.
+        /// </summary>
+        /// <param name="signIn">The sign in data.</param>
+        /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
+        /// <returns>A <see cref="Task{T}" /> whose result are access and refresh token.</returns>
+        public async Task<IToken> SignInAsync(SignIn signIn, CancellationToken cancellationToken)
+        {
+            using var session = await this.transactionHandler.StartTransactionAsync(cancellationToken);
+            try
+            {
+                var user = await this.ReadUser(
+                    signIn.Id,
+                    cancellationToken,
+                    session);
+                this.CheckPassword(
+                    user,
+                    signIn.Password);
+                var token = this.CreateToken(user);
+                await session.CommitTransactionAsync(cancellationToken);
+                return token;
+            }
+            catch (Exception)
+            {
+                await session.AbortTransactionAsync(cancellationToken);
+                throw;
+            }
+        }
+
+        /// <summary>
         ///     Signs up a new user.
         /// </summary>
         /// <param name="signUp">The sign up data.</param>
@@ -77,7 +106,9 @@
                     invitation,
                     cancellationToken,
                     session);
+
                 var token = this.CreateToken(user);
+
                 await session.CommitTransactionAsync(cancellationToken);
                 return token;
             }
@@ -85,6 +116,22 @@
             {
                 await session.AbortTransactionAsync(cancellationToken);
                 throw;
+            }
+        }
+
+        /// <summary>
+        ///     Checks if the passwords <see cref="User.Password" /> and <paramref name="password" /> do match.
+        /// </summary>
+        /// <param name="user">The user including the hashed password.</param>
+        /// <param name="password">The not hashed password.</param>
+        /// <exception cref="UnauthorizedException"></exception>
+        private void CheckPassword(User user, string password)
+        {
+            if (!this.hashService.Verify(
+                    password,
+                    user.Password))
+            {
+                throw new UnauthorizedException();
             }
         }
 
@@ -185,6 +232,25 @@
                 // user has no valid invitation
                 throw new UnauthorizedException();
             }
+        }
+
+        /// <summary>
+        ///     Reads the user.
+        /// </summary>
+        /// <param name="id">The identifier if the user.</param>
+        /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
+        /// <param name="transactionHandle">The database transaction handle.</param>
+        /// <returns>A <see cref="Task{T}" /> whose result is the found user.</returns>
+        private async Task<User> ReadUser(
+            string id,
+            CancellationToken cancellationToken,
+            ITransactionHandle<TClientSessionHandle> transactionHandle
+        )
+        {
+            return await this.atomicUserService.ReadByIdAsync(
+                id,
+                cancellationToken,
+                transactionHandle);
         }
     }
 }
