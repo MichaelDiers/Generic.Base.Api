@@ -34,8 +34,8 @@
         /// </summary>
         [Required]
         [StringLength(
-            AuthServicesValidation.InvitationIdMax,
-            MinimumLength = AuthServicesValidation.InvitationIdMin)]
+            AuthServicesValidation.IdMaxLength,
+            MinimumLength = AuthServicesValidation.IdMinLength)]
         public string Id { get; }
     }
 }

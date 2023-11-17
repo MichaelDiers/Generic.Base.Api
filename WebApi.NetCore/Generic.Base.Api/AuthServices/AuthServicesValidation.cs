@@ -16,6 +16,16 @@
         public const int DisplayNameMinLength = 2;
 
         /// <summary>
+        ///     The maximum length of an identifier.
+        /// </summary>
+        public const int IdMaxLength = 100;
+
+        /// <summary>
+        ///     The minimum length of an identifier.
+        /// </summary>
+        public const int IdMinLength = 2;
+
+        /// <summary>
         ///     The invitation code maximum length.
         /// </summary>
         public const int InvitationCodeMaxLength = 100;
@@ -24,16 +34,6 @@
         ///     The invitation code minimum length.
         /// </summary>
         public const int InvitationCodeMinLength = 2;
-
-        /// <summary>
-        ///     The maximum length of an invitation id.
-        /// </summary>
-        public const int InvitationIdMax = 100;
-
-        /// <summary>
-        ///     The minimum length of an invitation id.
-        /// </summary>
-        public const int InvitationIdMin = 2;
 
         /// <summary>
         ///     The maximum of roles for an invitation.
@@ -54,15 +54,5 @@
         ///     The password minimum length.
         /// </summary>
         public const int PasswordMinLength = 2;
-
-        /// <summary>
-        ///     The user id maximum length.
-        /// </summary>
-        public const int UserIdMaxLength = 100;
-
-        /// <summary>
-        ///     The user id minimum length.
-        /// </summary>
-        public const int UserIdMinLength = 2;
     }
 }

@@ -34,8 +34,8 @@
         /// </summary>
         [Required]
         [StringLength(
-            AuthServicesValidation.UserIdMaxLength,
-            MinimumLength = AuthServicesValidation.UserIdMinLength)]
+            AuthServicesValidation.IdMaxLength,
+            MinimumLength = AuthServicesValidation.IdMinLength)]
         public string Id { get; }
     }
 }
