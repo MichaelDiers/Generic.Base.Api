@@ -29,39 +29,40 @@
         ///     Creates the json web token.
         /// </summary>
         /// <param name="id">The identifier of the user.</param>
+        /// <param name="displayName">The display name of the user.</param>
         /// <param name="claims">The claims of the user.</param>
         /// <returns>An <see cref="IToken" /> that contains access and refresh token.</returns>
-        public IToken CreateToken(string id, IEnumerable<Claim> claims)
+        public IToken CreateToken(string id, string displayName, IEnumerable<Claim> claims)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(this.configuration.Key));
             var signingCredentials = new SigningCredentials(
                 securityKey,
                 SecurityAlgorithms.HmacSha512Signature);
 
+            var defaultClaims = new[]
+            {
+                new Claim(
+                    ClaimTypes.Name,
+                    displayName),
+                new Claim(
+                    ClaimTypes.NameIdentifier,
+                    id)
+            };
+
             var accessToken = this.CreateToken(
-                claims.Concat(
-                    new[]
-                    {
-                        new Claim(
-                            ClaimTypes.Role,
-                            nameof(Role.Accessor)),
-                        new Claim(
-                            ClaimTypes.Name,
-                            id)
-                    }),
+                defaultClaims.Concat(claims)
+                .Append(
+                    new Claim(
+                        ClaimTypes.Role,
+                        nameof(Role.Accessor))),
                 this.configuration.AccessTokenExpires,
                 signingCredentials);
 
             var refreshToken = this.CreateToken(
-                new[]
-                {
+                defaultClaims.Append(
                     new Claim(
                         ClaimTypes.Role,
-                        nameof(Role.Refresher)),
-                    new Claim(
-                        ClaimTypes.Name,
-                        id)
-                },
+                        nameof(Role.Refresher))),
                 this.configuration.RefreshTokenExpires,
                 signingCredentials);
 

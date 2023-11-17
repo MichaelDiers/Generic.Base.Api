@@ -11,8 +11,9 @@
         ///     Creates the json web token.
         /// </summary>
         /// <param name="id">The identifier of the user.</param>
+        /// <param name="displayName">The display name of the user.</param>
         /// <param name="claims">The claims of the user.</param>
         /// <returns>An <see cref="IToken" /> that contains access and refresh token.</returns>
-        IToken CreateToken(string id, IEnumerable<Claim> claims);
+        IToken CreateToken(string id, string displayName, IEnumerable<Claim> claims);
     }
 }
