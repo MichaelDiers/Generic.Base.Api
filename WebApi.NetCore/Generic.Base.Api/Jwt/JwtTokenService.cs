@@ -56,15 +56,22 @@
                         ClaimTypes.Role,
                         nameof(Role.Accessor))),
                 this.configuration.AccessTokenExpires,
-                signingCredentials);
+                signingCredentials,
+                0);
 
+            var refreshTokenId = Guid.NewGuid().ToString();
             var refreshToken = this.CreateToken(
                 defaultClaims.Append(
-                    new Claim(
-                        ClaimTypes.Role,
-                        nameof(Role.Refresher))),
+                        new Claim(
+                            ClaimTypes.Role,
+                            nameof(Role.Refresher)))
+                    .Append(
+                        new Claim(
+                            ClaimTypes.Sid,
+                            refreshTokenId)),
                 this.configuration.RefreshTokenExpires,
-                signingCredentials);
+                signingCredentials,
+                this.configuration.AccessTokenExpires);
 
             return new Token(
                 accessToken,
@@ -77,15 +84,22 @@
         /// <param name="claims">The claims.</param>
         /// <param name="expiresIn">The expires in minutes specification.</param>
         /// <param name="signingCredentials">The signing credentials.</param>
+        /// <param name="notBefore">Is not valid before <paramref name="notBefore" /> minutes.</param>
         /// <returns>A new token.</returns>
-        private string CreateToken(IEnumerable<Claim> claims, int expiresIn, SigningCredentials signingCredentials)
+        private string CreateToken(
+            IEnumerable<Claim> claims,
+            int expiresIn,
+            SigningCredentials signingCredentials,
+            int notBefore
+        )
         {
             var accessToken = new JwtSecurityToken(
                 claims: claims,
                 expires: DateTime.UtcNow.AddMinutes(expiresIn),
                 signingCredentials: signingCredentials,
                 audience: this.configuration.Audience,
-                issuer: this.configuration.Issuer);
+                issuer: this.configuration.Issuer,
+                notBefore: DateTime.UtcNow.AddMinutes(notBefore));
 
             return new JwtSecurityTokenHandler().WriteToken(accessToken);
         }
