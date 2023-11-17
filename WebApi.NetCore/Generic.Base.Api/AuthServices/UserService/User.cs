@@ -34,7 +34,7 @@
         public string DisplayName { get; }
 
         /// <summary>
-        ///     Gets the password.
+        ///     Gets or sets the password.
         /// </summary>
         public string Password { get; set; }
 
