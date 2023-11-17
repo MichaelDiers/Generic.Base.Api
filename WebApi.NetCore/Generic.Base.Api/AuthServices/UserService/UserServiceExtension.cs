@@ -1,4 +1,4 @@
-﻿namespace Generic.Base.Api.AuthService.UserService
+﻿namespace Generic.Base.Api.AuthServices.UserService
 {
     using Generic.Base.Api.Database;
     using Generic.Base.Api.Services;

@@ -1,4 +1,4 @@
-﻿namespace Generic.Base.Api.AuthService.InvitationService
+﻿namespace Generic.Base.Api.AuthServices.InvitationService
 {
     using Generic.Base.Api.Result;
     using Generic.Base.Api.Transformer;
