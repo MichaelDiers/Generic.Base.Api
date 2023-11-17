@@ -21,6 +21,15 @@
         );
 
         /// <summary>
+        ///     Deletes the current user.
+        /// </summary>
+        /// <param name="signIn">The sign in data.</param>
+        /// <param name="userId">The user identifier from the current user.</param>
+        /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
+        /// <returns>A <see cref="Task" /> whose result indicates success.</returns>
+        Task DeleteAsync(SignIn signIn, string userId, CancellationToken cancellationToken);
+
+        /// <summary>
         ///     Sign in an existing user.
         /// </summary>
         /// <param name="signIn">The sign in data.</param>

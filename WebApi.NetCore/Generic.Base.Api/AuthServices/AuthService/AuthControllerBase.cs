@@ -27,6 +27,28 @@
         }
 
         /// <summary>
+        ///     Delete the current user.
+        /// </summary>
+        /// <param name="signIn">The sign in data.</param>
+        /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
+        /// <returns>A <see cref="Task" /> whose result indicates success.</returns>
+        [HttpDelete]
+        public async Task<ActionResult> Delete([FromBody] SignIn signIn, CancellationToken cancellationToken)
+        {
+            var claim = this.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+            if (claim is null)
+            {
+                throw new UnauthorizedException();
+            }
+
+            await this.domainAuthService.DeleteAsync(
+                signIn,
+                claim.Value,
+                cancellationToken);
+            return this.Ok();
+        }
+
+        /// <summary>
         ///     Sign up a new user.
         /// </summary>
         /// <param name="signUp">The sign up data.</param>
@@ -64,7 +86,6 @@
         /// <param name="changePassword">The change password data.</param>
         /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
         /// <returns>A <see cref="Task{T}" /> whose result are access and refresh tokens.</returns>
-        [AllowAnonymous]
         [HttpPost("change-password")]
         public async Task<ActionResult<IToken>> Post(
             [FromBody] ChangePassword changePassword,

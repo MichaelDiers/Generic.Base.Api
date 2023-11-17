@@ -94,6 +94,41 @@
         }
 
         /// <summary>
+        ///     Deletes the current user.
+        /// </summary>
+        /// <param name="signIn">The sign in data.</param>
+        /// <param name="userId">The user identifier from the current user.</param>
+        /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
+        /// <returns>A <see cref="Task" /> whose result indicates success.</returns>
+        public async Task DeleteAsync(SignIn signIn, string userId, CancellationToken cancellationToken)
+        {
+            this.CheckData(
+                signIn,
+                userId);
+            using var session = await this.transactionHandler.StartTransactionAsync(cancellationToken);
+            try
+            {
+                var user = await this.ReadUser(
+                    userId,
+                    cancellationToken,
+                    session);
+                this.CheckPassword(
+                    user,
+                    signIn.Password);
+                await this.DeleteUser(
+                    user.Id,
+                    cancellationToken,
+                    session);
+                await session.CommitTransactionAsync(cancellationToken);
+            }
+            catch
+            {
+                await session.AbortTransactionAsync(cancellationToken);
+                throw;
+            }
+        }
+
+        /// <summary>
         ///     Sign in an existing user.
         /// </summary>
         /// <param name="signIn">The sign in data.</param>
@@ -159,6 +194,23 @@
             {
                 await session.AbortTransactionAsync(cancellationToken);
                 throw;
+            }
+        }
+
+        /// <summary>
+        ///     Checks the data.
+        /// </summary>
+        /// <param name="signIn">The sign in data.</param>
+        /// <param name="userId">The user identifier from the current user.</param>
+        /// <exception cref="BadRequestException"></exception>
+        private void CheckData(SignIn signIn, string userId)
+        {
+            if (!string.Equals(
+                    signIn.Id,
+                    userId,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                throw new BadRequestException();
             }
         }
 
@@ -276,6 +328,24 @@
         {
             await this.atomicInvitationService.DeleteAsync(
                 id,
+                cancellationToken,
+                transactionHandle);
+        }
+
+        /// <summary>
+        ///     Deletes a user by it id.
+        /// </summary>
+        /// <param name="userId">The user identifier.</param>
+        /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
+        /// <param name="transactionHandle">The database transaction handle.</param>
+        private async Task DeleteUser(
+            string userId,
+            CancellationToken cancellationToken,
+            ITransactionHandle<TClientSessionHandle> transactionHandle
+        )
+        {
+            await this.atomicUserService.DeleteAsync(
+                userId,
                 cancellationToken,
                 transactionHandle);
         }
