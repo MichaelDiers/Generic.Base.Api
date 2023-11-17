@@ -42,7 +42,8 @@
             return new ResultUser(
                 user.Id,
                 user.Roles,
-                links);
+                links,
+                user.DisplayName);
         }
     }
 }

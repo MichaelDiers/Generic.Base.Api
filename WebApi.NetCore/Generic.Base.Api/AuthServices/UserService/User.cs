@@ -14,12 +14,24 @@
         /// <param name="id">The identifier of the user.</param>
         /// <param name="password">The password.</param>
         /// <param name="roles">The roles that are assigned to the user.</param>
-        public User(string id, string password, IEnumerable<Role> roles)
+        /// <param name="displayName">The display name.</param>
+        public User(
+            string id,
+            string password,
+            IEnumerable<Role> roles,
+            string displayName
+        )
         {
             this.Id = id;
             this.Password = password;
+            this.DisplayName = displayName;
             this.Roles = roles.ToArray();
         }
+
+        /// <summary>
+        ///     Gets the display name.
+        /// </summary>
+        public string DisplayName { get; }
 
         /// <summary>
         ///     Gets the password.
