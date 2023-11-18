@@ -1,4 +1,4 @@
-﻿namespace Generic.Base.Api.Result
+﻿namespace Generic.Base.Api.Models
 {
     /// <summary>
     ///     Describes an operation and the operation url.
@@ -14,7 +14,7 @@
         /// <summary>
         ///     Gets the type of the operation.
         /// </summary>
-        /// <seealso cref="Result.Urn" />
+        /// <seealso cref="Models.Urn" />
         /// <example>urn:Create</example>
         string Urn { get; }
     }

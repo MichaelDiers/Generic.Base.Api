@@ -1,6 +1,6 @@
 ﻿namespace Generic.Base.Api.Models
 {
-    using Generic.Base.Api.Result;
+    using System.Text.Json.Serialization;
 
     /// <inheritdoc cref="ILink" />
     public class Link : ILink
@@ -11,8 +11,21 @@
         /// <param name="urn">The urn that specifies the operation.</param>
         /// <param name="url">The url of the operation.</param>
         public Link(Urn urn, string url)
+            : this(
+                $"urn:{urn.ToString()}",
+                url)
         {
-            this.Urn = $"urn:{urn.ToString()}";
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="Link" /> class.
+        /// </summary>
+        /// <param name="urn">The urn that specifies the operation.</param>
+        /// <param name="url">The url of the operation.</param>
+        [JsonConstructor]
+        public Link(string urn, string url)
+        {
+            this.Urn = urn;
             this.Url = url;
         }
 
@@ -24,7 +37,7 @@
         /// <summary>
         ///     Gets the type of the operation.
         /// </summary>
-        /// <seealso cref="Result.Urn" />
+        /// <seealso cref="Models.Urn" />
         public string Urn { get; }
     }
 }

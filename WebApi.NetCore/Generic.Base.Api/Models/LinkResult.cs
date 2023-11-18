@@ -1,7 +1,5 @@
 ﻿namespace Generic.Base.Api.Models
 {
-    using Generic.Base.Api.Result;
-
     /// <inheritdoc cref="ILinkResult" />
     public class LinkResult : ILinkResult
     {

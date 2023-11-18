@@ -1,4 +1,4 @@
-﻿namespace Generic.Base.Api.Result
+﻿namespace Generic.Base.Api.Models
 {
     /// <summary>
     ///     Describes the type of an operation.
