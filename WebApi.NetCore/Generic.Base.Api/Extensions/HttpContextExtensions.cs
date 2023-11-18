@@ -26,11 +26,12 @@
         )
         {
             var exceptionResult = JsonSerializer.Serialize(new ErrorResult(message));
-            context.Response.ContentType = "application/json";
+            context.Response.ContentType = "application/json; charset=utf-8";
             context.Response.StatusCode = (int) statusCode;
 
-            return context.Response.WriteAsync(
-                exceptionResult,
+            return context.Response.WriteAsJsonAsync(
+                new ErrorResult(message),
+                typeof(ErrorResult),
                 cancellationToken);
         }
     }

@@ -1,0 +1,29 @@
+﻿namespace Generic.Base.Api.Tests.Extensions
+{
+    using System.Net;
+    using Generic.Base.Api.Extensions;
+    using Microsoft.AspNetCore.Http;
+
+    public class HttpContextExtensionsTest
+    {
+        [Fact]
+        public async Task SetResponse()
+        {
+            var expectedStatusCode = HttpStatusCode.NoContent;
+            var message = "my message";
+
+            var context = new DefaultHttpContext();
+
+            await context.SetResponse(
+                expectedStatusCode,
+                message);
+
+            Assert.Equal(
+                "application/json; charset=utf-8",
+                context.Response.ContentType);
+            Assert.Equal(
+                (int) expectedStatusCode,
+                context.Response.StatusCode);
+        }
+    }
+}
