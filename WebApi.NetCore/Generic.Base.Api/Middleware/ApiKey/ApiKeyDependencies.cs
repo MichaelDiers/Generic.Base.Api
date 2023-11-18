@@ -4,11 +4,12 @@
     using Generic.Base.Api.Extensions;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.DependencyInjection.Extensions;
 
     /// <summary>
-    ///     Api key extensions.
+    ///     Api key dependencies.
     /// </summary>
-    public static class ApiKeyExtension
+    public static class ApiKeyDependencies
     {
         /// <summary>
         ///     Adds the api key configuration.
@@ -21,11 +22,11 @@
                 webApplicationBuilder.ReadFromConfiguration<ApiKeyConfiguration>(
                     ApiKeyConfiguration.ConfigurationSection);
 
-            var environmentService = webApplicationBuilder.Services.AddEnvironmentService();
-            var apiKey = environmentService.Get(configuration.KeyName);
+            webApplicationBuilder.Services.AddEnvironmentService();
+            var apiKey = EnvironmentService.GetValue(configuration.KeyName);
             configuration.ApiKey = apiKey;
 
-            webApplicationBuilder.Services.AddSingleton<IApiKeyConfiguration>(_ => configuration);
+            webApplicationBuilder.Services.TryAddSingleton<IApiKeyConfiguration>(_ => configuration);
 
             return webApplicationBuilder;
         }

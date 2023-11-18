@@ -15,10 +15,11 @@ builder.Services.AddHealthChecks()
     .AddCheck<HealthCheckOk>(nameof(HealthCheckOk))
     .AddCheck<HealthCheckFail>(nameof(HealthCheckFail));
 builder.AddJwtTokenService();
+builder.AddApiKey();
 builder
     .AddAuthServices<object, TransactionHandler, InMemoryProvider<Invitation, object>,
         InMemoryProvider<TokenEntry, object>, InMemoryProvider<User, object>>();
-builder.AddApiKey();
+
 builder.Services.AddControllers();
 
 var app = builder.Build();

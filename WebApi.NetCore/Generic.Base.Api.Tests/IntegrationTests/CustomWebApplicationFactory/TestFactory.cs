@@ -19,12 +19,16 @@
         /// </summary>
         /// <param name="addApiKey">if set to <c>true</c> add the x-api-key; otherwise omit the header.</param>
         /// <returns>A <see cref="HttpClient" /> for application request.</returns>
-        public static HttpClient GetClient(bool addApiKey)
+        public static HttpClient GetClient(bool addApiKey = false)
         {
             var client = new TestFactory().CreateClient();
-            client.DefaultRequestHeaders.Add(
-                "x-api-key",
-                TestFactory.ApiKey);
+            if (addApiKey)
+            {
+                client.DefaultRequestHeaders.Add(
+                    "x-api-key",
+                    TestFactory.ApiKey);
+            }
+
             return client;
         }
 

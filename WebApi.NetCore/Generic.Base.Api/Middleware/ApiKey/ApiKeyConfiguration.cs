@@ -5,7 +5,7 @@
     /// <summary>
     ///     The configuration of the api key validation.
     /// </summary>
-    public class ApiKeyConfiguration : IApiKeyConfiguration
+    internal class ApiKeyConfiguration : IApiKeyConfiguration
     {
         /// <summary>
         ///     The configuration section name in appSettings.json file.
