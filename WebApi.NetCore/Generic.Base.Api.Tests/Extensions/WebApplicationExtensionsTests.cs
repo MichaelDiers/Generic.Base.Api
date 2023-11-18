@@ -5,16 +5,16 @@
     using Microsoft.Extensions.Configuration;
 
     /// <summary>
-    ///     Tests for <see cref="WebApplicationBuilderExtensions" />.
+    ///     Tests for <see cref="WebApplicationExtensions" />.
     /// </summary>
-    public class WebApplicationBuilderExtensionsTests
+    public class WebApplicationExtensionsTests
     {
         [Fact]
         public void ReadFromConfigurationShouldFailIfSectionDoesNotExist()
         {
-            var builder = WebApplication.CreateBuilder();
+            var app = WebApplication.CreateBuilder().Build();
 
-            Assert.Throws<ArgumentException>(() => builder.ReadFromConfiguration<ExtensionTest>(nameof(ExtensionTest)));
+            Assert.Throws<ArgumentException>(() => app.ReadFromConfiguration<ExtensionTest>(nameof(ExtensionTest)));
         }
 
         [Fact]
@@ -22,8 +22,9 @@
         {
             var builder = WebApplication.CreateBuilder();
             builder.Configuration.AddJsonFile("Extensions/test.json");
+            var app = builder.Build();
 
-            var actual = builder.ReadFromConfiguration<ExtensionTest>(nameof(ExtensionTest));
+            var actual = app.ReadFromConfiguration<ExtensionTest>(nameof(ExtensionTest));
             Assert.NotNull(actual);
 
             Assert.Equal(
