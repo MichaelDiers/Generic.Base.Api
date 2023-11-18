@@ -9,7 +9,7 @@
     /// <summary>
     ///     Add health checks.
     /// </summary>
-    public static class HealthCheckExtension
+    public static class HealthCheckDependencies
     {
         /// <summary>
         ///     Adds the health checks to the given <paramref name="services" />.
