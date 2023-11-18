@@ -3,7 +3,7 @@
     /// <summary>
     ///     Create hashes of passwords.
     /// </summary>
-    internal interface IHashService
+    public interface IHashService
     {
         /// <summary>
         ///     Hashes the specified password.
