@@ -3,7 +3,7 @@
     using System.Text.Json.Serialization;
 
     /// <inheritdoc cref="IJwtConfiguration" />
-    public class JwtConfiguration : IJwtConfiguration
+    internal class JwtConfiguration : IJwtConfiguration
     {
         /// <summary>
         ///     The configuration section name in appSettings.json file.
