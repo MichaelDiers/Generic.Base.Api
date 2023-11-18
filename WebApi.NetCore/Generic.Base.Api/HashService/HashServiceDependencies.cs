@@ -1,6 +1,7 @@
 ﻿namespace Generic.Base.Api.HashService
 {
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.DependencyInjection.Extensions;
 
     /// <summary>
     ///     Add the hash service.
@@ -14,7 +15,9 @@
         /// <returns>The given <paramref name="services" />.</returns>
         public static IServiceCollection AddHashService(this IServiceCollection services)
         {
-            return services.AddScoped<IHashService, HashService>();
+            services.TryAddScoped<IHashService, HashService>();
+
+            return services;
         }
     }
 }
