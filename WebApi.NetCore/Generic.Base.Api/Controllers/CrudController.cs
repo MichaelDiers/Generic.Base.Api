@@ -2,7 +2,6 @@
 {
     using Generic.Base.Api.Database;
     using Generic.Base.Api.Models;
-    using Generic.Base.Api.Result;
     using Generic.Base.Api.Services;
     using Generic.Base.Api.Transformer;
     using Microsoft.AspNetCore.Http;
