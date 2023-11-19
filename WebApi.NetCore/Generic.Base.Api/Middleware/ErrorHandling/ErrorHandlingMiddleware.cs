@@ -8,7 +8,7 @@
     /// <summary>
     ///     Middleware for handling errors.
     /// </summary>
-    public class ErrorHandlingMiddleware
+    internal class ErrorHandlingMiddleware
     {
         /// <summary>
         ///     The request delegate.

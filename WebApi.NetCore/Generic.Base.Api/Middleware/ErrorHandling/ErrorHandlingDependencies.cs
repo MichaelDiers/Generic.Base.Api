@@ -3,9 +3,9 @@
     using Microsoft.AspNetCore.Builder;
 
     /// <summary>
-    ///     Error handling extensions.
+    ///     Error handling dependencies.
     /// </summary>
-    public static class ErrorHandlingExtension
+    public static class ErrorHandlingDependencies
     {
         /// <summary>
         ///     Adds the error handling middleware.
