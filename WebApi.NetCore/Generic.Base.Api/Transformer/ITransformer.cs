@@ -1,6 +1,6 @@
 ﻿namespace Generic.Base.Api.Transformer
 {
-    using Generic.Base.Api.Result;
+    using Generic.Base.Api.Models;
 
     /// <summary>
     ///     Transformer for entries used by database providers, atomic services and controllers.
