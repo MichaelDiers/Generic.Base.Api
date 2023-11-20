@@ -15,30 +15,22 @@
         public static readonly string ApiKey = Guid.NewGuid().ToString();
 
         /// <summary>
-        ///     Gets the client.
+        ///     The default display name of the test user.
         /// </summary>
-        /// <param name="addApiKey">if set to <c>true</c> add the x-api-key; otherwise omit the header.</param>
-        /// <returns>A <see cref="HttpClient" /> for application request.</returns>
-        public static HttpClient GetClient(bool addApiKey = false)
-        {
-            var client = new TestFactory().CreateClient();
-            if (addApiKey)
-            {
-                client.DefaultRequestHeaders.Add(
-                    "x-api-key",
-                    TestFactory.ApiKey);
-            }
-
-            return client;
-        }
+        public static readonly string DefaultDisplayName = Guid.NewGuid().ToString();
 
         /// <summary>
-        ///     Gets the client and sets the x-api-key header.
+        ///     The default identifier of the test user.
         /// </summary>
-        /// <returns>A <see cref="HttpClient" />.</returns>
-        public static HttpClient GetClientWithApiKey()
+        public static readonly string DefaultId = Guid.NewGuid().ToString();
+
+        /// <summary>
+        ///     Gets the client.
+        /// </summary>
+        /// <returns>A <see cref="HttpClient" /> for application request.</returns>
+        public static HttpClient GetClient()
         {
-            return TestFactory.GetClient(true);
+            return new TestFactory().CreateClient();
         }
 
         /// <summary>

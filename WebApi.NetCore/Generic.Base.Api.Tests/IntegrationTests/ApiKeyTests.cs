@@ -38,7 +38,7 @@
         [Fact]
         public async Task GetShouldShouldWithMatchingApiKey()
         {
-            var client = TestFactory.GetClientWithApiKey();
+            var client = TestFactory.GetClient().AddApiKey();
 
             var response = await client.GetAsync("api/ApiKeyTest");
 

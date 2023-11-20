@@ -14,7 +14,7 @@
         [Fact]
         public async Task SetResponseTest()
         {
-            var client = TestFactory.GetClientWithApiKey();
+            var client = TestFactory.GetClient().AddApiKey();
 
             var status = 500;
             var message = "message";

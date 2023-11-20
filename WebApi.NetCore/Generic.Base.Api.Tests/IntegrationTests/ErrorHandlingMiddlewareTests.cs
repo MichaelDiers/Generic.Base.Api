@@ -27,7 +27,7 @@
             HttpStatusCode.InternalServerError)]
         public async Task ErrorHandlingCheck(string exception, HttpStatusCode statusCode)
         {
-            var client = TestFactory.GetClientWithApiKey();
+            var client = TestFactory.GetClient().AddApiKey();
 
             var response = await client.GetAsync($"api/ErrorHandlingMiddleware/{exception}");
 
