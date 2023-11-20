@@ -79,6 +79,16 @@
         }
 
         /// <summary>
+        ///     Decodes the specified token without validation.
+        /// </summary>
+        /// <param name="token">The token.</param>
+        /// <returns>The decoded <see cref="JwtSecurityToken" />.</returns>
+        public JwtSecurityToken Decode(string token)
+        {
+            return new JwtSecurityTokenHandler().ReadJwtToken(token);
+        }
+
+        /// <summary>
         ///     Creates the token.
         /// </summary>
         /// <param name="claims">The claims.</param>
