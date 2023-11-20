@@ -3,7 +3,7 @@
     using System.Text.Json.Serialization;
 
     /// <inheritdoc cref="IJwtConfiguration" />
-    internal class JwtConfiguration : IJwtConfiguration
+    public class JwtConfiguration : IJwtConfiguration
     {
         /// <summary>
         ///     The configuration section name in appSettings.json file.
@@ -16,34 +16,44 @@
         /// <param name="audience">The audience.</param>
         /// <param name="issuer">The issuer.</param>
         /// <param name="keyName">The name of the environment variable that contains the jwt key.</param>
-        public JwtConfiguration(string audience, string issuer, string keyName)
+        /// <param name="accessTokenExpires">A value that specifies after how many minutes the access token expires.</param>
+        /// <param name="refreshTokenExpires">A value that specifies after how many minutes the refresh token expires.</param>
+        public JwtConfiguration(
+            string audience,
+            string issuer,
+            string keyName,
+            int accessTokenExpires,
+            int refreshTokenExpires
+        )
 
         {
             this.Audience = audience;
             this.Issuer = issuer;
             this.KeyName = keyName;
+            this.AccessTokenExpires = accessTokenExpires;
+            this.RefreshTokenExpires = refreshTokenExpires;
             this.Key = string.Empty;
         }
 
         /// <summary>
-        ///     Gets or sets the name of the environment variable that contains the jwt key.
+        ///     Gets the name of the environment variable that contains the jwt key.
         /// </summary>
-        public string KeyName { get; set; }
+        public string KeyName { get; }
 
         /// <summary>
-        ///     Gets or sets a value that specifies after how many minutes the access token expires.
+        ///     Gets a value that specifies after how many minutes the access token expires.
         /// </summary>
-        public int AccessTokenExpires { get; set; }
+        public int AccessTokenExpires { get; }
 
         /// <summary>
-        ///     Gets or sets the audience.
+        ///     Gets the audience.
         /// </summary>
-        public string Audience { get; set; }
+        public string Audience { get; }
 
         /// <summary>
-        ///     Gets or sets  the issuer.
+        ///     Gets the issuer.
         /// </summary>
-        public string Issuer { get; set; }
+        public string Issuer { get; }
 
         /// <summary>
         ///     Gets or sets the symmetric key.
@@ -52,8 +62,8 @@
         public string Key { get; set; }
 
         /// <summary>
-        ///     Gets or sets a value that specifies after how many minutes the refresh token expires.
+        ///     Gets a value that specifies after how many minutes the refresh token expires.
         /// </summary>
-        public int RefreshTokenExpires { get; set; }
+        public int RefreshTokenExpires { get; }
     }
 }
