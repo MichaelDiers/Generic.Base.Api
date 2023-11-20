@@ -9,7 +9,7 @@
         [Fact]
         public async Task HealthCheck()
         {
-            var client = TestFactory.GetClientWithApiKey();
+            var client = TestFactory.GetClient().AddApiKey();
 
             var response = await client.GetAsync("/health");
 

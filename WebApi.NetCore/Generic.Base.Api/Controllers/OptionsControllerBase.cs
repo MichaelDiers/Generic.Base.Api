@@ -35,7 +35,14 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return new LinkResult(this.links.Where(link => link.CanBeAccessed(this.User.Claims)));
+            return new LinkResult(
+                this.links.Where(link => link.CanBeAccessed(this.User.Claims))
+                .Select(
+                    link => new Link(
+                        link.Urn,
+                        $"{this.Request.Path.Value}/{link.Url}".Replace(
+                            "//",
+                            "/"))));
         }
     }
 }

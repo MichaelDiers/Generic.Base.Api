@@ -1,5 +1,7 @@
 ﻿namespace Generic.Base.Api.Tests.IntegrationTests.CustomWebApplicationFactory
 {
+    using System.Security.Claims;
+    using Generic.Base.Api.AuthServices.UserService;
     using Generic.Base.Api.Controllers;
     using Generic.Base.Api.Models;
     using Microsoft.AspNetCore.Mvc;
@@ -19,7 +21,16 @@
             : base(
                 new ClaimLink(
                     Urn.Options,
-                    "api/Options"))
+                    string.Empty),
+                new ClaimLink(
+                    Urn.Options,
+                    $"../{nameof(TokenEntryController)[..^10]}",
+                    new[]
+                    {
+                        new Claim(
+                            ClaimTypes.Role,
+                            nameof(Role.Admin))
+                    }))
         {
         }
     }
