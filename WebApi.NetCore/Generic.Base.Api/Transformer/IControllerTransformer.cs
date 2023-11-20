@@ -15,6 +15,6 @@
         /// <param name="entry">The data for creating an instance of <typeparamref name="TResultEntry" />.</param>
         /// <param name="links">The urn that describe the supported operations on the result entry.</param>
         /// <returns>The transformed entry of type <typeparamref name="TResultEntry" />.</returns>
-        TResultEntry Transform(TEntry entry, IEnumerable<ILink> links);
+        TResultEntry Transform(TEntry entry, IEnumerable<Link> links);
     }
 }

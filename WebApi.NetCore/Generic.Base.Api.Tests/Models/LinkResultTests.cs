@@ -36,7 +36,7 @@
         [Fact]
         public void IsILinkResult()
         {
-            Assert.IsAssignableFrom<ILinkResult>(new LinkResult(Enumerable.Empty<ILink>()));
+            Assert.IsAssignableFrom<ILinkResult>(new LinkResult(Enumerable.Empty<Link>()));
         }
     }
 }

@@ -1,9 +1,11 @@
 ﻿namespace Generic.Base.Api.Controllers
 {
+    using Generic.Base.Api.AuthServices.UserService;
     using Generic.Base.Api.Database;
     using Generic.Base.Api.Models;
     using Generic.Base.Api.Services;
     using Generic.Base.Api.Transformer;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
 
@@ -112,7 +114,9 @@
             return this.Ok(
                 this.transformer.Transform(
                     result,
-                    CrudController<TCreate, TEntry, TUpdate, TResult>.CreateUrns($"{this.Request.Path.Value}/..")));
+                    this.CreateUrns(
+                        $"{this.Request.Path.Value}/..",
+                        id)));
         }
 
         /// <summary>
@@ -144,7 +148,7 @@
                 result.Select(
                     entry => this.transformer.Transform(
                         entry,
-                        CrudController<TCreate, TEntry, TUpdate, TResult>.CreateUrns(
+                        this.CreateUrns(
                             this.Request.Path.Value,
                             entry.Id))));
         }
@@ -170,10 +174,10 @@
             typeof(NoContentResult),
             StatusCodes.Status403Forbidden)]
         [HttpOptions]
+        [AllowAnonymous]
         public ActionResult Options()
         {
-            return this.Ok(
-                new LinkResult(CrudController<TCreate, TEntry, TUpdate, TResult>.CreateUrns(this.Request.Path.Value)));
+            return this.Ok(new LinkResult(this.CreateUrns(this.Request.Path.Value)));
         }
 
         /// <summary>
@@ -214,7 +218,7 @@
                 new {id = result.Id},
                 this.transformer.Transform(
                     result,
-                    CrudController<TCreate, TEntry, TUpdate, TResult>.CreateUrns(
+                    this.CreateUrns(
                         this.Request.Path.Value,
                         result.Id)));
         }
@@ -262,47 +266,62 @@
         /// <param name="baseUrl">The base url of the urn.</param>
         /// <param name="id">The optional identifier that is added to the url.</param>
         /// <returns>An <see cref="IEnumerable{T}" /> containing the available links.</returns>
-        private static IEnumerable<ILink> CreateUrns(string? baseUrl, string? id = null)
+        private IEnumerable<ClaimLink> CreateUrns(string? baseUrl, string? id = null)
         {
             if (string.IsNullOrWhiteSpace(baseUrl))
             {
-                return Enumerable.Empty<ILink>();
+                return Enumerable.Empty<ClaimLink>();
             }
 
-            var result = new List<ILink>();
+            var urnNamespace = this.GetType().Name;
 
-            if (string.IsNullOrWhiteSpace(id))
+            IEnumerable<ClaimLink> claimLinks = new[]
             {
-                result.Add(
-                    new Link(
-                        Urn.Options,
-                        $"{baseUrl}"));
-                result.Add(
-                    new Link(
-                        Urn.Create,
-                        $"{baseUrl}"));
-                result.Add(
-                    new Link(
-                        Urn.ReadAll,
-                        $"{baseUrl}"));
-            }
-            else
+                ClaimLink.Create(
+                    urnNamespace,
+                    Urn.ReadAll,
+                    baseUrl,
+                    Role.Admin,
+                    Role.Accessor),
+                ClaimLink.Create(
+                    urnNamespace,
+                    Urn.Options,
+                    baseUrl),
+                ClaimLink.Create(
+                    urnNamespace,
+                    Urn.Create,
+                    baseUrl,
+                    Role.Admin,
+                    Role.Accessor)
+            };
+
+            if (!string.IsNullOrWhiteSpace(id))
             {
-                result.Add(
-                    new Link(
-                        Urn.ReadById,
-                        $"{baseUrl}/{id}"));
-                result.Add(
-                    new Link(
-                        Urn.Update,
-                        $"{baseUrl}/{id}"));
-                result.Add(
-                    new Link(
-                        Urn.Delete,
-                        $"{baseUrl}/{id}"));
+                claimLinks = claimLinks.Concat(
+                    new[]
+                    {
+                        ClaimLink.Create(
+                            urnNamespace,
+                            Urn.Delete,
+                            $"{baseUrl}/{id}",
+                            Role.Admin,
+                            Role.Accessor),
+                        ClaimLink.Create(
+                            urnNamespace,
+                            Urn.ReadById,
+                            $"{baseUrl}/{id}",
+                            Role.Admin,
+                            Role.Accessor),
+                        ClaimLink.Create(
+                            urnNamespace,
+                            Urn.Update,
+                            $"{baseUrl}/{id}",
+                            Role.Admin,
+                            Role.Accessor)
+                    });
             }
 
-            return result;
+            return claimLinks.Where(link => link.CanBeAccessed(this.User.Claims));
         }
     }
 }

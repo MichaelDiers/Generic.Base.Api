@@ -8,6 +8,6 @@
         /// <summary>
         ///     Gets the links to available operations.
         /// </summary>
-        IEnumerable<ILink> Links { get; }
+        IEnumerable<Link> Links { get; }
     }
 }
