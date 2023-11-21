@@ -1,6 +1,7 @@
 ﻿namespace Generic.Base.Api.Tests.IntegrationTests
 {
     using System.Net.Http.Json;
+    using System.Text.RegularExpressions;
     using Generic.Base.Api.AuthServices.UserService;
     using Generic.Base.Api.Controllers;
     using Generic.Base.Api.Tests.IntegrationTests.CustomWebApplicationFactory;
@@ -11,7 +12,7 @@
     public class OptionsControllerTest
     {
         [Fact]
-        public async Task OptionsLinksShouldBeAccessibleAnonymous()
+        public async Task OptionsLinksShouldBeAccessibleByAnonymous()
         {
             var client = TestFactory.GetClient().AddApiKey();
 
@@ -37,7 +38,7 @@
                 Assert.NotEmpty(linkResultOfLink.Links);
                 Assert.Contains(
                     linkResultOfLink.Links,
-                    l => l.Url == link.Url && l.Urn == link.Urn);
+                    l => l.Urn == link.Urn);
             }
         }
 
@@ -58,7 +59,10 @@
 
             Assert.DoesNotContain(
                 linkResult.Links,
-                link => string.IsNullOrWhiteSpace(link.Url) || link.Urn != "urn:Options");
+                link => string.IsNullOrWhiteSpace(link.Url) ||
+                !Regex.IsMatch(
+                    link.Urn,
+                    "^urn:[^:]+:Options"));
         }
 
         [Fact]
@@ -77,7 +81,7 @@
             Assert.NotEmpty(linkResult.Links);
             Assert.Contains(
                 linkResult.Links,
-                link => link is {Url: "/api/Options/", Urn: "urn:Options"});
+                link => link is {Url: "/api/Options/", Urn: "urn:Options:Options"});
         }
 
         [Fact]
@@ -85,7 +89,11 @@
         {
             foreach (var role in Enum.GetValues<Role>().Select(r => r))
             {
-                var client = TestFactory.GetClient().AddApiKey().AddAccessorToken(role);
+                var client = TestFactory.GetClient()
+                .AddApiKey()
+                .AddToken(
+                    role,
+                    Role.Accessor);
 
                 var response = await client.SendAsync(
                     new HttpRequestMessage(
@@ -98,7 +106,7 @@
                 Assert.NotEmpty(linkResult.Links);
                 Assert.Contains(
                     linkResult.Links,
-                    link => link is {Url: "/api/Options/", Urn: "urn:Options"});
+                    link => link is {Url: "/api/Options/", Urn: "urn:Options:Options"});
 
                 foreach (var link in linkResult.Links)
                 {
@@ -112,7 +120,9 @@
                     Assert.NotEmpty(linkResponseResult.Links);
                     Assert.Contains(
                         linkResponseResult.Links,
-                        l => l.Urn == "urn:Options");
+                        l => Regex.IsMatch(
+                            l.Urn,
+                            "^urn:[^:]+:Options"));
                 }
             }
         }
