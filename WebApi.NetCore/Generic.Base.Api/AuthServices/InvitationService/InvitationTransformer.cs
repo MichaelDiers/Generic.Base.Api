@@ -1,8 +1,11 @@
 ﻿namespace Generic.Base.Api.AuthServices.InvitationService
 {
-    using Generic.Base.Api.Result;
+    using Generic.Base.Api.Models;
     using Generic.Base.Api.Transformer;
 
+    /// <summary>
+    ///     Transformer of invitations.
+    /// </summary>
     internal class InvitationTransformer
         : IControllerTransformer<Invitation, ResultInvitation>, IAtomicTransformer<Invitation, Invitation, Invitation>
     {
@@ -35,7 +38,7 @@
         /// <param name="entry">The data for creating an instance of <see cref="ResultInvitation" />.</param>
         /// <param name="links">The urn that describe the supported operations on the result entry.</param>
         /// <returns>The transformed entry of type <see cref="ResultInvitation" />.</returns>
-        public ResultInvitation Transform(Invitation entry, IEnumerable<ILink> links)
+        public ResultInvitation Transform(Invitation entry, IEnumerable<Link> links)
         {
             return new ResultInvitation(
                 entry.Id,

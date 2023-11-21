@@ -8,33 +8,33 @@
     /// <summary>
     ///     Add the dependencies for using the invitation service.
     /// </summary>
-    public static class InvitationExtension
+    public static class InvitationServiceDependencies
     {
         /// <summary>
         ///     Adds the invitation service.
         /// </summary>
         /// <typeparam name="TClientSessionHandle">The type of the client session handle.</typeparam>
+        /// <typeparam name="TTransactionHandler">The type of the database transaction handler.</typeparam>
+        /// <typeparam name="TProvider">The type of the invitation provider.</typeparam>
         /// <param name="services">The services.</param>
-        /// <param name="transactionHandler">The transaction handler.</param>
-        /// <param name="provider">The database provider.</param>
         /// <returns>The given <paramref name="services" />.</returns>
-        public static IServiceCollection AddInvitationService<TClientSessionHandle>(
-            this IServiceCollection services,
-            ITransactionHandler<TClientSessionHandle> transactionHandler,
-            IProvider<Invitation, TClientSessionHandle> provider
+        public static IServiceCollection AddInvitationService<TClientSessionHandle, TTransactionHandler, TProvider>(
+            this IServiceCollection services
         )
+            where TTransactionHandler : class, ITransactionHandler<TClientSessionHandle>
+            where TProvider : class, IProvider<Invitation, TClientSessionHandle>
         {
             services
                 .AddScoped<IDomainService<Invitation, Invitation, Invitation>,
                     DomainService<Invitation, Invitation, Invitation, TClientSessionHandle>>();
             services.AddScoped<IControllerTransformer<Invitation, ResultInvitation>, InvitationTransformer>();
 
-            services.AddScoped<ITransactionHandler<TClientSessionHandle>>(_ => transactionHandler);
+            services.AddScoped<ITransactionHandler<TClientSessionHandle>, TTransactionHandler>();
             services
                 .AddScoped<IAtomicService<Invitation, Invitation, Invitation, TClientSessionHandle>,
                     AtomicService<Invitation, Invitation, Invitation, TClientSessionHandle>>();
 
-            services.AddScoped<IProvider<Invitation, TClientSessionHandle>>(_ => provider);
+            services.AddSingleton<IProvider<Invitation, TClientSessionHandle>, TProvider>();
             services.AddScoped<IAtomicTransformer<Invitation, Invitation, Invitation>, InvitationTransformer>();
 
             return services;

@@ -24,7 +24,11 @@
                 ClaimLink.Create(
                     nameof(TokenEntryController),
                     Urn.Options,
-                    $"../{nameof(TokenEntryController)[..^10]}"))
+                    $"../{nameof(TokenEntryController)[..^10]}"),
+                ClaimLink.Create(
+                    nameof(InvitationController),
+                    Urn.Options,
+                    $"../{nameof(InvitationController)[..^10]}"))
 
         {
         }
