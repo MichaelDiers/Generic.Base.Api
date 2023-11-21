@@ -2,6 +2,7 @@
 {
     using Generic.Base.Api.AuthServices.UserService;
     using Generic.Base.Api.Database;
+    using Generic.Base.Api.Exceptions;
     using Generic.Base.Api.Models;
     using Generic.Base.Api.Services;
     using Generic.Base.Api.Transformer;
@@ -17,7 +18,7 @@
     /// <typeparam name="TUpdate">The data for updating an instance of <typeparamref name="TEntry" />.</typeparam>
     /// <typeparam name="TResult">The type of the result that is sent to the client.</typeparam>
     /// <seealso cref="ControllerBase" />
-    public class CrudController<TCreate, TEntry, TUpdate, TResult> : ControllerBase
+    public abstract class CrudController<TCreate, TEntry, TUpdate, TResult> : ControllerBase
         where TEntry : IIdEntry where TResult : ILinkResult
     {
         /// <summary>
@@ -73,6 +74,11 @@
             StatusCodes.Status403Forbidden)]
         public async Task<ActionResult> Delete([FromRoute] string id, CancellationToken cancellationToken)
         {
+            if (!this.IsIdValid(id))
+            {
+                throw new BadRequestException();
+            }
+
             await this.domainService.DeleteAsync(
                 id,
                 cancellationToken);
@@ -108,6 +114,11 @@
         [HttpGet("{id}")]
         public async Task<ActionResult> Get([FromRoute] string id, CancellationToken cancellationToken)
         {
+            if (!this.IsIdValid(id))
+            {
+                throw new BadRequestException();
+            }
+
             var result = await this.domainService.ReadByIdAsync(
                 id,
                 cancellationToken);
@@ -253,12 +264,26 @@
             CancellationToken cancellationToken
         )
         {
+            if (!this.IsIdValid(id))
+            {
+                throw new BadRequestException();
+            }
+
             await this.domainService.UpdateAsync(
                 updateEntry,
                 id,
                 cancellationToken);
             return this.NoContent();
         }
+
+        /// <summary>
+        ///     Determines whether the specified identifier is valid.
+        /// </summary>
+        /// <param name="id">The identifier to be checked.</param>
+        /// <returns>
+        ///     <c>true</c> if the specified identifier is valid; otherwise, <c>false</c>.
+        /// </returns>
+        protected abstract bool IsIdValid(string id);
 
         /// <summary>
         ///     Creates the urns for the given url and urn.
