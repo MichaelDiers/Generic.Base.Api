@@ -1,7 +1,6 @@
 ﻿namespace Generic.Base.Api.Extensions
 {
     using System.Net;
-    using System.Text.Json;
     using Generic.Base.Api.Models;
     using Microsoft.AspNetCore.Http;
 
@@ -25,7 +24,6 @@
             CancellationToken cancellationToken = new()
         )
         {
-            var exceptionResult = JsonSerializer.Serialize(new ErrorResult(message));
             context.Response.ContentType = "application/json; charset=utf-8";
             context.Response.StatusCode = (int) statusCode;
 

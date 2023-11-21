@@ -12,17 +12,12 @@
         /// <summary>
         ///     The API key used for requests.
         /// </summary>
-        public static readonly string ApiKey = Guid.NewGuid().ToString();
+        public const string ApiKey = "the api key";
 
         /// <summary>
-        ///     The default display name of the test user.
+        ///     The entry point of the application.
         /// </summary>
-        public static readonly string DefaultDisplayName = Guid.NewGuid().ToString();
-
-        /// <summary>
-        ///     The default identifier of the test user.
-        /// </summary>
-        public static readonly string DefaultId = Guid.NewGuid().ToString();
+        public const string EntryPointUrl = "/api/Options";
 
         /// <summary>
         ///     Gets the client.

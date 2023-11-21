@@ -1,7 +1,5 @@
 ﻿namespace Generic.Base.Api.Tests.IntegrationTests.CustomWebApplicationFactory
 {
-    using System.Security.Claims;
-    using Generic.Base.Api.AuthServices.UserService;
     using Generic.Base.Api.Controllers;
     using Generic.Base.Api.Models;
     using Microsoft.AspNetCore.Mvc;
@@ -19,18 +17,15 @@
         /// </summary>
         public OptionsController()
             : base(
-                new ClaimLink(
+                ClaimLink.Create(
+                    nameof(OptionsController),
                     Urn.Options,
                     string.Empty),
-                new ClaimLink(
+                ClaimLink.Create(
+                    nameof(TokenEntryController),
                     Urn.Options,
-                    $"../{nameof(TokenEntryController)[..^10]}",
-                    new[]
-                    {
-                        new Claim(
-                            ClaimTypes.Role,
-                            nameof(Role.Admin))
-                    }))
+                    $"../{nameof(TokenEntryController)[..^10]}"))
+
         {
         }
     }

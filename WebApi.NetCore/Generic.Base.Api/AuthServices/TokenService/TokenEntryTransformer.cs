@@ -1,8 +1,11 @@
 ﻿namespace Generic.Base.Api.AuthServices.TokenService
 {
-    using Generic.Base.Api.Result;
+    using Generic.Base.Api.Models;
     using Generic.Base.Api.Transformer;
 
+    /// <summary>
+    ///     Transformer of token entries.
+    /// </summary>
     internal class TokenEntryTransformer
         : IControllerTransformer<TokenEntry, ResultTokenEntry>, IAtomicTransformer<TokenEntry, TokenEntry, TokenEntry>
     {
@@ -35,7 +38,7 @@
         /// <param name="entry">The data for creating an instance of <see cref="ResultTokenEntry" />.</param>
         /// <param name="links">The urn that describe the supported operations on the result entry.</param>
         /// <returns>The transformed entry of type <see cref="ResultTokenEntry" />.</returns>
-        public ResultTokenEntry Transform(TokenEntry entry, IEnumerable<ILink> links)
+        public ResultTokenEntry Transform(TokenEntry entry, IEnumerable<Link> links)
         {
             return new ResultTokenEntry(
                 entry.Id,

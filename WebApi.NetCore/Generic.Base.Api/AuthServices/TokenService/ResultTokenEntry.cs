@@ -1,13 +1,13 @@
 ﻿namespace Generic.Base.Api.AuthServices.TokenService
 {
+    using Generic.Base.Api.Database;
     using Generic.Base.Api.Models;
-    using Generic.Base.Api.Result;
 
     /// <summary>
     ///     Describes a token entry that is sent to the client.
     /// </summary>
-    /// <seealso cref="Generic.Base.Api.Models.LinkResult" />
-    public class ResultTokenEntry : LinkResult
+    /// <seealso cref="LinkResult" />
+    public class ResultTokenEntry : LinkResult, IIdEntry
     {
         /// <summary>
         ///     Initializes a new instance of the <see cref="ResultTokenEntry" /> class.
@@ -20,7 +20,7 @@
             string id,
             string userId,
             string validUntil,
-            IEnumerable<ILink> links
+            IEnumerable<Link> links
         )
             : base(links)
         {
@@ -28,11 +28,6 @@
             this.UserId = userId;
             this.ValidUntil = validUntil;
         }
-
-        /// <summary>
-        ///     Gets the identifier.
-        /// </summary>
-        public string Id { get; }
 
         /// <summary>
         ///     Gets the owner of the token.
@@ -44,5 +39,10 @@
         ///     Gets the information until when the token is valid.
         /// </summary>
         public string ValidUntil { get; }
+
+        /// <summary>
+        ///     Gets the identifier.
+        /// </summary>
+        public string Id { get; }
     }
 }

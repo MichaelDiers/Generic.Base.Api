@@ -24,5 +24,18 @@
                 transformer)
         {
         }
+
+        /// <summary>
+        ///     Determines whether the specified identifier is valid.
+        /// </summary>
+        /// <param name="id">The identifier to be checked.</param>
+        /// <returns>
+        ///     <c>true</c> if the specified identifier is valid; otherwise, <c>false</c>.
+        /// </returns>
+        protected override bool IsIdValid(string id)
+        {
+            return !string.IsNullOrWhiteSpace(id) &&
+                   id.Length is >= AuthServicesValidation.IdMinLength and <= AuthServicesValidation.IdMaxLength;
+        }
     }
 }

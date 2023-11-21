@@ -1,8 +1,10 @@
 ﻿namespace Generic.Base.Api.Tests.IntegrationTests.CustomWebApplicationFactory
 {
     using Generic.Base.Api.AuthServices.TokenService;
+    using Generic.Base.Api.AuthServices.UserService;
     using Generic.Base.Api.Services;
     using Generic.Base.Api.Transformer;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
     /// <summary>
@@ -11,6 +13,8 @@
     /// <seealso cref="Generic.Base.Api.AuthServices.TokenService.TokenEntryControllerBase" />
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Roles = nameof(Role.Admin))]
+    [Authorize(Roles = nameof(Role.Accessor))]
     public class TokenEntryController : TokenEntryControllerBase
     {
         /// <summary>

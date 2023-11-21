@@ -55,9 +55,10 @@
             if (this.database.ContainsKey(id))
             {
                 this.database.Remove(id);
+                return Task.CompletedTask;
             }
 
-            return Task.CompletedTask;
+            throw new NotFoundException();
         }
 
         /// <summary>

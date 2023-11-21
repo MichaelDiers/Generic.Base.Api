@@ -35,6 +35,7 @@
         ///     Gets the information until when the token is valid.
         /// </summary>
         [Required]
+        [RegularExpression("^[0-9]{4,4}\\.[0-9]{2,2}\\.[0-9]{2,2} [0-9]{2,2}:[0-9]{2,2}:[0-9]{2,2}$")]
         public string ValidUntil { get; }
 
         /// <summary>

@@ -3,7 +3,6 @@
     using Generic.Base.Api.EnvironmentService;
     using Generic.Base.Api.Extensions;
     using Microsoft.AspNetCore.Builder;
-    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.DependencyInjection.Extensions;
 
     /// <summary>

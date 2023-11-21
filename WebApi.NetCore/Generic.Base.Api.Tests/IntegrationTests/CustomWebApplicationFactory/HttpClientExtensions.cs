@@ -1,96 +1,293 @@
 ﻿namespace Generic.Base.Api.Tests.IntegrationTests.CustomWebApplicationFactory
 {
+    using System.Net;
     using System.Net.Http.Headers;
-    using System.Security.Claims;
+    using System.Net.Http.Json;
+    using System.Text.RegularExpressions;
     using Generic.Base.Api.AuthServices.UserService;
-    using Generic.Base.Api.Jwt;
-    using Generic.Base.Api.Tests.Lib;
+    using Generic.Base.Api.Models;
 
     /// <summary>
     ///     Extensions for <see cref="HttpClient" />.
     /// </summary>
-    public static class HttpClientExtensions
+    internal static class HttpClientExtensions
     {
-        /// <summary>
-        ///     Adds the accessor token.
-        /// </summary>
-        /// <param name="client">The client.</param>
-        /// <param name="roles">The roles.</param>
-        /// <returns>The given <see cref="HttpClient" />.</returns>
-        public static HttpClient AddAccessorToken(this HttpClient client, params Role[] roles)
-        {
-            return client.AddToken(
-                true,
-                roles);
-        }
-
         /// <summary>
         ///     Adds the API key.
         /// </summary>
         /// <param name="client">The client.</param>
+        /// <param name="apiKey">An optional api key.</param>
         /// <returns>The given <see cref="HttpClient" />.</returns>
-        public static HttpClient AddApiKey(this HttpClient client)
+        public static HttpClient AddApiKey(this HttpClient client, string? apiKey = TestFactory.ApiKey)
         {
-            client.DefaultRequestHeaders.Add(
-                "x-api-key",
-                TestFactory.ApiKey);
-            return client;
-        }
-
-        /// <summary>
-        ///     Adds the refresher token.
-        /// </summary>
-        /// <param name="client">The client.</param>
-        /// <param name="roles">The roles.</param>
-        /// <returns>The given <see cref="HttpClient" />.</returns>
-        public static HttpClient AddRefresherToken(this HttpClient client, params Role[] roles)
-        {
-            return client.AddToken(
-                false,
-                roles);
-        }
-
-        /// <summary>
-        ///     Adds the token.
-        /// </summary>
-        /// <param name="client">The client.</param>
-        /// <param name="accessor">if set to <c>true</c> [accessor].</param>
-        /// <param name="roles">The roles.</param>
-        /// <returns>The given <see cref="HttpClient" />.</returns>
-        private static HttpClient AddToken(this HttpClient client, bool accessor, IEnumerable<Role> roles)
-        {
-            var jwtService =
-                TestHostApplicationBuilder.GetService<IJwtTokenService>(JwtTokenServiceDependencies.AddJwtTokenService);
-            var claims = roles.Select(
-                role => new Claim(
-                    ClaimTypes.Role,
-                    role.ToString()));
-
-            var id = TestFactory.DefaultId;
-            var displayName = TestFactory.DefaultDisplayName;
-
-            var token = client.DefaultRequestHeaders.Authorization?.Parameter?.Replace(
-                "Bearer",
-                string.Empty);
-            if (token is not null)
+            if (apiKey is not null)
             {
-                var decoded = jwtService.Decode(token);
-                claims = claims.Concat(decoded.Claims).ToArray();
-                id = claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value ??
-                     TestFactory.DefaultId;
-                displayName = claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Name)?.Value ??
-                              TestFactory.DefaultId;
+                client.DefaultRequestHeaders.Remove("x-api-key");
+                client.DefaultRequestHeaders.Add(
+                    "x-api-key",
+                    apiKey);
             }
 
-            var tokens = jwtService.CreateToken(
-                id,
-                displayName,
-                claims);
-
-            client.DefaultRequestHeaders.Authorization =
-                AuthenticationHeaderValue.Parse($"Bearer {tokens.AccessToken}");
-
             return client;
+        }
+
+        /// <summary>
+        ///     Adds a json web token.
+        /// </summary>
+        /// <param name="client">The http client.</param>
+        /// <param name="roles">The roles to be added.</param>
+        /// <returns>The given <paramref name="client" />.</returns>
+        public static HttpClient AddToken(this HttpClient client, params Role[] roles)
+        {
+            var token = ClientJwtTokenService.CreateToken(roles);
+            client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {token}");
+            return client;
+        }
+
+        /// <summary>
+        ///     Executes the <see cref="HttpMethod.Delete" /> operation.
+        /// </summary>
+        /// <param name="client">The http client.</param>
+        /// <param name="url">The url of the operation.</param>
+        /// <param name="statusCode">The expected status code.</param>
+        public static async Task DeleteAsync(this HttpClient client, string url, HttpStatusCode statusCode)
+        {
+            var response = await client.DeleteAsync(url);
+            Assert.Equal(
+                statusCode,
+                response.StatusCode);
+        }
+
+        /// <summary>
+        ///     Executes the <see cref="HttpMethod.Get" /> operation.
+        /// </summary>
+        /// <typeparam name="TResponse">The type of the response.</typeparam>
+        /// <param name="client">The http client.</param>
+        /// <param name="url">The url of the operation.</param>
+        /// <param name="statusCode">The expected status code.</param>
+        /// <param name="asserts">The asserts for checking the result.</param>
+        /// <returns>The result of the operation.</returns>
+        public static async Task<TResponse?> GetAsync<TResponse>(
+            this HttpClient client,
+            string url,
+            HttpStatusCode statusCode,
+            Action<TResponse> asserts
+        ) where TResponse : class
+        {
+            var response = await client.GetAsync(url);
+            Assert.Equal(
+                statusCode,
+                response.StatusCode);
+            if (!response.IsSuccessStatusCode)
+            {
+                return null;
+            }
+
+            var result = await response.Content.ReadFromJsonAsync<TResponse>();
+            Assert.NotNull(result);
+
+            asserts(result);
+
+            return result;
+        }
+
+        /// <summary>
+        ///     Gets the url specified by the urn namespace and urn operation.
+        /// </summary>
+        /// <param name="client">The http client.</param>
+        /// <param name="urnNamespace">The urn namespace.</param>
+        /// <param name="urn">The urn operation.</param>
+        /// <returns>A <see cref="Task{T}" /> whose result is the found url.</returns>
+        public static async Task<string> GetUrl(this HttpClient client, string urnNamespace, Urn urn)
+        {
+            var optionsUrl = await HttpClientExtensions.GetUrl(
+                client,
+                TestFactory.EntryPointUrl,
+                urnNamespace,
+                Urn.Options);
+
+            var operationUrl = await HttpClientExtensions.GetUrl(
+                client,
+                optionsUrl,
+                urnNamespace,
+                urn);
+
+            return operationUrl;
+        }
+
+        /// <summary>
+        ///     Gets the url specified by the urn namespace and urn operation.
+        /// </summary>
+        /// <param name="urnNamespace">The urn namespace.</param>
+        /// <param name="urn">The urn operation.</param>
+        /// <returns>A <see cref="Task{T}" /> whose result is the found url.</returns>
+        public static async Task<string> GetUrl(string urnNamespace, Urn urn)
+        {
+            var client = TestFactory.GetClient()
+            .AddApiKey()
+            .AddToken(
+                Role.Admin,
+                Role.Accessor,
+                Role.Refresher);
+            var optionsUrl = await HttpClientExtensions.GetUrl(
+                client,
+                TestFactory.EntryPointUrl,
+                urnNamespace,
+                Urn.Options);
+
+            var operationUrl = await HttpClientExtensions.GetUrl(
+                client,
+                optionsUrl,
+                urnNamespace,
+                urn);
+
+            return operationUrl;
+        }
+
+        /// <summary>
+        ///     Executes the <see cref="HttpMethod.Options" /> operation.
+        /// </summary>
+        /// <param name="client">The http client.</param>
+        /// <param name="getUrl">A <see cref="Task{T}" /> whose result is the options url.</param>
+        /// <param name="statusCode">The expected status code.</param>
+        /// <param name="urns">The expected urns to be found.</param>
+        /// <param name="urnNamespace">The urn namespace.</param>
+        /// <returns>A <see cref="Task{T}" /> whose result is a <see cref="LinkResult" />.</returns>
+        public static async Task<LinkResult> OptionsAsync(
+            this HttpClient client,
+            Func<HttpClient, Task<string>> getUrl,
+            HttpStatusCode statusCode,
+            IEnumerable<Urn> urns,
+            string urnNamespace
+        )
+        {
+            var url = await getUrl(client);
+
+            var response = await client.SendAsync(
+                new HttpRequestMessage(
+                    HttpMethod.Options,
+                    url));
+
+            Assert.Equal(
+                statusCode,
+                response.StatusCode);
+
+            var result = await response.Content.ReadFromJsonAsync<LinkResult>();
+            Assert.NotNull(result);
+
+            var urnArray = urns.ToArray();
+            Assert.Equal(
+                urnArray.Length,
+                result.Links.Count());
+
+            foreach (var urn in urnArray)
+            {
+                Assert.Contains(
+                    result.Links,
+                    link => Regex.IsMatch(
+                        link.Urn,
+                        $"^urn:{urnNamespace}:{urn.ToString()}"));
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        ///     Executes the <see cref="HttpMethod.Post" /> operation.
+        /// </summary>
+        /// <typeparam name="TRequest">The type of the request.</typeparam>
+        /// <typeparam name="TResponse">The type of the response.</typeparam>
+        /// <param name="client">The http client.</param>
+        /// <param name="request">The data of the post request.</param>
+        /// <param name="urlFunc">A <see cref="Task{T}" /> whose result is the post url.</param>
+        /// <param name="statusCode">The expected status code.</param>
+        /// <param name="asserts">The asserts.</param>
+        /// <returns>A <see cref="Task" /> whose result is the response of the post request.</returns>
+        public static async Task<TResponse?> PostAsync<TRequest, TResponse>(
+            this HttpClient client,
+            TRequest request,
+            Func<Task<string>> urlFunc,
+            HttpStatusCode statusCode,
+            Action<TRequest, TResponse> asserts
+        ) where TResponse : class
+        {
+            var url = await urlFunc();
+
+            var response = await client.PostAsync(
+                url,
+                JsonContent.Create(request));
+            Assert.Equal(
+                statusCode,
+                response.StatusCode);
+            if (!response.IsSuccessStatusCode)
+            {
+                return null;
+            }
+
+            var result = await response.Content.ReadFromJsonAsync<TResponse>();
+            Assert.NotNull(result);
+
+            asserts(
+                request,
+                result);
+
+            return result;
+        }
+
+        /// <summary>
+        ///     Executes the <see cref="HttpMethod.Put" /> operation.
+        /// </summary>
+        /// <typeparam name="TRequest">The type of the request.</typeparam>
+        /// <param name="client">The http client.</param>
+        /// <param name="request">The data of the put request.</param>
+        /// <param name="url">The url used for the request.</param>
+        /// <param name="statusCode">The expected status code.</param>
+        public static async Task PutAsync<TRequest>(
+            this HttpClient client,
+            TRequest request,
+            string url,
+            HttpStatusCode statusCode
+        )
+        {
+            var response = await client.PutAsync(
+                url,
+                JsonContent.Create(request));
+            Assert.Equal(
+                statusCode,
+                response.StatusCode);
+        }
+
+        /// <summary>
+        ///     Gets the url for the given urn namespace and operation.
+        /// </summary>
+        /// <param name="client">The http client.</param>
+        /// <param name="url">The url of the operation.</param>
+        /// <param name="urnNamespace">The urn namespace.</param>
+        /// <param name="urn">The urn of the operation.</param>
+        /// <returns>A <see cref="Task{T}" /> whose result is the url.</returns>
+        private static async Task<string> GetUrl(
+            HttpClient client,
+            string url,
+            string urnNamespace,
+            Urn urn
+        )
+        {
+            var optionsResponse = await client.SendAsync(
+                new HttpRequestMessage(
+                    HttpMethod.Options,
+                    url));
+            optionsResponse.EnsureSuccessStatusCode();
+
+            var linkResult = await optionsResponse.Content.ReadFromJsonAsync<LinkResult>();
+            Assert.NotNull(linkResult);
+
+            var link = linkResult.Links.FirstOrDefault(
+                link => Regex.IsMatch(
+                    link.Urn,
+                    $"^urn:{urnNamespace}:{urn.ToString()}"));
+            Assert.NotNull(link);
+
+            return link.Url;
         }
     }
 }
