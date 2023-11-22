@@ -1,13 +1,13 @@
 ﻿namespace Generic.Base.Api.AuthServices.UserService
 {
+    using Generic.Base.Api.Database;
     using Generic.Base.Api.Models;
-    using Generic.Base.Api.Result;
 
     /// <summary>
     ///     Describes a user that is sent to the client.
     /// </summary>
     /// <seealso cref="LinkResult" />
-    public class ResultUser : LinkResult
+    public class ResultUser : LinkResult, IIdEntry
     {
         /// <summary>
         ///     Initializes a new instance of the <see cref="ResultUser" /> class.
@@ -19,7 +19,7 @@
         public ResultUser(
             string id,
             IEnumerable<Role> roles,
-            IEnumerable<ILink> links,
+            IEnumerable<Link> links,
             string displayName
         )
             : base(links)
@@ -35,13 +35,13 @@
         public string DisplayName { get; }
 
         /// <summary>
-        ///     Gets the identifier of the user.
-        /// </summary>
-        public string Id { get; }
-
-        /// <summary>
         ///     Gets the roles that are assigned to the user.
         /// </summary>
         public IEnumerable<Role> Roles { get; }
+
+        /// <summary>
+        ///     Gets the identifier of the user.
+        /// </summary>
+        public string Id { get; }
     }
 }

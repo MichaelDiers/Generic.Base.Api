@@ -53,6 +53,6 @@
         /// <summary>
         ///     The password minimum length.
         /// </summary>
-        public const int PasswordMinLength = 2;
+        public const int PasswordMinLength = 8;
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Generic.Base.Api.AuthServices.UserService
 {
-    using Generic.Base.Api.Result;
+    using Generic.Base.Api.Models;
     using Generic.Base.Api.Transformer;
 
     /// <summary>
@@ -37,7 +37,7 @@
         /// <param name="user">The data for creating an instance of <see cref="ResultUser" />.</param>
         /// <param name="links">The urn that describe the supported operations on the result entry.</param>
         /// <returns>The transformed entry of type <see cref="User" />.</returns>
-        public ResultUser Transform(User user, IEnumerable<ILink> links)
+        public ResultUser Transform(User user, IEnumerable<Link> links)
         {
             return new ResultUser(
                 user.Id,
