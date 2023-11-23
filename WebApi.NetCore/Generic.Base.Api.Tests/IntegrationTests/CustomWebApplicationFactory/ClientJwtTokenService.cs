@@ -56,10 +56,20 @@
             DateTime notBefore,
             string issuer,
             string audience,
-            string key
+            string? key = null
         )
         {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
+            var usedKey = key;
+            if (usedKey is null)
+            {
+                var configuration = new HostApplicationBuilder().Configuration.GetSection("Jwt")
+                    .Get<JwtConfiguration>();
+                Assert.NotNull(configuration);
+                usedKey = Environment.GetEnvironmentVariable(configuration.KeyName);
+                Assert.NotNull(usedKey);
+            }
+
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(usedKey));
             var signingCredentials = new SigningCredentials(
                 securityKey,
                 SecurityAlgorithms.HmacSha512Signature);

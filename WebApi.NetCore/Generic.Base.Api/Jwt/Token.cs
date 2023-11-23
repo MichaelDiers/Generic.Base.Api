@@ -1,7 +1,7 @@
 ﻿namespace Generic.Base.Api.Jwt
 {
     /// <inheritdoc cref="IToken" />
-    internal class Token : IToken
+    public class Token : IToken
     {
         /// <summary>
         ///     Initializes a new instance of the <see cref="Token" /> class.

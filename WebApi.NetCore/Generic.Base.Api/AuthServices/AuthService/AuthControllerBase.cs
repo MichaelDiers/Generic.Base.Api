@@ -5,7 +5,6 @@
     using Generic.Base.Api.Exceptions;
     using Generic.Base.Api.Jwt;
     using Generic.Base.Api.Models;
-    using Generic.Base.Api.Result;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
@@ -16,22 +15,22 @@
     public abstract class AuthControllerBase : ControllerBase
     {
         /// <summary>
-        /// The change password template.
+        ///     The change password template.
         /// </summary>
         private const string ChangePasswordTemplate = "change-password";
 
         /// <summary>
-        /// The refresh template.
+        ///     The refresh template.
         /// </summary>
         private const string RefreshTemplate = "refresh";
 
         /// <summary>
-        /// The sign in template.
+        ///     The sign in template.
         /// </summary>
         private const string SignInTemplate = "sign-in";
 
         /// <summary>
-        /// The sign up template.
+        ///     The sign up template.
         /// </summary>
         private const string SignUpTemplate = "sign-up";
 
@@ -76,36 +75,47 @@
         ///     An options request for the available operations of the api.
         /// </summary>
         [HttpOptions]
-        public LinkResult Options()
+        [AllowAnonymous]
+        public ILinkResult Options()
         {
             var baseUrl = this.Request.Path.Value;
             if (string.IsNullOrWhiteSpace(baseUrl))
             {
-                return new LinkResult(Enumerable.Empty<ILink>());
+                return new LinkResult(Enumerable.Empty<Link>());
             }
 
-            return new LinkResult(
-                new[]
-                {
-                    new Link(
-                        Urn.Delete,
-                        baseUrl),
-                    new Link(
-                        Urn.SignUp,
-                        $"{baseUrl}/{AuthControllerBase.SignUpTemplate}"),
-                    new Link(
-                        Urn.SignIn,
-                        $"{baseUrl}/{AuthControllerBase.SignInTemplate}"),
-                    new Link(
-                        Urn.ChangePassword,
-                        $"{baseUrl}/{AuthControllerBase.ChangePasswordTemplate}"),
-                    new Link(
-                        Urn.Refresh,
-                        $"{baseUrl}/{AuthControllerBase.RefreshTemplate}"),
-                    new Link(
-                        Urn.Options,
-                        baseUrl)
-                });
+            var links = new[]
+            {
+                ClaimLink.Create(
+                    this.GetType().Name[..^10],
+                    Urn.Delete,
+                    baseUrl,
+                    Role.Accessor),
+                ClaimLink.Create(
+                    this.GetType().Name[..^10],
+                    Urn.SignUp,
+                    $"{baseUrl}/{AuthControllerBase.SignUpTemplate}"),
+                ClaimLink.Create(
+                    this.GetType().Name[..^10],
+                    Urn.SignIn,
+                    $"{baseUrl}/{AuthControllerBase.SignInTemplate}"),
+                ClaimLink.Create(
+                    this.GetType().Name[..^10],
+                    Urn.ChangePassword,
+                    $"{baseUrl}/{AuthControllerBase.ChangePasswordTemplate}",
+                    Role.Accessor),
+                ClaimLink.Create(
+                    this.GetType().Name[..^10],
+                    Urn.Refresh,
+                    $"{baseUrl}/{AuthControllerBase.RefreshTemplate}",
+                    Role.Refresher),
+                ClaimLink.Create(
+                    this.GetType().Name[..^10],
+                    Urn.Options,
+                    baseUrl)
+            };
+
+            return new LinkResult(links.Where(link => link.CanBeAccessed(this.User.Claims)));
         }
 
         /// <summary>
@@ -153,17 +163,20 @@
             CancellationToken cancellationToken
         )
         {
-            var claim = this.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-            if (claim is null)
+            var userId = this.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+            if (userId is null)
             {
                 throw new UnauthorizedException();
             }
 
-            await this.domainAuthService.ChangePasswordAsync(
+            var token = this.Request.Headers.Authorization.ToString()[7..];
+
+            var tokens = await this.domainAuthService.ChangePasswordAsync(
                 changePassword,
-                claim.Value,
+                userId.Value,
+                token,
                 cancellationToken);
-            return this.Ok();
+            return this.Ok(tokens);
         }
 
         /// <summary>
@@ -171,7 +184,7 @@
         /// </summary>
         /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
         /// <returns>A <see cref="Task{T}" /> whose result are access and refresh tokens.</returns>
-        [HttpPost("refresh")]
+        [HttpGet("refresh")]
         [Authorize(Roles = nameof(Role.Refresher))]
         public async Task<ActionResult<IToken>> Post(CancellationToken cancellationToken)
         {
@@ -181,7 +194,7 @@
                 throw new UnauthorizedException();
             }
 
-            var refreshToken = this.Request.Headers.Authorization.ToString().Replace("Bearer ", string.Empty);
+            var refreshToken = this.Request.Headers.Authorization.ToString()[7..];
 
             var result = await this.domainAuthService.RefreshAsync(
                 refreshToken,

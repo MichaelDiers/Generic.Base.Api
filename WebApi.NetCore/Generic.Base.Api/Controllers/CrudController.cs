@@ -317,6 +317,12 @@
                     Urn.Create,
                     baseUrl,
                     Role.Admin,
+                    Role.Accessor),
+                ClaimLink.Create(
+                    urnNamespace,
+                    Urn.ReadById,
+                    $"{baseUrl}/{id ?? string.Empty}",
+                    Role.Admin,
                     Role.Accessor)
             };
 
@@ -328,12 +334,6 @@
                         ClaimLink.Create(
                             urnNamespace,
                             Urn.Delete,
-                            $"{baseUrl}/{id}",
-                            Role.Admin,
-                            Role.Accessor),
-                        ClaimLink.Create(
-                            urnNamespace,
-                            Urn.ReadById,
                             $"{baseUrl}/{id}",
                             Role.Admin,
                             Role.Accessor),

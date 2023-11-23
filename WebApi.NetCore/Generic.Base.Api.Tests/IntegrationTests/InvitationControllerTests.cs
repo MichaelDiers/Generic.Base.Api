@@ -286,7 +286,8 @@
             {
                 Urn.Options,
                 Urn.Create,
-                Urn.ReadAll
+                Urn.ReadAll,
+                Urn.ReadById
             })]
         public async Task Options(Role[] roles, Urn[] urns)
         {

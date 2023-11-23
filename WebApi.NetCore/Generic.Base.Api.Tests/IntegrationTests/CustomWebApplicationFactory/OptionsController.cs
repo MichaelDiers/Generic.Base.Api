@@ -32,7 +32,11 @@
                 ClaimLink.Create(
                     nameof(UserController),
                     Urn.Options,
-                    $"../{nameof(UserController)[..^10]}"))
+                    $"../{nameof(UserController)[..^10]}"),
+                ClaimLink.Create(
+                    nameof(AuthController),
+                    Urn.Options,
+                    $"../{nameof(AuthController)[..^10]}"))
 
         {
         }

@@ -87,7 +87,7 @@
 
             Assert.Contains(
                 jwtSecurityToken.Claims,
-                claim => claim.Type == ClaimTypes.Sid &&
+                claim => claim.Type == Constants.RefreshTokenIdClaimType &&
                          Guid.TryParse(
                              claim.Value,
                              out var guid) &&
@@ -173,7 +173,7 @@
 
             Assert.Contains(
                 jwtSecurityToken.Claims,
-                claim => claim.Type == ClaimTypes.Sid &&
+                claim => claim.Type == Constants.RefreshTokenIdClaimType &&
                          Guid.TryParse(
                              claim.Value,
                              out var guid) &&

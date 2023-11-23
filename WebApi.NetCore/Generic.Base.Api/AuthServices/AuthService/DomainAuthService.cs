@@ -73,11 +73,13 @@
         /// </summary>
         /// <param name="changePassword">The change password data.</param>
         /// <param name="userId">The user identifier.</param>
+        /// <param name="token">The access token of the request.</param>
         /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
-        /// <returns>A <see cref="Task" /> whose result indicates success.</returns>
-        public async Task ChangePasswordAsync(
+        /// <returns>A <see cref="Task{T}" /> whose result are the created tokens.</returns>
+        public async Task<IToken> ChangePasswordAsync(
             ChangePassword changePassword,
             string userId,
+            string token,
             CancellationToken cancellationToken
         )
         {
@@ -97,7 +99,14 @@
                     changePassword.NewPassword,
                     cancellationToken,
                     session);
+
+                var tokens = await this.RefreshAsync(
+                    token,
+                    userId,
+                    cancellationToken,
+                    session);
                 await session.CommitTransactionAsync(cancellationToken);
+                return tokens;
             }
             catch
             {
@@ -155,17 +164,12 @@
             using var session = await this.transactionHandler.StartTransactionAsync(cancellationToken);
             try
             {
-                await this.RevokeRefreshToken(
+                var token = await this.RefreshAsync(
                     refreshToken,
-                    cancellationToken,
-                    session);
-
-                var user = await this.ReadUser(
                     userId,
                     cancellationToken,
                     session);
 
-                var token = this.CreateToken(user);
                 await session.CommitTransactionAsync(cancellationToken);
 
                 return token;
@@ -454,7 +458,7 @@
         /// <returns>The id of the refresh token.</returns>
         private static string ReadRefreshTokenId(JwtSecurityToken token)
         {
-            return token.Claims.First(claim => claim.Type == ClaimTypes.Sid).Value;
+            return token.Claims.First(claim => claim.Type == Constants.RefreshTokenIdClaimType).Value;
         }
 
         /// <summary>
@@ -474,6 +478,36 @@
                 id,
                 cancellationToken,
                 transactionHandle);
+        }
+
+        /// <summary>
+        ///     Create a new access token.
+        /// </summary>
+        /// <param name="refreshToken">The refresh token.</param>
+        /// <param name="userId">The identifier of the current user.</param>
+        /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
+        /// <param name="session">The database transaction handle.</param>
+        /// <returns>
+        ///     A <see cref="Task{T}" /> whose result contains new refresh and access tokens.
+        /// </returns>
+        private async Task<IToken> RefreshAsync(
+            string refreshToken,
+            string userId,
+            CancellationToken cancellationToken,
+            ITransactionHandle<TClientSessionHandle> session
+        )
+        {
+            await this.RevokeRefreshToken(
+                refreshToken,
+                cancellationToken,
+                session);
+
+            var user = await this.ReadUser(
+                userId,
+                cancellationToken,
+                session);
+
+            return this.CreateToken(user);
         }
 
         /// <summary>
@@ -511,7 +545,7 @@
         {
             var token = DomainAuthService<TClientSessionHandle>.ReadJwtSecurityToken(refreshToken);
 
-            var refreshTokenId = token.Claims.First(claim => claim.Type == ClaimTypes.Sid).Value;
+            var refreshTokenId = token.Claims.First(claim => claim.Type == Constants.RefreshTokenIdClaimType).Value;
             var userId = token.Claims.First(claim => claim.Type == ClaimTypes.NameIdentifier).Value;
             var validTo = token.ValidTo.ToString(DomainAuthService<TClientSessionHandle>.TokenValidToFormat);
 

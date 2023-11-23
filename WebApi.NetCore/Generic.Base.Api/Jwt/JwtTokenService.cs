@@ -39,6 +39,7 @@
                 securityKey,
                 SecurityAlgorithms.HmacSha512Signature);
 
+            var refreshTokenId = Guid.NewGuid().ToString();
             var defaultClaims = new[]
             {
                 new Claim(
@@ -46,7 +47,10 @@
                     displayName),
                 new Claim(
                     ClaimTypes.NameIdentifier,
-                    id)
+                    id),
+                new Claim(
+                    Constants.RefreshTokenIdClaimType,
+                    refreshTokenId)
             };
 
             var accessToken = this.CreateToken(
@@ -59,16 +63,11 @@
                 signingCredentials,
                 0);
 
-            var refreshTokenId = Guid.NewGuid().ToString();
             var refreshToken = this.CreateToken(
                 defaultClaims.Append(
-                        new Claim(
-                            ClaimTypes.Role,
-                            nameof(Role.Refresher)))
-                    .Append(
-                        new Claim(
-                            ClaimTypes.Sid,
-                            refreshTokenId)),
+                    new Claim(
+                        ClaimTypes.Role,
+                        nameof(Role.Refresher))),
                 this.configuration.RefreshTokenExpires,
                 signingCredentials,
                 this.configuration.AccessTokenExpires);

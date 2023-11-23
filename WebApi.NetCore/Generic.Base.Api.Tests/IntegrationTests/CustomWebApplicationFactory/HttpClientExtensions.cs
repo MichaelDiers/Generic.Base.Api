@@ -45,6 +45,18 @@
         }
 
         /// <summary>
+        ///     Adds a json web token.
+        /// </summary>
+        /// <param name="client">The http client.</param>
+        /// <param name="token">The token added to authorization header.</param>
+        /// <returns>The given <paramref name="client" />.</returns>
+        public static HttpClient AddToken(this HttpClient client, string token)
+        {
+            client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {token}");
+            return client;
+        }
+
+        /// <summary>
         ///     Executes the <see cref="HttpMethod.Delete" /> operation.
         /// </summary>
         /// <param name="client">The http client.</param>
@@ -53,6 +65,31 @@
         public static async Task DeleteAsync(this HttpClient client, string url, HttpStatusCode statusCode)
         {
             var response = await client.DeleteAsync(url);
+            Assert.Equal(
+                statusCode,
+                response.StatusCode);
+        }
+
+        /// <summary>
+        ///     Executes the <see cref="HttpMethod.Delete" /> operation.
+        /// </summary>
+        /// <typeparam name="T">The type of the request data.</typeparam>
+        /// <param name="client">The http client.</param>
+        /// <param name="request">The request data.</param>
+        /// <param name="url">The url of the operation.</param>
+        /// <param name="statusCode">The expected status code.</param>
+        public static async Task DeleteAsync<T>(
+            this HttpClient client,
+            T request,
+            string url,
+            HttpStatusCode statusCode
+        )
+        {
+            var message = new HttpRequestMessage(
+                HttpMethod.Delete,
+                url);
+            message.Content = JsonContent.Create(request);
+            var response = await client.SendAsync(message);
             Assert.Equal(
                 statusCode,
                 response.StatusCode);
@@ -235,6 +272,66 @@
         }
 
         /// <summary>
+        ///     Executes the <see cref="HttpMethod.Post" /> operation.
+        /// </summary>
+        /// <typeparam name="TResponse">The type of the response.</typeparam>
+        /// <param name="client">The http client.</param>
+        /// <param name="urlFunc">A <see cref="Task{T}" /> whose result is the post url.</param>
+        /// <param name="statusCode">The expected status code.</param>
+        /// <returns>A <see cref="Task" /> whose result is the response of the post request.</returns>
+        public static async Task<TResponse?> PostAsync<TResponse>(
+            this HttpClient client,
+            Func<Task<string>> urlFunc,
+            HttpStatusCode statusCode
+        ) where TResponse : class
+        {
+            var url = await urlFunc();
+
+            var response = await client.SendAsync(
+                new HttpRequestMessage(
+                    HttpMethod.Get,
+                    url));
+            Assert.Equal(
+                statusCode,
+                response.StatusCode);
+            if (!response.IsSuccessStatusCode)
+            {
+                return null;
+            }
+
+            var result = await response.Content.ReadFromJsonAsync<TResponse>();
+            Assert.NotNull(result);
+
+            return result;
+        }
+
+        /// <summary>
+        ///     Executes the <see cref="HttpMethod.Post" /> operation.
+        /// </summary>
+        /// <typeparam name="TRequest">The type of the request.</typeparam>
+        /// <param name="client">The http client.</param>
+        /// <param name="request">The data of the post request.</param>
+        /// <param name="urlFunc">A <see cref="Task{T}" /> whose result is the post url.</param>
+        /// <param name="statusCode">The expected status code.</param>
+        /// <returns>A <see cref="Task" /> whose result indicates success.</returns>
+        public static async Task PostAsync<TRequest>(
+            this HttpClient client,
+            TRequest request,
+            Func<Task<string>> urlFunc,
+            HttpStatusCode statusCode
+        )
+        {
+            var url = await urlFunc();
+
+            var response = await client.PostAsync(
+                url,
+                JsonContent.Create(request));
+            Assert.Equal(
+                statusCode,
+                response.StatusCode);
+        }
+
+        /// <summary>
         ///     Executes the <see cref="HttpMethod.Put" /> operation.
         /// </summary>
         /// <typeparam name="TRequest">The type of the request.</typeparam>
@@ -255,6 +352,17 @@
             Assert.Equal(
                 statusCode,
                 response.StatusCode);
+        }
+
+        /// <summary>
+        ///     Removes a json web token.
+        /// </summary>
+        /// <param name="client">The http client.</param>
+        /// <returns>The given <paramref name="client" />.</returns>
+        public static HttpClient RemoveToken(this HttpClient client)
+        {
+            client.DefaultRequestHeaders.Authorization = null;
+            return client;
         }
 
         /// <summary>
