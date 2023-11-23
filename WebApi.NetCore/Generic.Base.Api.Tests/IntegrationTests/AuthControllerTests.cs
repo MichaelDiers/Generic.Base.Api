@@ -220,7 +220,7 @@
             if ((int) expectedStatusCode > 199 && (int) expectedStatusCode < 300)
             {
                 // sign up
-                var client = await this.SignUpTest(
+                var client = await AuthControllerTests.SignUpTest(
                     description,
                     apiKey,
                     invitation,
@@ -323,7 +323,7 @@
             Assert.NotNull(other);
 
             // sign up
-            var client = await this.SignUpTest(
+            var client = await AuthControllerTests.SignUpTest(
                 description,
                 TestFactory.ApiKey,
                 invitation,
@@ -399,11 +399,11 @@
             Urn.SignUp)]
         public async Task Options(Role[] roles, params Urn[] urns)
         {
-            var options = await TestFactory.GetClient()
+            await TestFactory.GetClient()
                 .AddApiKey()
                 .AddToken(roles)
                 .OptionsAsync(
-                    client => HttpClientExtensions.GetUrl(
+                    _ => HttpClientExtensions.GetUrl(
                         nameof(AuthController)[..^10],
                         Urn.Options),
                     HttpStatusCode.OK,
@@ -425,7 +425,7 @@
         {
             Assert.NotNull(other);
 
-            var client = await this.SignUpTest(
+            var client = await AuthControllerTests.SignUpTest(
                 description,
                 TestFactory.ApiKey,
                 invitation,
@@ -502,7 +502,7 @@
             HttpClient? client = null;
             if ((int) expectedStatusCode > 199 && (int) expectedStatusCode < 300)
             {
-                client = await this.SignUpTest(
+                client = await AuthControllerTests.SignUpTest(
                     description,
                     apiKey,
                     invitation,
@@ -562,7 +562,7 @@
         {
             Assert.NotNull(other);
 
-            await this.SignUpTest(
+            await AuthControllerTests.SignUpTest(
                 description,
                 apiKey,
                 invitation,
@@ -619,29 +619,6 @@
             };
         }
 
-        private async Task<SignUp> CreateUserAndSignUp()
-        {
-            var invitation = new Invitation(
-                Guid.NewGuid().ToString(),
-                new[]
-                {
-                    Role.Accessor,
-                    Role.User
-                });
-            var signUp = new SignUp(
-                Guid.NewGuid().ToString(),
-                invitation.Id,
-                Guid.NewGuid().ToString(),
-                Guid.NewGuid().ToString());
-            await this.SignUpTest(
-                string.Empty,
-                TestFactory.ApiKey,
-                invitation,
-                signUp,
-                HttpStatusCode.OK);
-            return signUp;
-        }
-
         private static async Task<Token?> SignUpAsync(
             HttpClient client,
             HttpStatusCode expectedStatusCode,
@@ -668,7 +645,7 @@
             return tokens;
         }
 
-        private async Task<HttpClient> SignUpTest(
+        private static async Task<HttpClient> SignUpTest(
             string description,
             string apiKey,
             Invitation invitation,

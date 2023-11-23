@@ -20,13 +20,15 @@
         /// <returns>The given <see cref="HttpClient" />.</returns>
         public static HttpClient AddApiKey(this HttpClient client, string? apiKey = TestFactory.ApiKey)
         {
-            if (apiKey is not null)
+            if (apiKey is null)
             {
-                client.DefaultRequestHeaders.Remove("x-api-key");
-                client.DefaultRequestHeaders.Add(
-                    "x-api-key",
-                    apiKey);
+                return client;
             }
+
+            client.DefaultRequestHeaders.Remove("x-api-key");
+            client.DefaultRequestHeaders.Add(
+                "x-api-key",
+                apiKey);
 
             return client;
         }
@@ -303,32 +305,6 @@
             Assert.NotNull(result);
 
             return result;
-        }
-
-        /// <summary>
-        ///     Executes the <see cref="HttpMethod.Post" /> operation.
-        /// </summary>
-        /// <typeparam name="TRequest">The type of the request.</typeparam>
-        /// <param name="client">The http client.</param>
-        /// <param name="request">The data of the post request.</param>
-        /// <param name="urlFunc">A <see cref="Task{T}" /> whose result is the post url.</param>
-        /// <param name="statusCode">The expected status code.</param>
-        /// <returns>A <see cref="Task" /> whose result indicates success.</returns>
-        public static async Task PostAsync<TRequest>(
-            this HttpClient client,
-            TRequest request,
-            Func<Task<string>> urlFunc,
-            HttpStatusCode statusCode
-        )
-        {
-            var url = await urlFunc();
-
-            var response = await client.PostAsync(
-                url,
-                JsonContent.Create(request));
-            Assert.Equal(
-                statusCode,
-                response.StatusCode);
         }
 
         /// <summary>

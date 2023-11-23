@@ -14,21 +14,15 @@
         [HttpGet("{exception}")]
         public ActionResult Get([FromRoute] string exception)
         {
-            switch (exception)
+            throw exception switch
             {
-                case "BadRequestException":
-                    throw new BadRequestException();
-                case "ConflictException":
-                    throw new ConflictException();
-                case "NotFoundException":
-                    throw new NotFoundException();
-                case "UnauthorizedException":
-                    throw new UnauthorizedException();
-                case "ArgumentException":
-                    throw new ArgumentException();
-                default:
-                    throw new Exception();
-            }
+                "BadRequestException" => new BadRequestException(),
+                "ConflictException" => new ConflictException(),
+                "NotFoundException" => new NotFoundException(),
+                "UnauthorizedException" => new UnauthorizedException(),
+                "ArgumentException" => new ArgumentException(),
+                _ => new Exception()
+            };
         }
     }
 }

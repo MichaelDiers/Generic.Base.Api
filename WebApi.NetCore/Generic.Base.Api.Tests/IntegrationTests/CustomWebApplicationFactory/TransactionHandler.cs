@@ -5,7 +5,6 @@
     /// <summary>
     ///     A dummy implementation of a database transaction handler.
     /// </summary>
-    /// <seealso cref="Generic.Base.Api.Database.ITransactionHandler&lt;System.Object&gt;" />
     internal class TransactionHandler : ITransactionHandler<object>
     {
         /// <summary>

@@ -16,8 +16,8 @@
         {
             var client = TestFactory.GetClient().AddApiKey();
 
-            var status = 500;
-            var message = "message";
+            const int status = 500;
+            const string message = "message";
 
             var response = await client.GetAsync($"/api/SetResponse/{status}/{message}");
 

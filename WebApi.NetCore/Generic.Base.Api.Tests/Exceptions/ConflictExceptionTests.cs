@@ -23,7 +23,7 @@
         [Fact]
         public void MessageCtor()
         {
-            var message = nameof(this.MessageCtor);
+            const string message = nameof(this.MessageCtor);
 
             var exception = new ConflictException(message);
 
@@ -37,7 +37,7 @@
         [Fact]
         public void MessageInnerExceptionCtor()
         {
-            var message = nameof(this.MessageCtor);
+            const string message = nameof(this.MessageCtor);
             var innerException = new Exception();
 
             var exception = new ConflictException(

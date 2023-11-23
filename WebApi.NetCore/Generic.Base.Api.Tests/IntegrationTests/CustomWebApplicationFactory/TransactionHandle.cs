@@ -5,7 +5,6 @@
     /// <summary>
     ///     A dummy implementation of a database transaction handle.
     /// </summary>
-    /// <seealso cref="Generic.Base.Api.Database.ITransactionHandle&lt;System.Object&gt;" />
     internal class TransactionHandle : ITransactionHandle<object>
     {
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>

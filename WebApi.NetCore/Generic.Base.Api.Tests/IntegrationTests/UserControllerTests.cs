@@ -471,7 +471,7 @@
                         var results = resultTokenEntries.ToArray();
                         Assert.Equal(
                             createdResults.Length,
-                            results.Count());
+                            results.Length);
                         foreach (var createdResult in createdResults)
                         {
                             Assert.Contains(

@@ -9,8 +9,8 @@
         [Fact]
         public async Task SetResponse()
         {
-            var expectedStatusCode = HttpStatusCode.NoContent;
-            var message = "my message";
+            const HttpStatusCode expectedStatusCode = HttpStatusCode.NoContent;
+            const string message = "my message";
 
             var context = new DefaultHttpContext();
 

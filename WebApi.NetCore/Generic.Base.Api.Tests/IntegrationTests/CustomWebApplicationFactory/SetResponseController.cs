@@ -9,7 +9,7 @@
     [Route("api/[controller]")]
     public class SetResponseController : ControllerBase
     {
-        [HttpGet("{status}/{message}")]
+        [HttpGet("{status:int}/{message}")]
         [AllowAnonymous]
         public async Task Get([FromRoute] int status, [FromRoute] string message, CancellationToken cancellationToken)
         {

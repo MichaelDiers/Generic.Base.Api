@@ -55,27 +55,27 @@
                     data[key] = value;
                 }
 
-                if (data["check"] == nameof(HealthCheckOk))
+                switch (data["check"])
                 {
-                    Assert.Equal(
-                        "Healthy",
-                        data["status"]);
-                    Assert.Equal(
-                        nameof(HealthCheckOk),
-                        data["description"]);
-                }
-                else if (data["check"] == nameof(HealthCheckFail))
-                {
-                    Assert.Equal(
-                        "Unhealthy",
-                        data["status"]);
-                    Assert.Equal(
-                        nameof(HealthCheckFail),
-                        data["description"]);
-                }
-                else
-                {
-                    Assert.Fail("Should not be executed.");
+                    case nameof(HealthCheckOk):
+                        Assert.Equal(
+                            "Healthy",
+                            data["status"]);
+                        Assert.Equal(
+                            nameof(HealthCheckOk),
+                            data["description"]);
+                        break;
+                    case nameof(HealthCheckFail):
+                        Assert.Equal(
+                            "Unhealthy",
+                            data["status"]);
+                        Assert.Equal(
+                            nameof(HealthCheckFail),
+                            data["description"]);
+                        break;
+                    default:
+                        Assert.Fail("Should not be executed.");
+                        break;
                 }
             }
         }

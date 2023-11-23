@@ -52,13 +52,13 @@
             ITransactionHandle<TClientSessionHandle> transactionHandle
         )
         {
-            if (this.database.ContainsKey(id))
+            if (!this.database.ContainsKey(id))
             {
-                this.database.Remove(id);
-                return Task.CompletedTask;
+                throw new NotFoundException();
             }
 
-            throw new NotFoundException();
+            this.database.Remove(id);
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -111,13 +111,13 @@
             ITransactionHandle<TClientSessionHandle> transactionHandle
         )
         {
-            if (this.database.ContainsKey(entry.Id))
+            if (!this.database.ContainsKey(entry.Id))
             {
-                this.database[entry.Id] = entry;
-                return Task.CompletedTask;
+                throw new NotFoundException();
             }
 
-            throw new NotFoundException();
+            this.database[entry.Id] = entry;
+            return Task.CompletedTask;
         }
     }
 }
