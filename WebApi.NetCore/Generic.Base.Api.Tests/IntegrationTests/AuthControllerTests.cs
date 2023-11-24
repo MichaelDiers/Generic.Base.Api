@@ -343,12 +343,21 @@
                 (_, _) => { });
             Assert.NotNull(tokens);
 
-            // delete fail without token
             if ((int) expectedStatusCode > 199 && (int) expectedStatusCode < 300)
             {
-                // delete fails
+                // delete fails without token
                 await client.AddApiKey(apiKey)
                 .RemoveToken()
+                .DeleteAsync(
+                    deleteSignIn,
+                    await HttpClientExtensions.GetUrl(
+                        nameof(AuthController)[..^10],
+                        Urn.Delete),
+                    HttpStatusCode.Unauthorized);
+
+                // delete fails without id claim
+                await client.AddApiKey(apiKey)
+                .AddToken(Role.Accessor)
                 .DeleteAsync(
                     deleteSignIn,
                     await HttpClientExtensions.GetUrl(

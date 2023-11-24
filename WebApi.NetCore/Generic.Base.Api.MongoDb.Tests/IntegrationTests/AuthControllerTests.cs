@@ -230,6 +230,17 @@
                     signUp,
                     expectedStatusCode);
 
+                // change password fails without id claim
+                await client.AddApiKey(apiKey)
+                .AddToken(Role.Accessor)
+                .PostAsync<ChangePassword, Token>(
+                    changePassword,
+                    () => HttpClientExtensions.GetUrl(
+                        nameof(AuthController)[..^10],
+                        Urn.ChangePassword),
+                    HttpStatusCode.Unauthorized,
+                    (_, _) => { });
+
                 // sign in
                 IToken? tokens = await client.PostAsync<SignIn, Token>(
                     signIn,
@@ -343,12 +354,21 @@
                 (_, _) => { });
             Assert.NotNull(tokens);
 
-            // delete fail without token
             if ((int) expectedStatusCode > 199 && (int) expectedStatusCode < 300)
             {
-                // delete fails
+                // delete fails without token
                 await client.AddApiKey(apiKey)
                 .RemoveToken()
+                .DeleteAsync(
+                    deleteSignIn,
+                    await HttpClientExtensions.GetUrl(
+                        nameof(AuthController)[..^10],
+                        Urn.Delete),
+                    HttpStatusCode.Unauthorized);
+
+                // delete fails without id claim
+                await client.AddApiKey(apiKey)
+                .AddToken(Role.Accessor)
                 .DeleteAsync(
                     deleteSignIn,
                     await HttpClientExtensions.GetUrl(
@@ -452,6 +472,15 @@
                         nameof(AuthController)[..^10],
                         Urn.Refresh),
                     HttpStatusCode.Forbidden);
+
+            // should fail without id claim
+            await client.AddApiKey(apiKey)
+                .AddToken(tokens.RefreshToken)
+                .PostAsync<Token>(
+                    () => HttpClientExtensions.GetUrl(
+                        nameof(AuthController)[..^10],
+                        Urn.Refresh),
+                    HttpStatusCode.Unauthorized);
 
             // should fail using refresh token due to not before value
             await client.AddApiKey(apiKey)
