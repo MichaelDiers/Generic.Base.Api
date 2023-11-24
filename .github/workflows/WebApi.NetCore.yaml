@@ -31,7 +31,7 @@ jobs:
       ALTCOVER_XML: ../../doc/coverage/altcover.xml
       REPORT_XML: doc/coverage/altcover.xml
       REPORT_TARGET: doc/coverage
-      ASSEMBLY_FILTERS: -*.Tests
+      ASSEMBLY_FILTERS: -*.Tests;-AltCover.Monitor
     steps:
       - uses: actions/checkout@v3
       - run: 'dotnet build ${{ env.SOLUTION_PATH }} -c ${{ env.CONFIGURATION }}'
