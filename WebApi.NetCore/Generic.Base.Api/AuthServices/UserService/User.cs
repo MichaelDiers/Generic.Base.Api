@@ -36,7 +36,7 @@
         [StringLength(
             AuthServicesValidation.DisplayNameMaxLength,
             MinimumLength = AuthServicesValidation.DisplayNameMinLength)]
-        public string DisplayName { get; }
+        public string DisplayName { get; set; }
 
         /// <summary>
         ///     Gets or sets the password.
@@ -53,7 +53,7 @@
         [Required]
         [MinLength(AuthServicesValidation.InvitationRolesMin)]
         [MaxLength(AuthServicesValidation.InvitationRolesMax)]
-        public IEnumerable<Role> Roles { get; }
+        public IEnumerable<Role> Roles { get; set; }
 
         /// <summary>
         ///     Gets the identifier of the user.
@@ -62,6 +62,6 @@
         [StringLength(
             AuthServicesValidation.IdMaxLength,
             MinimumLength = AuthServicesValidation.IdMinLength)]
-        public string Id { get; }
+        public string Id { get; set; }
     }
 }

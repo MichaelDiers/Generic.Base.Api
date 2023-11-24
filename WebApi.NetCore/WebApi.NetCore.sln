@@ -7,9 +7,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi.NetCore.Api", "WebAp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi.NetCore.Api.Tests", "WebApi.NetCore.Api.Tests\WebApi.NetCore.Api.Tests.csproj", "{2D735C2B-ECE3-4941-ABA2-980C5E36D96F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Generic.Base.Api", "Generic.Base.Api\Generic.Base.Api.csproj", "{981B2AAD-D728-4533-91F9-18923CF9DD30}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Generic.Base.Api", "Generic.Base.Api\Generic.Base.Api.csproj", "{981B2AAD-D728-4533-91F9-18923CF9DD30}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Generic.Base.Api.Tests", "Generic.Base.Api.Tests\Generic.Base.Api.Tests.csproj", "{DA90582B-D0E0-4748-9D2C-77C480F39004}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Generic.Base.Api.Tests", "Generic.Base.Api.Tests\Generic.Base.Api.Tests.csproj", "{DA90582B-D0E0-4748-9D2C-77C480F39004}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Generic.Base.Api.MongoDb", "Generic.Base.Api.MongoDb\Generic.Base.Api.MongoDb.csproj", "{5ED7993A-0E56-4EC0-8800-6118B43F76D1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Generic.Base.Api.MongoDb.Tests", "Generic.Base.Api.MongoDb.Tests\Generic.Base.Api.MongoDb.Tests.csproj", "{3CAD7FD8-6BFB-4078-A5C0-E789DC5BD8EB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +37,14 @@ Global
 		{DA90582B-D0E0-4748-9D2C-77C480F39004}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DA90582B-D0E0-4748-9D2C-77C480F39004}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DA90582B-D0E0-4748-9D2C-77C480F39004}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5ED7993A-0E56-4EC0-8800-6118B43F76D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5ED7993A-0E56-4EC0-8800-6118B43F76D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5ED7993A-0E56-4EC0-8800-6118B43F76D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5ED7993A-0E56-4EC0-8800-6118B43F76D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3CAD7FD8-6BFB-4078-A5C0-E789DC5BD8EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CAD7FD8-6BFB-4078-A5C0-E789DC5BD8EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CAD7FD8-6BFB-4078-A5C0-E789DC5BD8EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CAD7FD8-6BFB-4078-A5C0-E789DC5BD8EB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

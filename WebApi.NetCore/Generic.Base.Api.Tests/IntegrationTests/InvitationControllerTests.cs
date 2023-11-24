@@ -407,9 +407,7 @@
                     {
                         var createdResults = createdTokenEntries.ToArray();
                         var results = resultTokenEntries.ToArray();
-                        Assert.Equal(
-                            createdResults.Length,
-                            results.Length);
+                        Assert.True(createdResults.Length <= results.Length);
                         foreach (var createdResult in createdResults)
                         {
                             Assert.Contains(

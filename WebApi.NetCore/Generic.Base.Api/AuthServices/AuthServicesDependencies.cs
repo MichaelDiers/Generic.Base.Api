@@ -37,5 +37,24 @@
 
             return builder;
         }
+
+        /// <summary>
+        ///     Adds the authentication services.
+        /// </summary>
+        /// <typeparam name="TClientSessionHandle">The type of the client session handle.</typeparam>
+        /// <typeparam name="TTransactionHandler">The type of the transaction handler.</typeparam>
+        /// <param name="builder">The web application builder.</param>
+        /// <returns>The given <paramref name="builder" />.</returns>
+        public static WebApplicationBuilder AddAuthServices<TClientSessionHandle, TTransactionHandler>(
+            this WebApplicationBuilder builder
+        ) where TTransactionHandler : class, ITransactionHandler<TClientSessionHandle>
+        {
+            builder.AddAuthService<TClientSessionHandle, TTransactionHandler>();
+            builder.Services.AddInvitationService<TClientSessionHandle, TTransactionHandler>();
+            builder.Services.AddTokenService<TClientSessionHandle, TTransactionHandler>();
+            builder.Services.AddUserService<TClientSessionHandle, TTransactionHandler>();
+
+            return builder;
+        }
     }
 }

@@ -1,19 +1,20 @@
-﻿namespace Generic.Base.Api.Tests.IntegrationTests
+﻿namespace Generic.Base.Api.MongoDb.Tests.IntegrationTests
 {
     using System.Net;
+    using Generic.Base.Api.AuthServices.InvitationService;
     using Generic.Base.Api.AuthServices.UserService;
     using Generic.Base.Api.Models;
-    using Generic.Base.Api.Tests.IntegrationTests.CustomWebApplicationFactory;
+    using Generic.Base.Api.MongoDb.Tests.IntegrationTests.CustomWebApplicationFactory;
 
     /// <summary>
-    ///     Tests for <see cref="UserController" />.
+    ///     Tests for <see cref="InvitationController" />.
     /// </summary>
-    public class UserControllerTests
+    public class InvitationControllerTests
     {
         /// <summary>
-        ///     The default urn namespace for operations on <see cref="User" />.
+        ///     The default urn namespace for operations on <see cref="Invitation" />.
         /// </summary>
-        private readonly string urnNamespace = nameof(UserController)[..^10];
+        private readonly string urnNamespace = nameof(InvitationController)[..^10];
 
         /// <summary>
         ///     Gets the test data for the <see cref="Create" /> test.
@@ -22,66 +23,46 @@
             new[]
             {
                 // default test should pass
-                UserControllerTests.TestDataEntryForCreate(),
+                InvitationControllerTests.TestDataEntryForCreate(),
                 // api key errors
-                UserControllerTests.TestDataEntryForCreate(
+                InvitationControllerTests.TestDataEntryForCreate(
                     apiKey: "",
                     expectedStatusCode: HttpStatusCode.Unauthorized),
-                UserControllerTests.TestDataEntryForCreate(
+                InvitationControllerTests.TestDataEntryForCreate(
                     apiKey: Guid.NewGuid().ToString(),
                     expectedStatusCode: HttpStatusCode.Forbidden),
                 // missing roles
-                UserControllerTests.TestDataEntryForCreate(
+                InvitationControllerTests.TestDataEntryForCreate(
                     roles: new Role[] { },
                     expectedStatusCode: HttpStatusCode.Forbidden),
-                UserControllerTests.TestDataEntryForCreate(
+                InvitationControllerTests.TestDataEntryForCreate(
                     roles: new[] {Role.User},
                     expectedStatusCode: HttpStatusCode.Forbidden),
-                UserControllerTests.TestDataEntryForCreate(
+                InvitationControllerTests.TestDataEntryForCreate(
                     roles: new[] {Role.Admin},
                     expectedStatusCode: HttpStatusCode.Forbidden),
-                UserControllerTests.TestDataEntryForCreate(
+                InvitationControllerTests.TestDataEntryForCreate(
                     roles: new[] {Role.Accessor},
                     expectedStatusCode: HttpStatusCode.Forbidden),
                 // invalid id
-                UserControllerTests.TestDataEntryForCreate(
+                InvitationControllerTests.TestDataEntryForCreate(
                     "a",
                     expectedStatusCode: HttpStatusCode.BadRequest),
-                UserControllerTests.TestDataEntryForCreate(
+                InvitationControllerTests.TestDataEntryForCreate(
                     new string(
                         'a',
                         101),
                     expectedStatusCode: HttpStatusCode.BadRequest),
-                // invalid password
-                UserControllerTests.TestDataEntryForCreate(
-                    password: new string(
-                        'a',
-                        7),
-                    expectedStatusCode: HttpStatusCode.BadRequest),
-                UserControllerTests.TestDataEntryForCreate(
-                    password: new string(
-                        'a',
-                        101),
-                    expectedStatusCode: HttpStatusCode.BadRequest),
                 // invalid roles
-                UserControllerTests.TestDataEntryForCreate(
-                    userRoles: Array.Empty<Role>(),
+                InvitationControllerTests.TestDataEntryForCreate(
+                    invitationRoles: Array.Empty<Role>(),
                     expectedStatusCode: HttpStatusCode.BadRequest),
-                UserControllerTests.TestDataEntryForCreate(
-                    userRoles: Enumerable.Range(
+                InvitationControllerTests.TestDataEntryForCreate(
+                    invitationRoles: Enumerable.Range(
                             0,
                             11)
                         .Select(_ => Role.Accessor)
                         .ToArray(),
-                    expectedStatusCode: HttpStatusCode.BadRequest),
-                // invalid display name
-                UserControllerTests.TestDataEntryForCreate(
-                    displayName: "a",
-                    expectedStatusCode: HttpStatusCode.BadRequest),
-                UserControllerTests.TestDataEntryForCreate(
-                    displayName: new string(
-                        'a',
-                        101),
                     expectedStatusCode: HttpStatusCode.BadRequest)
             };
 
@@ -92,38 +73,38 @@
             new[]
             {
                 // default test should pass
-                UserControllerTests.TestDataEntryForDelete(),
+                InvitationControllerTests.TestDataEntryForDelete(),
                 // api key errors
-                UserControllerTests.TestDataEntryForDelete(
+                InvitationControllerTests.TestDataEntryForDelete(
                     apiKey: "",
                     expectedStatusCode: HttpStatusCode.Unauthorized),
-                UserControllerTests.TestDataEntryForDelete(
+                InvitationControllerTests.TestDataEntryForDelete(
                     apiKey: Guid.NewGuid().ToString(),
                     expectedStatusCode: HttpStatusCode.Forbidden),
                 // missing roles
-                UserControllerTests.TestDataEntryForDelete(
+                InvitationControllerTests.TestDataEntryForDelete(
                     roles: new Role[] { },
                     expectedStatusCode: HttpStatusCode.Forbidden),
-                UserControllerTests.TestDataEntryForDelete(
+                InvitationControllerTests.TestDataEntryForDelete(
                     roles: new[] {Role.User},
                     expectedStatusCode: HttpStatusCode.Forbidden),
-                UserControllerTests.TestDataEntryForDelete(
+                InvitationControllerTests.TestDataEntryForDelete(
                     roles: new[] {Role.Admin},
                     expectedStatusCode: HttpStatusCode.Forbidden),
-                UserControllerTests.TestDataEntryForDelete(
+                InvitationControllerTests.TestDataEntryForDelete(
                     roles: new[] {Role.Accessor},
                     expectedStatusCode: HttpStatusCode.Forbidden),
                 // invalid id
-                UserControllerTests.TestDataEntryForDelete(
+                InvitationControllerTests.TestDataEntryForDelete(
                     getIdToDelete: _ => "a",
                     expectedStatusCode: HttpStatusCode.BadRequest),
-                UserControllerTests.TestDataEntryForDelete(
+                InvitationControllerTests.TestDataEntryForDelete(
                     getIdToDelete: _ => new string(
                         'a',
                         101),
                     expectedStatusCode: HttpStatusCode.BadRequest),
                 // unknown id
-                UserControllerTests.TestDataEntryForDelete(
+                InvitationControllerTests.TestDataEntryForDelete(
                     getIdToDelete: _ => Guid.NewGuid().ToString(),
                     expectedStatusCode: HttpStatusCode.NotFound)
             };
@@ -135,25 +116,25 @@
             new[]
             {
                 // default test should pass
-                UserControllerTests.TestDataEntryForReadAll(),
+                InvitationControllerTests.TestDataEntryForReadAll(),
                 // api key errors
-                UserControllerTests.TestDataEntryForReadAll(
+                InvitationControllerTests.TestDataEntryForReadAll(
                     apiKey: "",
                     expectedStatusCode: HttpStatusCode.Unauthorized),
-                UserControllerTests.TestDataEntryForReadAll(
+                InvitationControllerTests.TestDataEntryForReadAll(
                     apiKey: Guid.NewGuid().ToString(),
                     expectedStatusCode: HttpStatusCode.Forbidden),
                 // missing roles
-                UserControllerTests.TestDataEntryForReadAll(
+                InvitationControllerTests.TestDataEntryForReadAll(
                     roles: new Role[] { },
                     expectedStatusCode: HttpStatusCode.Forbidden),
-                UserControllerTests.TestDataEntryForReadAll(
+                InvitationControllerTests.TestDataEntryForReadAll(
                     roles: new[] {Role.User},
                     expectedStatusCode: HttpStatusCode.Forbidden),
-                UserControllerTests.TestDataEntryForReadAll(
+                InvitationControllerTests.TestDataEntryForReadAll(
                     roles: new[] {Role.Admin},
                     expectedStatusCode: HttpStatusCode.Forbidden),
-                UserControllerTests.TestDataEntryForReadAll(
+                InvitationControllerTests.TestDataEntryForReadAll(
                     roles: new[] {Role.Accessor},
                     expectedStatusCode: HttpStatusCode.Forbidden)
             };
@@ -165,38 +146,38 @@
             new[]
             {
                 // default test should pass
-                UserControllerTests.TestDataEntryForReadById(),
+                InvitationControllerTests.TestDataEntryForReadById(),
                 // api key errors
-                UserControllerTests.TestDataEntryForReadById(
+                InvitationControllerTests.TestDataEntryForReadById(
                     apiKey: "",
                     expectedStatusCode: HttpStatusCode.Unauthorized),
-                UserControllerTests.TestDataEntryForReadById(
+                InvitationControllerTests.TestDataEntryForReadById(
                     apiKey: Guid.NewGuid().ToString(),
                     expectedStatusCode: HttpStatusCode.Forbidden),
                 // missing roles
-                UserControllerTests.TestDataEntryForReadById(
+                InvitationControllerTests.TestDataEntryForReadById(
                     roles: new Role[] { },
                     expectedStatusCode: HttpStatusCode.Forbidden),
-                UserControllerTests.TestDataEntryForReadById(
+                InvitationControllerTests.TestDataEntryForReadById(
                     roles: new[] {Role.User},
                     expectedStatusCode: HttpStatusCode.Forbidden),
-                UserControllerTests.TestDataEntryForReadById(
+                InvitationControllerTests.TestDataEntryForReadById(
                     roles: new[] {Role.Admin},
                     expectedStatusCode: HttpStatusCode.Forbidden),
-                UserControllerTests.TestDataEntryForReadById(
+                InvitationControllerTests.TestDataEntryForReadById(
                     roles: new[] {Role.Accessor},
                     expectedStatusCode: HttpStatusCode.Forbidden),
                 // invalid id
-                UserControllerTests.TestDataEntryForReadById(
+                InvitationControllerTests.TestDataEntryForReadById(
                     getIdForRead: _ => "a",
                     expectedStatusCode: HttpStatusCode.BadRequest),
-                UserControllerTests.TestDataEntryForReadById(
+                InvitationControllerTests.TestDataEntryForReadById(
                     getIdForRead: _ => new string(
                         'a',
                         101),
                     expectedStatusCode: HttpStatusCode.BadRequest),
                 // unknown id
-                UserControllerTests.TestDataEntryForReadById(
+                InvitationControllerTests.TestDataEntryForReadById(
                     getIdForRead: _ => Guid.NewGuid().ToString(),
                     expectedStatusCode: HttpStatusCode.NotFound)
             };
@@ -205,82 +186,51 @@
             new[]
             {
                 // default test should pass
-                UserControllerTests.TestDataEntryForUpdate(),
+                InvitationControllerTests.TestDataEntryForUpdate(),
                 // api key errors
-                UserControllerTests.TestDataEntryForUpdate(
+                InvitationControllerTests.TestDataEntryForUpdate(
                     apiKey: "",
                     expectedStatusCode: HttpStatusCode.Unauthorized),
-                UserControllerTests.TestDataEntryForUpdate(
+                InvitationControllerTests.TestDataEntryForUpdate(
                     apiKey: Guid.NewGuid().ToString(),
                     expectedStatusCode: HttpStatusCode.Forbidden),
                 // missing roles
-                UserControllerTests.TestDataEntryForUpdate(
+                InvitationControllerTests.TestDataEntryForUpdate(
                     roles: new Role[] { },
                     expectedStatusCode: HttpStatusCode.Forbidden),
-                UserControllerTests.TestDataEntryForUpdate(
+                InvitationControllerTests.TestDataEntryForUpdate(
                     roles: new[] {Role.User},
                     expectedStatusCode: HttpStatusCode.Forbidden),
-                UserControllerTests.TestDataEntryForUpdate(
+                InvitationControllerTests.TestDataEntryForUpdate(
                     roles: new[] {Role.Admin},
                     expectedStatusCode: HttpStatusCode.Forbidden),
-                UserControllerTests.TestDataEntryForUpdate(
+                InvitationControllerTests.TestDataEntryForUpdate(
                     roles: new[] {Role.Accessor},
                     expectedStatusCode: HttpStatusCode.Forbidden),
                 // invalid id
-                UserControllerTests.TestDataEntryForUpdate(
+                InvitationControllerTests.TestDataEntryForUpdate(
                     id2: "a",
                     expectedStatusCode: HttpStatusCode.BadRequest),
-                UserControllerTests.TestDataEntryForUpdate(
+                InvitationControllerTests.TestDataEntryForUpdate(
                     id2: new string(
                         'a',
                         101),
                     expectedStatusCode: HttpStatusCode.BadRequest),
-                UserControllerTests.TestDataEntryForUpdate(
+                InvitationControllerTests.TestDataEntryForUpdate(
                     id2: Guid.NewGuid().ToString(),
-                    expectedStatusCode: HttpStatusCode.NotFound),
-                // invalid password
-                UserControllerTests.TestDataEntryForUpdate(
-                    password2: new string(
-                        'a',
-                        7),
-                    expectedStatusCode: HttpStatusCode.BadRequest),
-                UserControllerTests.TestDataEntryForUpdate(
-                    password2: new string(
-                        'a',
-                        101),
-                    expectedStatusCode: HttpStatusCode.BadRequest),
-                // invalid roles
-                UserControllerTests.TestDataEntryForUpdate(
-                    userRoles2: Array.Empty<Role>(),
-                    expectedStatusCode: HttpStatusCode.BadRequest),
-                UserControllerTests.TestDataEntryForUpdate(
-                    userRoles2: Enumerable.Range(
-                            0,
-                            11)
-                        .Select(_ => Role.Accessor)
-                        .ToArray(),
-                    expectedStatusCode: HttpStatusCode.BadRequest),
-                // invalid display name
-                UserControllerTests.TestDataEntryForUpdate(
-                    displayName2: "a",
-                    expectedStatusCode: HttpStatusCode.BadRequest),
-                UserControllerTests.TestDataEntryForUpdate(
-                    displayName2: new string(
-                        'a',
-                        101),
-                    expectedStatusCode: HttpStatusCode.BadRequest)
+                    expectedStatusCode: HttpStatusCode.NotFound)
             };
 
         [Theory]
-        [MemberData(nameof(UserControllerTests.TestDataForCreate))]
+        [MemberData(nameof(InvitationControllerTests.TestDataForCreate))]
         public async Task Create(
-            User createEntry,
+            Invitation createEntry,
             HttpStatusCode expectedStatusCode,
             IEnumerable<Role> roles,
             string apiKey
         )
         {
-            await GenericCrudControllerTests.Create<User, User>(
+            await GenericCrudControllerTests.Create<Invitation, Invitation>(
                 this.urnNamespace,
                 createEntry,
                 expectedStatusCode,
@@ -290,8 +240,8 @@
                         request.Id,
                         response.Id);
                     Assert.Equal(
-                        request.DisplayName,
-                        response.DisplayName);
+                        request.Roles.Count(),
+                        response.Roles.Count());
                     Assert.Equal(
                         request.Roles,
                         response.Roles);
@@ -301,16 +251,16 @@
         }
 
         [Theory]
-        [MemberData(nameof(UserControllerTests.TestDataForDelete))]
+        [MemberData(nameof(InvitationControllerTests.TestDataForDelete))]
         public async Task Delete(
-            User createEntry,
+            Invitation createEntry,
             HttpStatusCode expectedStatusCode,
             IEnumerable<Role> roles,
             string apiKey,
-            Func<User, string> getIdToDelete
+            Func<Invitation, string> getIdToDelete
         )
         {
-            await GenericCrudControllerTests.Delete<User, ResultUser>(
+            await GenericCrudControllerTests.Delete<Invitation, ResultInvitation>(
                 this.urnNamespace,
                 createEntry,
                 expectedStatusCode,
@@ -350,13 +300,13 @@
         }
 
         [Theory]
-        [MemberData(nameof(UserControllerTests.TestDataForReadAll))]
+        [MemberData(nameof(InvitationControllerTests.TestDataForReadAll))]
         public async Task ReadAll(
-            IEnumerable<User> createEntries,
+            IEnumerable<Invitation> createEntries,
             HttpStatusCode expectedStatusCode,
             IEnumerable<Role> roles,
             string apiKey,
-            Action<IEnumerable<ResultUser>, IEnumerable<ResultUser>> asserts
+            Action<IEnumerable<ResultInvitation>, IEnumerable<ResultInvitation>> asserts
         )
         {
             await GenericCrudControllerTests.ReadAll(
@@ -369,16 +319,16 @@
         }
 
         [Theory]
-        [MemberData(nameof(UserControllerTests.TestDataForReadById))]
+        [MemberData(nameof(InvitationControllerTests.TestDataForReadById))]
         public async Task ReadById(
-            User createEntry,
+            Invitation createEntry,
             HttpStatusCode expectedStatusCode,
             Role[] roles,
             string apiKey,
-            Func<ResultUser, string> getIdForRead
+            Func<ResultInvitation, string> getIdForRead
         )
         {
-            await GenericCrudControllerTests.ReadById<User, ResultUser, ResultUser>(
+            await GenericCrudControllerTests.ReadById<Invitation, ResultInvitation, ResultInvitation>(
                 this.urnNamespace,
                 createEntry,
                 expectedStatusCode,
@@ -388,8 +338,8 @@
                         created.Id,
                         read.Id);
                     Assert.Equal(
-                        created.DisplayName,
-                        read.DisplayName);
+                        created.Roles.Count(),
+                        read.Roles.Count());
                     Assert.Equal(
                         created.Roles,
                         read.Roles);
@@ -401,9 +351,7 @@
 
         public static object[] TestDataEntryForCreate(
             string? id = null,
-            string? password = null,
-            Role[]? userRoles = null,
-            string? displayName = null,
+            Role[]? invitationRoles = null,
             HttpStatusCode expectedStatusCode = HttpStatusCode.Created,
             string apiKey = TestFactory.ApiKey,
             Role[]? roles = null
@@ -411,11 +359,9 @@
         {
             return new object[]
             {
-                UserControllerTests.CreateUser(
+                InvitationControllerTests.CreateInvitation(
                     id,
-                    password,
-                    userRoles,
-                    displayName),
+                    invitationRoles),
                 expectedStatusCode,
                 roles ??
                 new[]
@@ -429,13 +375,9 @@
 
         public static object[] TestDataEntryForReadAll(
             string? id1 = null,
-            string? password1 = null,
-            Role[]? userRoles1 = null,
-            string? displayName1 = null,
+            Role[]? invitationRoles1 = null,
             string? id2 = null,
-            string? password2 = null,
-            Role[]? userRoles2 = null,
-            string? displayName2 = null,
+            Role[]? invitationRoles2 = null,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
             string apiKey = TestFactory.ApiKey,
             Role[]? roles = null
@@ -445,16 +387,12 @@
             {
                 new[]
                 {
-                    UserControllerTests.CreateUser(
+                    InvitationControllerTests.CreateInvitation(
                         id1,
-                        password1,
-                        userRoles1,
-                        displayName1),
-                    UserControllerTests.CreateUser(
+                        invitationRoles1),
+                    InvitationControllerTests.CreateInvitation(
                         id2,
-                        password2,
-                        userRoles2,
-                        displayName2)
+                        invitationRoles2)
                 },
                 expectedStatusCode,
                 roles ??
@@ -464,20 +402,20 @@
                     Role.Admin
                 },
                 apiKey,
-                new Action<IEnumerable<ResultUser>, IEnumerable<ResultUser>>(
+                new Action<IEnumerable<ResultInvitation>, IEnumerable<ResultInvitation>>(
                     (createdTokenEntries, resultTokenEntries) =>
                     {
                         var createdResults = createdTokenEntries.ToArray();
                         var results = resultTokenEntries.ToArray();
                         Assert.True(createdResults.Length <= results.Length);
+
                         foreach (var createdResult in createdResults)
                         {
                             Assert.Contains(
                                 results,
                                 entry => entry.Id == createdResult.Id &&
-                                         entry.DisplayName == createdResult.DisplayName &&
-                                         entry.Roles.All(role => createdResult.Roles.Any(r => r == role)) &&
-                                         entry.Roles.Count() == createdResult.Roles.Count());
+                                         entry.Roles.Count() == createdResult.Roles.Count() &&
+                                         entry.Roles.All(role => createdResult.Roles.Any(r => role == r)));
                         }
                     })
             };
@@ -485,22 +423,18 @@
 
         public static object[] TestDataEntryForReadById(
             string? id = null,
-            string? password = null,
-            Role[]? userRoles = null,
-            string? displayName = null,
+            Role[]? invitationRoles = null,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
             string apiKey = TestFactory.ApiKey,
             Role[]? roles = null,
-            Func<ResultUser, string>? getIdForRead = null
+            Func<ResultInvitation, string>? getIdForRead = null
         )
         {
             return new object[]
             {
-                UserControllerTests.CreateUser(
+                InvitationControllerTests.CreateInvitation(
                     id,
-                    password,
-                    userRoles,
-                    displayName),
+                    invitationRoles),
                 expectedStatusCode,
                 roles ??
                 new[]
@@ -509,37 +443,29 @@
                     Role.Admin
                 },
                 apiKey,
-                getIdForRead ?? new Func<ResultUser, string>(entry => entry.Id)
+                getIdForRead ?? new Func<ResultInvitation, string>(entry => entry.Id)
             };
         }
 
         public static object[] TestDataEntryForUpdate(
             string? id1 = null,
-            string? password1 = null,
-            Role[]? userRoles1 = null,
-            string? displayName1 = null,
+            Role[]? invitationRoles1 = null,
             string? id2 = null,
-            string? password2 = null,
-            Role[]? userRoles2 = null,
-            string? displayName2 = null,
+            Role[]? invitationRoles2 = null,
             HttpStatusCode expectedStatusCode = HttpStatusCode.NoContent,
             Role[]? roles = null,
             string apiKey = TestFactory.ApiKey
         )
         {
-            var entry = UserControllerTests.CreateUser(
+            var entry = InvitationControllerTests.CreateInvitation(
                 id1,
-                password1,
-                userRoles1,
-                displayName1);
+                invitationRoles1);
             return new object[]
             {
                 entry,
-                UserControllerTests.CreateUser(
+                InvitationControllerTests.CreateInvitation(
                     id2 ?? entry.Id,
-                    password2,
-                    userRoles2,
-                    displayName2),
+                    invitationRoles2),
                 expectedStatusCode,
                 roles ??
                 new[]
@@ -552,16 +478,16 @@
         }
 
         [Theory]
-        [MemberData(nameof(UserControllerTests.TestDataForUpdate))]
+        [MemberData(nameof(InvitationControllerTests.TestDataForUpdate))]
         public async Task Update(
-            User createEntry,
-            User updateEntry,
+            Invitation createEntry,
+            Invitation updateEntry,
             HttpStatusCode expectedStatusCode,
             Role[] roles,
             string apiKey
         )
         {
-            await GenericCrudControllerTests.Update<User, ResultUser, ResultUser, User>(
+            await GenericCrudControllerTests.Update<Invitation, ResultInvitation, ResultInvitation, Invitation>(
                 this.urnNamespace,
                 createEntry,
                 updateEntry,
@@ -572,8 +498,8 @@
                         updateEntry.Id,
                         entry.Id);
                     Assert.Equal(
-                        updateEntry.DisplayName,
-                        entry.DisplayName);
+                        updateEntry.Roles.Count(),
+                        entry.Roles.Count());
                     Assert.Equal(
                         updateEntry.Roles,
                         entry.Roles);
@@ -582,43 +508,32 @@
                 apiKey);
         }
 
-        private static User CreateUser(
-            string? id = null,
-            string? password = null,
-            Role[]? roles = null,
-            string? displayName = null
-        )
+        private static Invitation CreateInvitation(string? id = null, Role[]? roles = null)
         {
-            return new User(
+            return new Invitation(
                 id ?? Guid.NewGuid().ToString(),
-                password ?? Guid.NewGuid().ToString(),
                 roles ??
                 new[]
                 {
                     Role.User,
                     Role.Accessor
-                },
-                displayName ?? Guid.NewGuid().ToString());
+                });
         }
 
         private static object[] TestDataEntryForDelete(
             string? id = null,
-            string? password = null,
-            Role[]? userRoles = null,
-            string? displayName = null,
+            Role[]? invitationRoles = null,
             HttpStatusCode expectedStatusCode = HttpStatusCode.NoContent,
             string apiKey = TestFactory.ApiKey,
             Role[]? roles = null,
-            Func<User, string>? getIdToDelete = null
+            Func<Invitation, string>? getIdToDelete = null
         )
         {
             return new object[]
             {
-                UserControllerTests.CreateUser(
+                InvitationControllerTests.CreateInvitation(
                     id,
-                    password,
-                    userRoles,
-                    displayName),
+                    invitationRoles),
                 expectedStatusCode,
                 roles ??
                 new[]
@@ -627,7 +542,7 @@
                     Role.Admin
                 },
                 apiKey,
-                getIdToDelete ?? new Func<User, string>(user => user.Id)
+                getIdToDelete ?? new Func<Invitation, string>(invitation => invitation.Id)
             };
         }
     }

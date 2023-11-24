@@ -1,7 +1,7 @@
 ﻿namespace Generic.Base.Api.EnvironmentService
 {
     /// <inheritdoc cref="IEnvironmentService" />
-    internal class EnvironmentService : IEnvironmentService
+    public class EnvironmentService : IEnvironmentService
     {
         /// <summary>
         ///     Gets the specified environment variable with the specified key.

@@ -1,9 +1,9 @@
-﻿namespace Generic.Base.Api.Tests.IntegrationTests
+﻿namespace Generic.Base.Api.MongoDb.Tests.IntegrationTests
 {
     using System.Net;
     using Generic.Base.Api.AuthServices.UserService;
     using Generic.Base.Api.Models;
-    using Generic.Base.Api.Tests.IntegrationTests.CustomWebApplicationFactory;
+    using Generic.Base.Api.MongoDb.Tests.IntegrationTests.CustomWebApplicationFactory;
 
     /// <summary>
     ///     Tests for <see cref="UserController" />.

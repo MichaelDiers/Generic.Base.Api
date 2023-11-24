@@ -1,19 +1,20 @@
-﻿namespace Generic.Base.Api.Tests.IntegrationTests
+﻿namespace Generic.Base.Api.MongoDb.Tests.IntegrationTests
 {
     using System.Net;
+    using Generic.Base.Api.AuthServices.TokenService;
     using Generic.Base.Api.AuthServices.UserService;
     using Generic.Base.Api.Models;
-    using Generic.Base.Api.Tests.IntegrationTests.CustomWebApplicationFactory;
+    using Generic.Base.Api.MongoDb.Tests.IntegrationTests.CustomWebApplicationFactory;
 
     /// <summary>
-    ///     Tests for <see cref="UserController" />.
+    ///     Tests for <see cref="TokenEntryController" />.
     /// </summary>
-    public class UserControllerTests
+    public class TokenEntryControllerTests
     {
         /// <summary>
-        ///     The default urn namespace for operations on <see cref="User" />.
+        ///     The default urn namespace for operations on <see cref="TokenEntry" />.
         /// </summary>
-        private readonly string urnNamespace = nameof(UserController)[..^10];
+        private readonly string urnNamespace = nameof(TokenEntryController)[..^10];
 
         /// <summary>
         ///     Gets the test data for the <see cref="Create" /> test.
@@ -22,64 +23,46 @@
             new[]
             {
                 // default test should pass
-                UserControllerTests.TestDataEntryForCreate(),
+                TokenEntryControllerTests.TestDataEntryForCreate(),
                 // api key errors
-                UserControllerTests.TestDataEntryForCreate(
+                TokenEntryControllerTests.TestDataEntryForCreate(
                     apiKey: "",
                     expectedStatusCode: HttpStatusCode.Unauthorized),
-                UserControllerTests.TestDataEntryForCreate(
+                TokenEntryControllerTests.TestDataEntryForCreate(
                     apiKey: Guid.NewGuid().ToString(),
                     expectedStatusCode: HttpStatusCode.Forbidden),
                 // missing roles
-                UserControllerTests.TestDataEntryForCreate(
+                TokenEntryControllerTests.TestDataEntryForCreate(
                     roles: new Role[] { },
                     expectedStatusCode: HttpStatusCode.Forbidden),
-                UserControllerTests.TestDataEntryForCreate(
+                TokenEntryControllerTests.TestDataEntryForCreate(
                     roles: new[] {Role.User},
                     expectedStatusCode: HttpStatusCode.Forbidden),
-                UserControllerTests.TestDataEntryForCreate(
+                TokenEntryControllerTests.TestDataEntryForCreate(
                     roles: new[] {Role.Admin},
                     expectedStatusCode: HttpStatusCode.Forbidden),
-                UserControllerTests.TestDataEntryForCreate(
+                TokenEntryControllerTests.TestDataEntryForCreate(
                     roles: new[] {Role.Accessor},
                     expectedStatusCode: HttpStatusCode.Forbidden),
                 // invalid id
-                UserControllerTests.TestDataEntryForCreate(
+                TokenEntryControllerTests.TestDataEntryForCreate(
                     "a",
                     expectedStatusCode: HttpStatusCode.BadRequest),
-                UserControllerTests.TestDataEntryForCreate(
+                TokenEntryControllerTests.TestDataEntryForCreate(
                     new string(
                         'a',
                         101),
                     expectedStatusCode: HttpStatusCode.BadRequest),
-                // invalid password
-                UserControllerTests.TestDataEntryForCreate(
-                    password: new string(
-                        'a',
-                        7),
+                // invalid validUntil
+                TokenEntryControllerTests.TestDataEntryForCreate(
+                    validUntil: "invalid",
                     expectedStatusCode: HttpStatusCode.BadRequest),
-                UserControllerTests.TestDataEntryForCreate(
-                    password: new string(
-                        'a',
-                        101),
+                // invalid userId
+                TokenEntryControllerTests.TestDataEntryForCreate(
+                    userId: "a",
                     expectedStatusCode: HttpStatusCode.BadRequest),
-                // invalid roles
-                UserControllerTests.TestDataEntryForCreate(
-                    userRoles: Array.Empty<Role>(),
-                    expectedStatusCode: HttpStatusCode.BadRequest),
-                UserControllerTests.TestDataEntryForCreate(
-                    userRoles: Enumerable.Range(
-                            0,
-                            11)
-                        .Select(_ => Role.Accessor)
-                        .ToArray(),
-                    expectedStatusCode: HttpStatusCode.BadRequest),
-                // invalid display name
-                UserControllerTests.TestDataEntryForCreate(
-                    displayName: "a",
-                    expectedStatusCode: HttpStatusCode.BadRequest),
-                UserControllerTests.TestDataEntryForCreate(
-                    displayName: new string(
+                TokenEntryControllerTests.TestDataEntryForCreate(
+                    userId: new string(
                         'a',
                         101),
                     expectedStatusCode: HttpStatusCode.BadRequest)
@@ -92,38 +75,38 @@
             new[]
             {
                 // default test should pass
-                UserControllerTests.TestDataEntryForDelete(),
+                TokenEntryControllerTests.TestDataEntryForDelete(),
                 // api key errors
-                UserControllerTests.TestDataEntryForDelete(
+                TokenEntryControllerTests.TestDataEntryForDelete(
                     apiKey: "",
                     expectedStatusCode: HttpStatusCode.Unauthorized),
-                UserControllerTests.TestDataEntryForDelete(
+                TokenEntryControllerTests.TestDataEntryForDelete(
                     apiKey: Guid.NewGuid().ToString(),
                     expectedStatusCode: HttpStatusCode.Forbidden),
                 // missing roles
-                UserControllerTests.TestDataEntryForDelete(
+                TokenEntryControllerTests.TestDataEntryForDelete(
                     roles: new Role[] { },
                     expectedStatusCode: HttpStatusCode.Forbidden),
-                UserControllerTests.TestDataEntryForDelete(
+                TokenEntryControllerTests.TestDataEntryForDelete(
                     roles: new[] {Role.User},
                     expectedStatusCode: HttpStatusCode.Forbidden),
-                UserControllerTests.TestDataEntryForDelete(
+                TokenEntryControllerTests.TestDataEntryForDelete(
                     roles: new[] {Role.Admin},
                     expectedStatusCode: HttpStatusCode.Forbidden),
-                UserControllerTests.TestDataEntryForDelete(
+                TokenEntryControllerTests.TestDataEntryForDelete(
                     roles: new[] {Role.Accessor},
                     expectedStatusCode: HttpStatusCode.Forbidden),
                 // invalid id
-                UserControllerTests.TestDataEntryForDelete(
+                TokenEntryControllerTests.TestDataEntryForDelete(
                     getIdToDelete: _ => "a",
                     expectedStatusCode: HttpStatusCode.BadRequest),
-                UserControllerTests.TestDataEntryForDelete(
+                TokenEntryControllerTests.TestDataEntryForDelete(
                     getIdToDelete: _ => new string(
                         'a',
                         101),
                     expectedStatusCode: HttpStatusCode.BadRequest),
                 // unknown id
-                UserControllerTests.TestDataEntryForDelete(
+                TokenEntryControllerTests.TestDataEntryForDelete(
                     getIdToDelete: _ => Guid.NewGuid().ToString(),
                     expectedStatusCode: HttpStatusCode.NotFound)
             };
@@ -135,25 +118,25 @@
             new[]
             {
                 // default test should pass
-                UserControllerTests.TestDataEntryForReadAll(),
+                TokenEntryControllerTests.TestDataEntryForReadAll(),
                 // api key errors
-                UserControllerTests.TestDataEntryForReadAll(
+                TokenEntryControllerTests.TestDataEntryForReadAll(
                     apiKey: "",
                     expectedStatusCode: HttpStatusCode.Unauthorized),
-                UserControllerTests.TestDataEntryForReadAll(
+                TokenEntryControllerTests.TestDataEntryForReadAll(
                     apiKey: Guid.NewGuid().ToString(),
                     expectedStatusCode: HttpStatusCode.Forbidden),
                 // missing roles
-                UserControllerTests.TestDataEntryForReadAll(
+                TokenEntryControllerTests.TestDataEntryForReadAll(
                     roles: new Role[] { },
                     expectedStatusCode: HttpStatusCode.Forbidden),
-                UserControllerTests.TestDataEntryForReadAll(
+                TokenEntryControllerTests.TestDataEntryForReadAll(
                     roles: new[] {Role.User},
                     expectedStatusCode: HttpStatusCode.Forbidden),
-                UserControllerTests.TestDataEntryForReadAll(
+                TokenEntryControllerTests.TestDataEntryForReadAll(
                     roles: new[] {Role.Admin},
                     expectedStatusCode: HttpStatusCode.Forbidden),
-                UserControllerTests.TestDataEntryForReadAll(
+                TokenEntryControllerTests.TestDataEntryForReadAll(
                     roles: new[] {Role.Accessor},
                     expectedStatusCode: HttpStatusCode.Forbidden)
             };
@@ -165,38 +148,38 @@
             new[]
             {
                 // default test should pass
-                UserControllerTests.TestDataEntryForReadById(),
+                TokenEntryControllerTests.TestDataEntryForReadById(),
                 // api key errors
-                UserControllerTests.TestDataEntryForReadById(
+                TokenEntryControllerTests.TestDataEntryForReadById(
                     apiKey: "",
                     expectedStatusCode: HttpStatusCode.Unauthorized),
-                UserControllerTests.TestDataEntryForReadById(
+                TokenEntryControllerTests.TestDataEntryForReadById(
                     apiKey: Guid.NewGuid().ToString(),
                     expectedStatusCode: HttpStatusCode.Forbidden),
                 // missing roles
-                UserControllerTests.TestDataEntryForReadById(
+                TokenEntryControllerTests.TestDataEntryForReadById(
                     roles: new Role[] { },
                     expectedStatusCode: HttpStatusCode.Forbidden),
-                UserControllerTests.TestDataEntryForReadById(
+                TokenEntryControllerTests.TestDataEntryForReadById(
                     roles: new[] {Role.User},
                     expectedStatusCode: HttpStatusCode.Forbidden),
-                UserControllerTests.TestDataEntryForReadById(
+                TokenEntryControllerTests.TestDataEntryForReadById(
                     roles: new[] {Role.Admin},
                     expectedStatusCode: HttpStatusCode.Forbidden),
-                UserControllerTests.TestDataEntryForReadById(
+                TokenEntryControllerTests.TestDataEntryForReadById(
                     roles: new[] {Role.Accessor},
                     expectedStatusCode: HttpStatusCode.Forbidden),
                 // invalid id
-                UserControllerTests.TestDataEntryForReadById(
+                TokenEntryControllerTests.TestDataEntryForReadById(
                     getIdForRead: _ => "a",
                     expectedStatusCode: HttpStatusCode.BadRequest),
-                UserControllerTests.TestDataEntryForReadById(
+                TokenEntryControllerTests.TestDataEntryForReadById(
                     getIdForRead: _ => new string(
                         'a',
                         101),
                     expectedStatusCode: HttpStatusCode.BadRequest),
                 // unknown id
-                UserControllerTests.TestDataEntryForReadById(
+                TokenEntryControllerTests.TestDataEntryForReadById(
                     getIdForRead: _ => Guid.NewGuid().ToString(),
                     expectedStatusCode: HttpStatusCode.NotFound)
             };
@@ -205,82 +188,51 @@
             new[]
             {
                 // default test should pass
-                UserControllerTests.TestDataEntryForUpdate(),
+                TokenEntryControllerTests.TestDataEntryForUpdate(),
                 // api key errors
-                UserControllerTests.TestDataEntryForUpdate(
+                TokenEntryControllerTests.TestDataEntryForUpdate(
                     apiKey: "",
                     expectedStatusCode: HttpStatusCode.Unauthorized),
-                UserControllerTests.TestDataEntryForUpdate(
+                TokenEntryControllerTests.TestDataEntryForUpdate(
                     apiKey: Guid.NewGuid().ToString(),
                     expectedStatusCode: HttpStatusCode.Forbidden),
                 // missing roles
-                UserControllerTests.TestDataEntryForUpdate(
+                TokenEntryControllerTests.TestDataEntryForUpdate(
                     roles: new Role[] { },
                     expectedStatusCode: HttpStatusCode.Forbidden),
-                UserControllerTests.TestDataEntryForUpdate(
+                TokenEntryControllerTests.TestDataEntryForUpdate(
                     roles: new[] {Role.User},
                     expectedStatusCode: HttpStatusCode.Forbidden),
-                UserControllerTests.TestDataEntryForUpdate(
+                TokenEntryControllerTests.TestDataEntryForUpdate(
                     roles: new[] {Role.Admin},
                     expectedStatusCode: HttpStatusCode.Forbidden),
-                UserControllerTests.TestDataEntryForUpdate(
+                TokenEntryControllerTests.TestDataEntryForUpdate(
                     roles: new[] {Role.Accessor},
                     expectedStatusCode: HttpStatusCode.Forbidden),
                 // invalid id
-                UserControllerTests.TestDataEntryForUpdate(
+                TokenEntryControllerTests.TestDataEntryForUpdate(
                     id2: "a",
                     expectedStatusCode: HttpStatusCode.BadRequest),
-                UserControllerTests.TestDataEntryForUpdate(
+                TokenEntryControllerTests.TestDataEntryForUpdate(
                     id2: new string(
                         'a',
                         101),
                     expectedStatusCode: HttpStatusCode.BadRequest),
-                UserControllerTests.TestDataEntryForUpdate(
+                TokenEntryControllerTests.TestDataEntryForUpdate(
                     id2: Guid.NewGuid().ToString(),
-                    expectedStatusCode: HttpStatusCode.NotFound),
-                // invalid password
-                UserControllerTests.TestDataEntryForUpdate(
-                    password2: new string(
-                        'a',
-                        7),
-                    expectedStatusCode: HttpStatusCode.BadRequest),
-                UserControllerTests.TestDataEntryForUpdate(
-                    password2: new string(
-                        'a',
-                        101),
-                    expectedStatusCode: HttpStatusCode.BadRequest),
-                // invalid roles
-                UserControllerTests.TestDataEntryForUpdate(
-                    userRoles2: Array.Empty<Role>(),
-                    expectedStatusCode: HttpStatusCode.BadRequest),
-                UserControllerTests.TestDataEntryForUpdate(
-                    userRoles2: Enumerable.Range(
-                            0,
-                            11)
-                        .Select(_ => Role.Accessor)
-                        .ToArray(),
-                    expectedStatusCode: HttpStatusCode.BadRequest),
-                // invalid display name
-                UserControllerTests.TestDataEntryForUpdate(
-                    displayName2: "a",
-                    expectedStatusCode: HttpStatusCode.BadRequest),
-                UserControllerTests.TestDataEntryForUpdate(
-                    displayName2: new string(
-                        'a',
-                        101),
-                    expectedStatusCode: HttpStatusCode.BadRequest)
+                    expectedStatusCode: HttpStatusCode.NotFound)
             };
 
         [Theory]
-        [MemberData(nameof(UserControllerTests.TestDataForCreate))]
+        [MemberData(nameof(TokenEntryControllerTests.TestDataForCreate))]
         public async Task Create(
-            User createEntry,
+            TokenEntry createEntry,
             HttpStatusCode expectedStatusCode,
             IEnumerable<Role> roles,
             string apiKey
         )
         {
-            await GenericCrudControllerTests.Create<User, User>(
+            await GenericCrudControllerTests.Create<TokenEntry, TokenEntry>(
                 this.urnNamespace,
                 createEntry,
                 expectedStatusCode,
@@ -290,27 +242,27 @@
                         request.Id,
                         response.Id);
                     Assert.Equal(
-                        request.DisplayName,
-                        response.DisplayName);
+                        request.UserId,
+                        response.UserId);
                     Assert.Equal(
-                        request.Roles,
-                        response.Roles);
+                        request.ValidUntil,
+                        response.ValidUntil);
                 },
                 roles,
                 apiKey);
         }
 
         [Theory]
-        [MemberData(nameof(UserControllerTests.TestDataForDelete))]
+        [MemberData(nameof(TokenEntryControllerTests.TestDataForDelete))]
         public async Task Delete(
-            User createEntry,
+            TokenEntry createEntry,
             HttpStatusCode expectedStatusCode,
             IEnumerable<Role> roles,
             string apiKey,
-            Func<User, string> getIdToDelete
+            Func<TokenEntry, string> getIdToDelete
         )
         {
-            await GenericCrudControllerTests.Delete<User, ResultUser>(
+            await GenericCrudControllerTests.Delete<TokenEntry, ResultTokenEntry>(
                 this.urnNamespace,
                 createEntry,
                 expectedStatusCode,
@@ -350,13 +302,13 @@
         }
 
         [Theory]
-        [MemberData(nameof(UserControllerTests.TestDataForReadAll))]
+        [MemberData(nameof(TokenEntryControllerTests.TestDataForReadAll))]
         public async Task ReadAll(
-            IEnumerable<User> createEntries,
+            IEnumerable<TokenEntry> createEntries,
             HttpStatusCode expectedStatusCode,
             IEnumerable<Role> roles,
             string apiKey,
-            Action<IEnumerable<ResultUser>, IEnumerable<ResultUser>> asserts
+            Action<IEnumerable<ResultTokenEntry>, IEnumerable<ResultTokenEntry>> asserts
         )
         {
             await GenericCrudControllerTests.ReadAll(
@@ -369,16 +321,16 @@
         }
 
         [Theory]
-        [MemberData(nameof(UserControllerTests.TestDataForReadById))]
+        [MemberData(nameof(TokenEntryControllerTests.TestDataForReadById))]
         public async Task ReadById(
-            User createEntry,
+            TokenEntry createEntry,
             HttpStatusCode expectedStatusCode,
             Role[] roles,
             string apiKey,
-            Func<ResultUser, string> getIdForRead
+            Func<ResultTokenEntry, string> getIdForRead
         )
         {
-            await GenericCrudControllerTests.ReadById<User, ResultUser, ResultUser>(
+            await GenericCrudControllerTests.ReadById<TokenEntry, ResultTokenEntry, ResultTokenEntry>(
                 this.urnNamespace,
                 createEntry,
                 expectedStatusCode,
@@ -388,11 +340,11 @@
                         created.Id,
                         read.Id);
                     Assert.Equal(
-                        created.DisplayName,
-                        read.DisplayName);
+                        created.UserId,
+                        read.UserId);
                     Assert.Equal(
-                        created.Roles,
-                        read.Roles);
+                        created.ValidUntil,
+                        read.ValidUntil);
                 },
                 roles,
                 getIdForRead,
@@ -401,9 +353,8 @@
 
         public static object[] TestDataEntryForCreate(
             string? id = null,
-            string? password = null,
-            Role[]? userRoles = null,
-            string? displayName = null,
+            string? userId = null,
+            string? validUntil = null,
             HttpStatusCode expectedStatusCode = HttpStatusCode.Created,
             string apiKey = TestFactory.ApiKey,
             Role[]? roles = null
@@ -411,11 +362,10 @@
         {
             return new object[]
             {
-                UserControllerTests.CreateUser(
+                TokenEntryControllerTests.CreateTokenEntry(
                     id,
-                    password,
-                    userRoles,
-                    displayName),
+                    userId,
+                    validUntil),
                 expectedStatusCode,
                 roles ??
                 new[]
@@ -429,13 +379,11 @@
 
         public static object[] TestDataEntryForReadAll(
             string? id1 = null,
-            string? password1 = null,
-            Role[]? userRoles1 = null,
-            string? displayName1 = null,
+            string? userId1 = null,
+            string? validUntil1 = null,
             string? id2 = null,
-            string? password2 = null,
-            Role[]? userRoles2 = null,
-            string? displayName2 = null,
+            string? userId2 = null,
+            string? validUntil2 = null,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
             string apiKey = TestFactory.ApiKey,
             Role[]? roles = null
@@ -445,16 +393,14 @@
             {
                 new[]
                 {
-                    UserControllerTests.CreateUser(
+                    TokenEntryControllerTests.CreateTokenEntry(
                         id1,
-                        password1,
-                        userRoles1,
-                        displayName1),
-                    UserControllerTests.CreateUser(
+                        userId1,
+                        validUntil1),
+                    TokenEntryControllerTests.CreateTokenEntry(
                         id2,
-                        password2,
-                        userRoles2,
-                        displayName2)
+                        userId2,
+                        validUntil2)
                 },
                 expectedStatusCode,
                 roles ??
@@ -464,7 +410,7 @@
                     Role.Admin
                 },
                 apiKey,
-                new Action<IEnumerable<ResultUser>, IEnumerable<ResultUser>>(
+                new Action<IEnumerable<ResultTokenEntry>, IEnumerable<ResultTokenEntry>>(
                     (createdTokenEntries, resultTokenEntries) =>
                     {
                         var createdResults = createdTokenEntries.ToArray();
@@ -475,9 +421,8 @@
                             Assert.Contains(
                                 results,
                                 entry => entry.Id == createdResult.Id &&
-                                         entry.DisplayName == createdResult.DisplayName &&
-                                         entry.Roles.All(role => createdResult.Roles.Any(r => r == role)) &&
-                                         entry.Roles.Count() == createdResult.Roles.Count());
+                                         entry.UserId == createdResult.UserId &&
+                                         entry.ValidUntil == createdResult.ValidUntil);
                         }
                     })
             };
@@ -485,22 +430,20 @@
 
         public static object[] TestDataEntryForReadById(
             string? id = null,
-            string? password = null,
-            Role[]? userRoles = null,
-            string? displayName = null,
+            string? userId = null,
+            string? validUntil = null,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
             string apiKey = TestFactory.ApiKey,
             Role[]? roles = null,
-            Func<ResultUser, string>? getIdForRead = null
+            Func<ResultTokenEntry, string>? getIdForRead = null
         )
         {
             return new object[]
             {
-                UserControllerTests.CreateUser(
+                TokenEntryControllerTests.CreateTokenEntry(
                     id,
-                    password,
-                    userRoles,
-                    displayName),
+                    userId,
+                    validUntil),
                 expectedStatusCode,
                 roles ??
                 new[]
@@ -509,37 +452,33 @@
                     Role.Admin
                 },
                 apiKey,
-                getIdForRead ?? new Func<ResultUser, string>(entry => entry.Id)
+                getIdForRead ?? new Func<ResultTokenEntry, string>(entry => entry.Id)
             };
         }
 
         public static object[] TestDataEntryForUpdate(
             string? id1 = null,
-            string? password1 = null,
-            Role[]? userRoles1 = null,
-            string? displayName1 = null,
+            string? userId1 = null,
+            string? validUntil1 = null,
             string? id2 = null,
-            string? password2 = null,
-            Role[]? userRoles2 = null,
-            string? displayName2 = null,
+            string? userId2 = null,
+            string? validUntil2 = null,
             HttpStatusCode expectedStatusCode = HttpStatusCode.NoContent,
             Role[]? roles = null,
             string apiKey = TestFactory.ApiKey
         )
         {
-            var entry = UserControllerTests.CreateUser(
+            var entry = TokenEntryControllerTests.CreateTokenEntry(
                 id1,
-                password1,
-                userRoles1,
-                displayName1);
+                userId1,
+                validUntil1);
             return new object[]
             {
                 entry,
-                UserControllerTests.CreateUser(
+                TokenEntryControllerTests.CreateTokenEntry(
                     id2 ?? entry.Id,
-                    password2,
-                    userRoles2,
-                    displayName2),
+                    userId2,
+                    validUntil2),
                 expectedStatusCode,
                 roles ??
                 new[]
@@ -552,16 +491,16 @@
         }
 
         [Theory]
-        [MemberData(nameof(UserControllerTests.TestDataForUpdate))]
+        [MemberData(nameof(TokenEntryControllerTests.TestDataForUpdate))]
         public async Task Update(
-            User createEntry,
-            User updateEntry,
+            TokenEntry createEntry,
+            TokenEntry updateEntry,
             HttpStatusCode expectedStatusCode,
             Role[] roles,
             string apiKey
         )
         {
-            await GenericCrudControllerTests.Update<User, ResultUser, ResultUser, User>(
+            await GenericCrudControllerTests.Update<TokenEntry, ResultTokenEntry, ResultTokenEntry, TokenEntry>(
                 this.urnNamespace,
                 createEntry,
                 updateEntry,
@@ -572,53 +511,40 @@
                         updateEntry.Id,
                         entry.Id);
                     Assert.Equal(
-                        updateEntry.DisplayName,
-                        entry.DisplayName);
+                        updateEntry.UserId,
+                        entry.UserId);
                     Assert.Equal(
-                        updateEntry.Roles,
-                        entry.Roles);
+                        updateEntry.ValidUntil,
+                        entry.ValidUntil);
                 },
                 roles,
                 apiKey);
         }
 
-        private static User CreateUser(
-            string? id = null,
-            string? password = null,
-            Role[]? roles = null,
-            string? displayName = null
-        )
+        private static TokenEntry CreateTokenEntry(string? id = null, string? userId = null, string? validUntil = null)
         {
-            return new User(
+            return new TokenEntry(
                 id ?? Guid.NewGuid().ToString(),
-                password ?? Guid.NewGuid().ToString(),
-                roles ??
-                new[]
-                {
-                    Role.User,
-                    Role.Accessor
-                },
-                displayName ?? Guid.NewGuid().ToString());
+                userId ?? Guid.NewGuid().ToString(),
+                validUntil ?? "2024.12.01 13:04:22");
         }
 
         private static object[] TestDataEntryForDelete(
             string? id = null,
-            string? password = null,
-            Role[]? userRoles = null,
-            string? displayName = null,
+            string? userId = null,
+            string? validUntil = null,
             HttpStatusCode expectedStatusCode = HttpStatusCode.NoContent,
             string apiKey = TestFactory.ApiKey,
             Role[]? roles = null,
-            Func<User, string>? getIdToDelete = null
+            Func<TokenEntry, string>? getIdToDelete = null
         )
         {
             return new object[]
             {
-                UserControllerTests.CreateUser(
+                TokenEntryControllerTests.CreateTokenEntry(
                     id,
-                    password,
-                    userRoles,
-                    displayName),
+                    userId,
+                    validUntil),
                 expectedStatusCode,
                 roles ??
                 new[]
@@ -627,7 +553,7 @@
                     Role.Admin
                 },
                 apiKey,
-                getIdToDelete ?? new Func<User, string>(user => user.Id)
+                getIdToDelete ?? new Func<TokenEntry, string>(tokenEntry => tokenEntry.Id)
             };
         }
     }

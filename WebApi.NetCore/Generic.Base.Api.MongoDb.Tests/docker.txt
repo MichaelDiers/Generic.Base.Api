@@ -1,0 +1,2 @@
+docker pull mongo
+"C:\Program Files\Docker\Docker\Docker Desktop.exe" && timeout 50 && docker run -d --rm -p 27017:27017 --name warehouse_db mongo mongod --replSet warehouse_replSet && timeout 3 && docker exec -it warehouse_db mongosh --eval "rs.initiate({_id: \"warehouse_replSet\",members: [{_id: 0, host: \"localhost:27017\"}]})"
