@@ -48,6 +48,7 @@ jobs:
           targetdir: ${{ env.REPORT_TARGET }}
           reporttypes: Html_Dark
           assemblyfilters: ${{ env.ASSEMBLY_FILTERS }}
+          title: "WebApi.NetCore Code Coverage"
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Upload artifact
