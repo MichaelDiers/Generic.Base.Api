@@ -80,41 +80,12 @@
         [InlineData(
             "namespace",
             Urn.Options,
-            "type",
-            "value")]
-        public void Create(
-            string urnNamespace,
-            Urn urn,
-            string url,
-            string type,
-            string value
-        )
-        {
-            var claim = ClaimLink.Create(
-                urnNamespace,
-                urn,
-                url,
-                new Claim(
-                    type,
-                    value));
-
-            Assert.Equal(
-                url,
-                claim.Url);
-            Assert.Equal(
-                $"urn:{urnNamespace}:{urn.ToString()}",
-                claim.Urn);
-        }
-
-        [Theory]
-        [InlineData(
-            "namespace",
-            Urn.Options,
+            "url",
             "type1",
             "value1",
             "type2",
             "value2")]
-        public void Create(
+        public void CreateMultiClaim(
             string urnNamespace,
             Urn urn,
             string url,
@@ -134,6 +105,37 @@
                 new Claim(
                     type2,
                     value2));
+
+            Assert.Equal(
+                url,
+                claim.Url);
+            Assert.Equal(
+                $"urn:{urnNamespace}:{urn.ToString()}",
+                claim.Urn);
+        }
+
+        [Theory]
+        [InlineData(
+            "namespace",
+            Urn.Options,
+            "url",
+            "type",
+            "value")]
+        public void CreateSingleClaim(
+            string urnNamespace,
+            Urn urn,
+            string url,
+            string type,
+            string value
+        )
+        {
+            var claim = ClaimLink.Create(
+                urnNamespace,
+                urn,
+                url,
+                new Claim(
+                    type,
+                    value));
 
             Assert.Equal(
                 url,
