@@ -3,17 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34024.191
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi.NetCore.Api", "WebApi.NetCore.Api\WebApi.NetCore.Api.csproj", "{7D32AC97-2F45-4DB1-A1B4-3F3A8D5FC525}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi.NetCore.Api.Tests", "WebApi.NetCore.Api.Tests\WebApi.NetCore.Api.Tests.csproj", "{2D735C2B-ECE3-4941-ABA2-980C5E36D96F}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Generic.Base.Api", "Generic.Base.Api\Generic.Base.Api.csproj", "{981B2AAD-D728-4533-91F9-18923CF9DD30}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Generic.Base.Api.Tests", "Generic.Base.Api.Tests\Generic.Base.Api.Tests.csproj", "{DA90582B-D0E0-4748-9D2C-77C480F39004}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Generic.Base.Api.MongoDb", "Generic.Base.Api.MongoDb\Generic.Base.Api.MongoDb.csproj", "{5ED7993A-0E56-4EC0-8800-6118B43F76D1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Generic.Base.Api.MongoDb", "Generic.Base.Api.MongoDb\Generic.Base.Api.MongoDb.csproj", "{5ED7993A-0E56-4EC0-8800-6118B43F76D1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Generic.Base.Api.MongoDb.Tests", "Generic.Base.Api.MongoDb.Tests\Generic.Base.Api.MongoDb.Tests.csproj", "{3CAD7FD8-6BFB-4078-A5C0-E789DC5BD8EB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Generic.Base.Api.MongoDb.Tests", "Generic.Base.Api.MongoDb.Tests\Generic.Base.Api.MongoDb.Tests.csproj", "{3CAD7FD8-6BFB-4078-A5C0-E789DC5BD8EB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,14 +17,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{7D32AC97-2F45-4DB1-A1B4-3F3A8D5FC525}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7D32AC97-2F45-4DB1-A1B4-3F3A8D5FC525}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7D32AC97-2F45-4DB1-A1B4-3F3A8D5FC525}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7D32AC97-2F45-4DB1-A1B4-3F3A8D5FC525}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2D735C2B-ECE3-4941-ABA2-980C5E36D96F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2D735C2B-ECE3-4941-ABA2-980C5E36D96F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2D735C2B-ECE3-4941-ABA2-980C5E36D96F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2D735C2B-ECE3-4941-ABA2-980C5E36D96F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{981B2AAD-D728-4533-91F9-18923CF9DD30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{981B2AAD-D728-4533-91F9-18923CF9DD30}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{981B2AAD-D728-4533-91F9-18923CF9DD30}.Release|Any CPU.ActiveCfg = Release|Any CPU

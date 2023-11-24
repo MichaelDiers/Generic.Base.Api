@@ -5,6 +5,9 @@
     /// <summary>
     ///     Tests for <see cref="JwtConfiguration" />.
     /// </summary>
+    [Trait(
+        "TestType",
+        "UnitTest")]
     public class JwtConfigurationTests
     {
         [Theory]

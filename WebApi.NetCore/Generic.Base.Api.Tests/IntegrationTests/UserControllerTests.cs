@@ -8,6 +8,9 @@
     /// <summary>
     ///     Tests for <see cref="UserController" />.
     /// </summary>
+    [Trait(
+        "TestType",
+        "InMemoryIntegrationTest")]
     public class UserControllerTests
     {
         /// <summary>

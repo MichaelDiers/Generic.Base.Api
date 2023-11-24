@@ -5,6 +5,9 @@
     /// <summary>
     ///     Tests for <see cref="ErrorResult" />.
     /// </summary>
+    [Trait(
+        "TestType",
+        "UnitTest")]
     public class ErrorResultTests
     {
         [Theory]

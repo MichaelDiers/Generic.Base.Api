@@ -5,6 +5,9 @@
     /// <summary>
     ///     Tests for <see cref="BadRequestException" />.
     /// </summary>
+    [Trait(
+        "TestType",
+        "UnitTest")]
     public class BadRequestExceptionTests
     {
         [Fact]

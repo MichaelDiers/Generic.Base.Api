@@ -5,6 +5,9 @@
     using Generic.Base.Api.Jwt;
     using Generic.Base.Api.Tests.Lib;
 
+    [Trait(
+        "TestType",
+        "UnitTest")]
     public class JwtTokenServiceTests
     {
         [Fact]

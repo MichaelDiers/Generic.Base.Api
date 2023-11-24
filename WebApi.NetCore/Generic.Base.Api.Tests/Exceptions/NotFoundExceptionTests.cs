@@ -5,6 +5,9 @@
     /// <summary>
     ///     Tests for <see cref="NotFoundException" />.
     /// </summary>
+    [Trait(
+        "TestType",
+        "UnitTest")]
     public class NotFoundExceptionTests
     {
         [Fact]

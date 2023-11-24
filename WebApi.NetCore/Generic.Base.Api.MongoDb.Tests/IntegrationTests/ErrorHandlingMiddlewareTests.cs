@@ -4,6 +4,9 @@
     using Generic.Base.Api.Exceptions;
     using Generic.Base.Api.MongoDb.Tests.IntegrationTests.CustomWebApplicationFactory;
 
+    [Trait(
+        "TestType",
+        "MongoDbIntegrationTest")]
     public class ErrorHandlingMiddlewareTests
     {
         [Theory]

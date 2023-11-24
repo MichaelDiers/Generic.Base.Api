@@ -8,6 +8,9 @@
     /// <summary>
     ///     Tests for <see cref="HttpContextExtensions" />.
     /// </summary>
+    [Trait(
+        "TestType",
+        "InMemoryIntegrationTest")]
     public class HttpContextExtensionsTest
     {
         /// <see cref="SetResponseController" />

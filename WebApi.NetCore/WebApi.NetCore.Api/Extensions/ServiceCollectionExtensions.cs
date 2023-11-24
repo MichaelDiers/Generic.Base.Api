@@ -1,11 +1,14 @@
 ﻿namespace WebApi.NetCore.Api.Extensions
 {
-    using System.Text;
-    using Microsoft.AspNetCore.Authentication.JwtBearer;
-    using Microsoft.IdentityModel.Tokens;
+    using System.Reflection;
+    using Generic.Base.Api.Database;
+    using Generic.Base.Api.EnvironmentService;
+    using Generic.Base.Api.Models;
     using Microsoft.OpenApi.Models;
+    using MongoDB.Driver;
     using WebApi.NetCore.Api.Contracts.Configuration;
     using WebApi.NetCore.Api.Contracts.Services;
+    using WebApi.NetCore.Api.Database;
     using WebApi.NetCore.Api.Models.Configuration;
     using WebApi.NetCore.Api.Services;
 
@@ -32,8 +35,9 @@
             }
 
             services.AddSingleton<IAppConfiguration>(_ => appConfiguration);
-            services.AddSingleton<IJwtConfiguration>(_ => appConfiguration.Jwt);
-            services.AddSingleton<IHealthCheckConfiguration>(_ => appConfiguration.HealthCheck);
+
+            services.AddSingleton<IDocumentationHealthCheckConfiguration>(
+                _ => appConfiguration.DocumentationHealthCheck);
 
             return services;
         }
@@ -46,7 +50,10 @@
         public static IServiceCollection AddDependencies(this IServiceCollection services)
         {
             services.AddScoped<IAuthService, AuthService>();
-            services.AddScoped<IJwtTokenService, JwtTokenService>();
+
+            services.AddSingleton<IMongoClient>(
+                _ => new MongoClient("mongodb://localhost:27017/?replicaSet=warehouse_replSet"));
+            services.AddSingleton<ITransactionHandler<IClientSessionHandle>, TransactionHandler>();
 
             return services;
         }
@@ -67,7 +74,7 @@
                 throw new ArgumentNullException(nameof(envNames));
             }
 
-            var service = new EnvironmentService();
+            var service = EnvironmentServiceDependencies.GetEnvironmentService();
 
             var envConfiguration = new EnvConfiguration
             {
@@ -78,44 +85,6 @@
             services.AddSingleton<IEnvConfiguration>(_ => envConfiguration);
 
             return envConfiguration;
-        }
-
-        /// <summary>
-        ///     Adds the jwt authentication.
-        /// </summary>
-        /// <param name="services">The services collection.</param>
-        /// <param name="jwtConfiguration">The jwt configuration.</param>
-        /// <param name="envConfiguration">The environment configuration.</param>
-        /// <returns>The given <paramref name="services" />.</returns>
-        /// <exception cref="System.ArgumentException">key</exception>
-        public static IServiceCollection AddJwtAuthentication(
-            this IServiceCollection services,
-            IJwtConfiguration? jwtConfiguration,
-            IEnvConfiguration envConfiguration
-        )
-        {
-            if (jwtConfiguration is null)
-            {
-                throw new ArgumentNullException(nameof(jwtConfiguration));
-            }
-
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(
-                    options =>
-                    {
-                        options.TokenValidationParameters = new TokenValidationParameters
-                        {
-                            IssuerSigningKey =
-                                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(envConfiguration.JwtKey)),
-                            ValidateIssuerSigningKey = true,
-                            ValidAudience = jwtConfiguration.Audience,
-                            ValidateAudience = true,
-                            ValidateIssuer = true,
-                            ValidIssuer = jwtConfiguration.Issuer
-                        };
-                    });
-
-            return services;
         }
 
         /// <summary>
@@ -146,6 +115,16 @@
                             BearerFormat = "JWT",
                             Scheme = "Bearer"
                         });
+                    option.AddSecurityDefinition(
+                        "ApiKey",
+                        new OpenApiSecurityScheme
+                        {
+                            Description = "ApiKey must appear in header",
+                            Type = SecuritySchemeType.ApiKey,
+                            Name = "x-api-key",
+                            In = ParameterLocation.Header,
+                            Scheme = "ApiKeyScheme"
+                        });
                     option.AddSecurityRequirement(
                         new OpenApiSecurityRequirement
                         {
@@ -161,6 +140,36 @@
                                 Array.Empty<string>()
                             }
                         });
+                    option.AddSecurityRequirement(
+                        new OpenApiSecurityRequirement
+                        {
+                            {
+                                new OpenApiSecurityScheme
+                                {
+                                    Reference = new OpenApiReference
+                                    {
+                                        Type = ReferenceType.SecurityScheme,
+                                        Id = "ApiKey"
+                                    },
+                                    In = ParameterLocation.Header
+                                },
+                                new List<string>()
+                            }
+                        });
+
+                    var xmlFilename = $"{typeof(ILink).Assembly.GetName().Name}.xml";
+                    option.IncludeXmlComments(
+                        Path.Combine(
+                            AppContext.BaseDirectory,
+                            xmlFilename),
+                        true);
+
+                    xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                    option.IncludeXmlComments(
+                        Path.Combine(
+                            AppContext.BaseDirectory,
+                            xmlFilename),
+                        true);
                 });
         }
     }

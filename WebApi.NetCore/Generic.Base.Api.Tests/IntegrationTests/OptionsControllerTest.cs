@@ -9,6 +9,9 @@
     /// <summary>
     ///     Tests for <see cref="OptionsControllerBase" />.
     /// </summary>
+    [Trait(
+        "TestType",
+        "InMemoryIntegrationTest")]
     public class OptionsControllerTest
     {
         [Fact]

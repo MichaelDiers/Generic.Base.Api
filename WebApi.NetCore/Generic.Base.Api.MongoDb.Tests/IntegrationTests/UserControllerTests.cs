@@ -8,6 +8,9 @@
     /// <summary>
     ///     Tests for <see cref="UserController" />.
     /// </summary>
+    [Trait(
+        "TestType",
+        "MongoDbIntegrationTest")]
     public class UserControllerTests
     {
         /// <summary>

@@ -5,6 +5,9 @@
     /// <summary>
     ///     Tests for <see cref="ConflictException" />.
     /// </summary>
+    [Trait(
+        "TestType",
+        "UnitTest")]
     public class ConflictExceptionTests
     {
         [Fact]

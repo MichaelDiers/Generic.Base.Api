@@ -6,6 +6,9 @@
     /// <summary>
     ///     Tests for <see cref="IHashService" />
     /// </summary>
+    [Trait(
+        "TestType",
+        "UnitTest")]
     public class HashServiceTests
     {
         [Theory]

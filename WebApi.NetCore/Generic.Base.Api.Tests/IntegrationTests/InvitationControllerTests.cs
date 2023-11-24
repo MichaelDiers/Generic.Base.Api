@@ -9,6 +9,9 @@
     /// <summary>
     ///     Tests for <see cref="InvitationController" />.
     /// </summary>
+    [Trait(
+        "TestType",
+        "InMemoryIntegrationTest")]
     public class InvitationControllerTests
     {
         /// <summary>

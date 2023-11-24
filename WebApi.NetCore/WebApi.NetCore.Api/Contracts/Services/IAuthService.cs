@@ -1,10 +1,12 @@
 ﻿namespace WebApi.NetCore.Api.Contracts.Services
 {
+    using Generic.Base.Api.Jwt;
+
     /// <summary>
     ///     The auth business logic.
     /// </summary>
     public interface IAuthService
     {
-        string SignIn(params Role[] roles);
+        IToken SignIn(string id, params Role[] roles);
     }
 }

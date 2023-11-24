@@ -7,6 +7,9 @@
     /// <summary>
     ///     Tests for <see cref="ClaimLink" />.
     /// </summary>
+    [Trait(
+        "TestType",
+        "UnitTest")]
     public class ClaimLinkTests
     {
         [Fact]

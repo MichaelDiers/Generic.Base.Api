@@ -6,6 +6,9 @@
     /// <summary>
     ///     Test for the api key middleware.
     /// </summary>
+    [Trait(
+        "TestType",
+        "MongoDbIntegrationTest")]
     public class ApiKeyTests
     {
         [Fact]

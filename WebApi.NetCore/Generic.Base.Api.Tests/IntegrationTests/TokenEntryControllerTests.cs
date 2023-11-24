@@ -9,6 +9,9 @@
     /// <summary>
     ///     Tests for <see cref="TokenEntryController" />.
     /// </summary>
+    [Trait(
+        "TestType",
+        "InMemoryIntegrationTest")]
     public class TokenEntryControllerTests
     {
         /// <summary>

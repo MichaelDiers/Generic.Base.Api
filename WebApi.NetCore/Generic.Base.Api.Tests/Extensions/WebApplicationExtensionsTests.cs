@@ -7,6 +7,9 @@
     /// <summary>
     ///     Tests for <see cref="WebApplicationExtensions" />.
     /// </summary>
+    [Trait(
+        "TestType",
+        "UnitTest")]
     public class WebApplicationExtensionsTests
     {
         [Fact]

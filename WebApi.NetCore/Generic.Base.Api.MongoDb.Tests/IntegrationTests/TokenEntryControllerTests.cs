@@ -9,6 +9,9 @@
     /// <summary>
     ///     Tests for <see cref="TokenEntryController" />.
     /// </summary>
+    [Trait(
+        "TestType",
+        "MongoDbIntegrationTest")]
     public class TokenEntryControllerTests
     {
         /// <summary>

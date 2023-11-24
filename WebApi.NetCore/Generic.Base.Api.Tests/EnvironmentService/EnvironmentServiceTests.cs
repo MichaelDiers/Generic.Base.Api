@@ -6,6 +6,9 @@
     /// <summary>
     ///     Tests for <see cref="IEnvironmentService" />.
     /// </summary>
+    [Trait(
+        "TestType",
+        "InMemoryIntegrationTest")]
     public class EnvironmentServiceTests
     {
         [Theory]

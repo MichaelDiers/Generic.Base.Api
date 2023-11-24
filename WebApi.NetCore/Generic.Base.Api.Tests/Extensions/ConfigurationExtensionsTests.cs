@@ -7,6 +7,9 @@
     /// <summary>
     ///     Tests for <see cref="Api.Extensions.ConfigurationExtensions" />.
     /// </summary>
+    [Trait(
+        "TestType",
+        "UnitTest")]
     public class ConfigurationExtensionsTests
     {
         [Fact]

@@ -5,6 +5,9 @@
     /// <summary>
     ///     Tests for <see cref="UnauthorizedException" />.
     /// </summary>
+    [Trait(
+        "TestType",
+        "UnitTest")]
     public class UnauthorizedExceptionTests
     {
         [Fact]

@@ -6,6 +6,9 @@
     /// <summary>
     ///     Tests for <see cref="EnvironmentServiceDependencies" />.
     /// </summary>
+    [Trait(
+        "TestType",
+        "UnitTest")]
     public class EnvironmentServiceDependenciesTests
     {
         [Fact]

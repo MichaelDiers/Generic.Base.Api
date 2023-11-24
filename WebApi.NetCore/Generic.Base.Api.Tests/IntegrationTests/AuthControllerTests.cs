@@ -9,6 +9,9 @@
     using Generic.Base.Api.Models;
     using Generic.Base.Api.Tests.IntegrationTests.CustomWebApplicationFactory;
 
+    [Trait(
+        "TestType",
+        "InMemoryIntegrationTest")]
     public class AuthControllerTests
     {
         public static IEnumerable<object[]> ChangePasswordTestData =>

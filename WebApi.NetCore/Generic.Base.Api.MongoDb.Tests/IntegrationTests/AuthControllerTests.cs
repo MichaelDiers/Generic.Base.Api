@@ -9,6 +9,9 @@
     using Generic.Base.Api.Models;
     using Generic.Base.Api.MongoDb.Tests.IntegrationTests.CustomWebApplicationFactory;
 
+    [Trait(
+        "TestType",
+        "MongoDbIntegrationTest")]
     public class AuthControllerTests
     {
         public static IEnumerable<object[]> ChangePasswordTestData =>

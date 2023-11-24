@@ -6,6 +6,9 @@
     /// <summary>
     ///     Test for <see cref="HashServiceDependencies.AddHashService" />.
     /// </summary>
+    [Trait(
+        "TestType",
+        "UnitTest")]
     public class HashServiceDependenciesTests
     {
         [Fact]

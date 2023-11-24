@@ -11,6 +11,9 @@
     /// <summary>
     ///     Generic tests for crud controllers.
     /// </summary>
+    [Trait(
+        "TestType",
+        "MongoDbIntegrationTest")]
     public static class GenericCrudControllerTests
     {
         /// <summary>

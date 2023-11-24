@@ -1,5 +1,7 @@
 ﻿namespace WebApi.NetCore.Api.Services
 {
+    using System.Security.Claims;
+    using Generic.Base.Api.Jwt;
     using WebApi.NetCore.Api.Contracts;
     using WebApi.NetCore.Api.Contracts.Services;
 
@@ -14,9 +16,17 @@
             this.jwtTokenService = jwtTokenService;
         }
 
-        public string SignIn(params Role[] roles)
+        public IToken SignIn(string id, params Role[] roles)
         {
-            return this.jwtTokenService.CreateToken(roles);
+            var claims = roles.Select(
+                role => new Claim(
+                    ClaimTypes.Role,
+                    role.ToString()));
+
+            return this.jwtTokenService.CreateToken(
+                id,
+                id,
+                claims);
         }
     }
 }

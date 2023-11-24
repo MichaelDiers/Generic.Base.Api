@@ -9,6 +9,9 @@
     /// <summary>
     ///     Tests for <see cref="InvitationController" />.
     /// </summary>
+    [Trait(
+        "TestType",
+        "MongoDbIntegrationTest")]
     public class InvitationControllerTests
     {
         /// <summary>

@@ -4,6 +4,9 @@
     using Generic.Base.Api.Extensions;
     using Microsoft.AspNetCore.Http;
 
+    [Trait(
+        "TestType",
+        "UnitTest")]
     public class HttpContextExtensionsTest
     {
         [Fact]

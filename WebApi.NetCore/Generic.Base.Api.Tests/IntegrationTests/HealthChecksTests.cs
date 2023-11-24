@@ -4,6 +4,9 @@
     using Generic.Base.Api.Tests.IntegrationTests.CustomWebApplicationFactory;
     using Newtonsoft.Json.Linq;
 
+    [Trait(
+        "TestType",
+        "InMemoryIntegrationTest")]
     public class HealthChecksTests
     {
         [Fact]

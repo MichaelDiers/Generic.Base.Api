@@ -4,6 +4,9 @@
     using Generic.Base.Api.Exceptions;
     using Generic.Base.Api.Tests.IntegrationTests.CustomWebApplicationFactory;
 
+    [Trait(
+        "TestType",
+        "InMemoryIntegrationTest")]
     public class ErrorHandlingMiddlewareTests
     {
         [Theory]

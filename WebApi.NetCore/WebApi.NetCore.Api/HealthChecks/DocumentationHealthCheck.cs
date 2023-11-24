@@ -12,13 +12,13 @@
         /// <summary>
         ///     The configuration of the health check.
         /// </summary>
-        private readonly IHealthCheckConfiguration configuration;
+        private readonly IDocumentationHealthCheckConfiguration configuration;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DocumentationHealthCheck" /> class.
         /// </summary>
         /// <param name="configuration">The configuration of the health check.</param>
-        public DocumentationHealthCheck(IHealthCheckConfiguration configuration)
+        public DocumentationHealthCheck(IDocumentationHealthCheckConfiguration configuration)
         {
             this.configuration = configuration;
         }

@@ -5,6 +5,9 @@
     /// <summary>
     ///     Tests for <see cref="Link" />.
     /// </summary>
+    [Trait(
+        "TestType",
+        "UnitTest")]
     public class LinkTests
     {
         [Theory]

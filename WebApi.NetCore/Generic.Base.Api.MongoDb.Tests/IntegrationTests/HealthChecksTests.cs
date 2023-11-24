@@ -4,6 +4,9 @@
     using Generic.Base.Api.MongoDb.Tests.IntegrationTests.CustomWebApplicationFactory;
     using Newtonsoft.Json.Linq;
 
+    [Trait(
+        "TestType",
+        "MongoDbIntegrationTest")]
     public class HealthChecksTests
     {
         [Fact]
