@@ -3,6 +3,7 @@
     using System.Net;
     using System.Net.Http.Headers;
     using System.Net.Http.Json;
+    using System.Security.Claims;
     using System.Text.RegularExpressions;
     using Generic.Base.Api.AuthServices.UserService;
     using Generic.Base.Api.Models;
@@ -42,6 +43,19 @@
         public static HttpClient AddToken(this HttpClient client, params Role[] roles)
         {
             var token = ClientJwtTokenService.CreateToken(roles);
+            client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {token}");
+            return client;
+        }
+
+        /// <summary>
+        ///     Adds a json web token.
+        /// </summary>
+        /// <param name="client">The http client.</param>
+        /// <param name="claims">The claims to be added.</param>
+        /// <returns>The given <paramref name="client" />.</returns>
+        public static HttpClient AddToken(this HttpClient client, params Claim[] claims)
+        {
+            var token = ClientJwtTokenService.CreateToken(claims);
             client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {token}");
             return client;
         }

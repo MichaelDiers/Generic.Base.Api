@@ -76,6 +76,73 @@
                         .ToArray()));
         }
 
+        [Theory]
+        [InlineData(
+            "namespace",
+            Urn.Options,
+            "type",
+            "value")]
+        public void Create(
+            string urnNamespace,
+            Urn urn,
+            string url,
+            string type,
+            string value
+        )
+        {
+            var claim = ClaimLink.Create(
+                urnNamespace,
+                urn,
+                url,
+                new Claim(
+                    type,
+                    value));
+
+            Assert.Equal(
+                url,
+                claim.Url);
+            Assert.Equal(
+                $"urn:{urnNamespace}:{urn.ToString()}",
+                claim.Urn);
+        }
+
+        [Theory]
+        [InlineData(
+            "namespace",
+            Urn.Options,
+            "type1",
+            "value1",
+            "type2",
+            "value2")]
+        public void Create(
+            string urnNamespace,
+            Urn urn,
+            string url,
+            string type1,
+            string value1,
+            string type2,
+            string value2
+        )
+        {
+            var claim = ClaimLink.Create(
+                urnNamespace,
+                urn,
+                url,
+                new Claim(
+                    type1,
+                    value1),
+                new Claim(
+                    type2,
+                    value2));
+
+            Assert.Equal(
+                url,
+                claim.Url);
+            Assert.Equal(
+                $"urn:{urnNamespace}:{urn.ToString()}",
+                claim.Urn);
+        }
+
         [Fact]
         public void CtorWithEmptyClaims()
         {

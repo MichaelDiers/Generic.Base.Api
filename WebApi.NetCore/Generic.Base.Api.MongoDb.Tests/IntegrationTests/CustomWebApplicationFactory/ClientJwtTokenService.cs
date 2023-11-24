@@ -41,6 +41,29 @@
         }
 
         /// <summary>
+        ///     Creates a token.
+        /// </summary>
+        /// <param name="claims">The claims that are added as claims.</param>
+        /// <returns>The generated token.</returns>
+        public static string CreateToken(params Claim[] claims)
+        {
+            var configuration = new HostApplicationBuilder().Configuration.GetSection("Jwt").Get<JwtConfiguration>();
+            Assert.NotNull(configuration);
+
+            var key = Environment.GetEnvironmentVariable(configuration.KeyName);
+            Assert.NotNull(key);
+            configuration.Key = key;
+
+            return ClientJwtTokenService.CreateToken(
+                claims,
+                DateTime.UtcNow.AddMinutes(configuration.AccessTokenExpires),
+                DateTime.UtcNow,
+                configuration.Issuer,
+                configuration.Audience,
+                configuration.Key);
+        }
+
+        /// <summary>
         ///     Creates a new token.
         /// </summary>
         /// <param name="claims">The claims that are added to the token.</param>

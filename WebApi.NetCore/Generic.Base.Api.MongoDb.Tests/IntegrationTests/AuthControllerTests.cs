@@ -1,6 +1,7 @@
 ﻿namespace Generic.Base.Api.MongoDb.Tests.IntegrationTests
 {
     using System.Net;
+    using System.Security.Claims;
     using Generic.Base.Api.AuthServices.AuthService;
     using Generic.Base.Api.AuthServices.InvitationService;
     using Generic.Base.Api.AuthServices.TokenService;
@@ -240,6 +241,23 @@
                         Urn.ChangePassword),
                     HttpStatusCode.Unauthorized,
                     (_, _) => { });
+
+                // change password fails using unknown id claim
+                await client.AddApiKey(apiKey)
+                    .AddToken(
+                        new Claim(
+                            ClaimTypes.Role,
+                            Role.Accessor.ToString()),
+                        new Claim(
+                            ClaimTypes.NameIdentifier,
+                            Guid.NewGuid().ToString()))
+                    .PostAsync<ChangePassword, Token>(
+                        changePassword,
+                        () => HttpClientExtensions.GetUrl(
+                            nameof(AuthController)[..^10],
+                            Urn.ChangePassword),
+                        HttpStatusCode.NotFound,
+                        (_, _) => { });
 
                 // sign in
                 IToken? tokens = await client.PostAsync<SignIn, Token>(
