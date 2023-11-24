@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: 'dotnet build ${{ env.SOLUTION_PATH }} -c ${{ env.CONFIGURATION }}'
-      - run: 'dotnet test ${{ env.SOLUTION_PATH }} --filter Type=Unit -c ${{ env.CONFIGURATION }} --no-build --no-restore'
+      - run: 'dotnet test ${{ env.SOLUTION_PATH }} --filter "TestType=InMemoryIntegrationTest|TestType=UnitTest" -c ${{ env.CONFIGURATION }} --no-build --no-restore'
   doc:
     needs: test
     runs-on: ubuntu-latest
@@ -31,12 +31,11 @@ jobs:
       ALTCOVER_XML: ../../doc/coverage/altcover.xml
       REPORT_XML: doc/coverage/altcover.xml
       REPORT_TARGET: doc/coverage
-      ASSEMBLY_FILTERS: +WebApi.NetCore.Api
-      CLASS_FILTERS: -Microsoft.*;-System.*;-*Program
+      ASSEMBLY_FILTERS: -*.Tests
     steps:
       - uses: actions/checkout@v3
       - run: 'dotnet build ${{ env.SOLUTION_PATH }} -c ${{ env.CONFIGURATION }}'
-      - run: 'dotnet test ${{ env.TEST_PROJ_PATH }} --filter Type=Unit /p:AltCover=true --no-build --no-restore /p:AltCoverReport="${{ env.ALTCOVER_XML }}"'
+      - run: 'dotnet test ${{ env.TEST_PROJ_PATH }} --filter "TestType=InMemoryIntegrationTest|TestType=UnitTest" /p:AltCover=true --no-build --no-restore /p:AltCoverReport="${{ env.ALTCOVER_XML }}" /p:AltCoverAssemblyFilter=xunit.*'
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v3
         with:
@@ -49,7 +48,6 @@ jobs:
           targetdir: ${{ env.REPORT_TARGET }}
           reporttypes: Html_Dark
           assemblyfilters: ${{ env.ASSEMBLY_FILTERS }}
-          classfilters: ${{ env.CLASS_FILTERS }}
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Upload artifact
