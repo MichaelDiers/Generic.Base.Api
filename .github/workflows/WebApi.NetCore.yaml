@@ -35,7 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: 'dotnet build ${{ env.SOLUTION_PATH }} -c ${{ env.CONFIGURATION }}'
-      - run: 'dotnet test ${{ env.TEST_PROJ_PATH }} --filter "TestType=InMemoryIntegrationTest|TestType=UnitTest" /p:AltCover=true --no-build --no-restore /p:AltCoverReport="${{ env.ALTCOVER_XML }}" /p:AltCoverAssemblyFilter=xunit.*'
+      - run: 'dotnet test ${{ env.SOLUTION_PATH }} --filter "TestType=InMemoryIntegrationTest|TestType=UnitTest" /p:AltCover=true --no-build --no-restore /p:AltCoverReport="${{ env.ALTCOVER_XML }}" /p:AltCoverAssemblyFilter=xunit.*'
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v3
         with:
