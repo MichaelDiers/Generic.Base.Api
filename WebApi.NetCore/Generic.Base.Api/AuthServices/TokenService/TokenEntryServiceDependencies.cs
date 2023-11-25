@@ -40,31 +40,5 @@
 
             return services;
         }
-
-        /// <summary>
-        ///     Adds the token entry service.
-        /// </summary>
-        /// <typeparam name="TClientSessionHandle">The type of the client session handle.</typeparam>
-        /// <typeparam name="TTransactionHandler">The type of the database transaction handler.</typeparam>
-        /// <param name="services">The services.</param>
-        /// <returns>The given <paramref name="services" />.</returns>
-        public static IServiceCollection AddTokenService<TClientSessionHandle, TTransactionHandler>(
-            this IServiceCollection services
-        ) where TTransactionHandler : class, ITransactionHandler<TClientSessionHandle>
-        {
-            services
-                .TryAddScoped<IDomainService<TokenEntry, TokenEntry, TokenEntry>,
-                    DomainService<TokenEntry, TokenEntry, TokenEntry, TClientSessionHandle>>();
-            services.TryAddScoped<IControllerTransformer<TokenEntry, ResultTokenEntry>, TokenEntryTransformer>();
-
-            services.TryAddScoped<ITransactionHandler<TClientSessionHandle>, TTransactionHandler>();
-            services
-                .TryAddScoped<IAtomicService<TokenEntry, TokenEntry, TokenEntry, TClientSessionHandle>,
-                    AtomicService<TokenEntry, TokenEntry, TokenEntry, TClientSessionHandle>>();
-
-            services.TryAddScoped<IAtomicTransformer<TokenEntry, TokenEntry, TokenEntry>, TokenEntryTransformer>();
-
-            return services;
-        }
     }
 }

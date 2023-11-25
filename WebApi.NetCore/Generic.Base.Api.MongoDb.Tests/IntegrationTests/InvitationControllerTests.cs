@@ -76,38 +76,47 @@
             new[]
             {
                 // default test should pass
-                InvitationControllerTests.TestDataEntryForDelete(),
+                InvitationControllerTests.TestDataEntryForDelete("default test"),
                 // api key errors
                 InvitationControllerTests.TestDataEntryForDelete(
+                    "empty api key",
                     apiKey: "",
                     expectedStatusCode: HttpStatusCode.Unauthorized),
                 InvitationControllerTests.TestDataEntryForDelete(
+                    "different api key",
                     apiKey: Guid.NewGuid().ToString(),
                     expectedStatusCode: HttpStatusCode.Forbidden),
                 // missing roles
                 InvitationControllerTests.TestDataEntryForDelete(
+                    "empty roles",
                     roles: new Role[] { },
                     expectedStatusCode: HttpStatusCode.Forbidden),
                 InvitationControllerTests.TestDataEntryForDelete(
+                    "invalid role",
                     roles: new[] {Role.User},
                     expectedStatusCode: HttpStatusCode.Forbidden),
                 InvitationControllerTests.TestDataEntryForDelete(
+                    "missing role",
                     roles: new[] {Role.Admin},
                     expectedStatusCode: HttpStatusCode.Forbidden),
                 InvitationControllerTests.TestDataEntryForDelete(
+                    "missing role",
                     roles: new[] {Role.Accessor},
                     expectedStatusCode: HttpStatusCode.Forbidden),
                 // invalid id
                 InvitationControllerTests.TestDataEntryForDelete(
+                    "id too short",
                     getIdToDelete: _ => "a",
                     expectedStatusCode: HttpStatusCode.BadRequest),
                 InvitationControllerTests.TestDataEntryForDelete(
+                    "id too long",
                     getIdToDelete: _ => new string(
                         'a',
                         101),
                     expectedStatusCode: HttpStatusCode.BadRequest),
                 // unknown id
                 InvitationControllerTests.TestDataEntryForDelete(
+                    "unknown id",
                     getIdToDelete: _ => Guid.NewGuid().ToString(),
                     expectedStatusCode: HttpStatusCode.NotFound)
             };
@@ -256,6 +265,7 @@
         [Theory]
         [MemberData(nameof(InvitationControllerTests.TestDataForDelete))]
         public async Task Delete(
+            string description,
             Invitation createEntry,
             HttpStatusCode expectedStatusCode,
             IEnumerable<Role> roles,
@@ -263,6 +273,8 @@
             Func<Invitation, string> getIdToDelete
         )
         {
+            Assert.NotNull(description);
+
             await GenericCrudControllerTests.Delete<Invitation, ResultInvitation>(
                 this.urnNamespace,
                 createEntry,
@@ -524,6 +536,7 @@
         }
 
         private static object[] TestDataEntryForDelete(
+            string description,
             string? id = null,
             Role[]? invitationRoles = null,
             HttpStatusCode expectedStatusCode = HttpStatusCode.NoContent,
@@ -534,6 +547,7 @@
         {
             return new object[]
             {
+                description,
                 InvitationControllerTests.CreateInvitation(
                     id,
                     invitationRoles),

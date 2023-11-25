@@ -39,31 +39,5 @@
 
             return services;
         }
-
-        /// <summary>
-        ///     Adds the invitation service.
-        /// </summary>
-        /// <typeparam name="TClientSessionHandle">The type of the client session handle.</typeparam>
-        /// <typeparam name="TTransactionHandler">The type of the database transaction handler.</typeparam>
-        /// <param name="services">The services.</param>
-        /// <returns>The given <paramref name="services" />.</returns>
-        public static IServiceCollection AddInvitationService<TClientSessionHandle, TTransactionHandler>(
-            this IServiceCollection services
-        ) where TTransactionHandler : class, ITransactionHandler<TClientSessionHandle>
-        {
-            services
-                .AddScoped<IDomainService<Invitation, Invitation, Invitation>,
-                    DomainService<Invitation, Invitation, Invitation, TClientSessionHandle>>();
-            services.AddScoped<IControllerTransformer<Invitation, ResultInvitation>, InvitationTransformer>();
-
-            services.AddScoped<ITransactionHandler<TClientSessionHandle>, TTransactionHandler>();
-            services
-                .AddScoped<IAtomicService<Invitation, Invitation, Invitation, TClientSessionHandle>,
-                    AtomicService<Invitation, Invitation, Invitation, TClientSessionHandle>>();
-
-            services.AddScoped<IAtomicTransformer<Invitation, Invitation, Invitation>, InvitationTransformer>();
-
-            return services;
-        }
     }
 }

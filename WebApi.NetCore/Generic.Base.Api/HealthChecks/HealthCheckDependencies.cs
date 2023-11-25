@@ -4,23 +4,12 @@
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Diagnostics.HealthChecks;
     using Microsoft.AspNetCore.Routing;
-    using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
     ///     Add health checks.
     /// </summary>
     public static class HealthCheckDependencies
     {
-        /// <summary>
-        ///     Adds the health checks to the given <paramref name="services" />.
-        /// </summary>
-        /// <param name="services">The services collection.</param>
-        /// <returns>The given <paramref name="services" />.</returns>
-        public static IHealthChecksBuilder AddCustomHealthChecks(this IServiceCollection services)
-        {
-            return services.AddHealthChecks();
-        }
-
         /// <summary>
         ///     Maps the custom health checks.
         /// </summary>

@@ -1,4 +1,4 @@
-﻿namespace Generic.Base.Api.MongoDb.AuthServices
+﻿namespace Generic.Base.Api.MongoDb
 {
     using Generic.Base.Api.Database;
     using MongoDB.Driver;

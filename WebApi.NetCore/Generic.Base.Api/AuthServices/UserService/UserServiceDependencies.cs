@@ -39,31 +39,5 @@
 
             return services;
         }
-
-        /// <summary>
-        ///     Adds the user service.
-        /// </summary>
-        /// <typeparam name="TClientSessionHandle">The type of the client session handle.</typeparam>
-        /// <typeparam name="TTransactionHandler">The type of the database transaction handler.</typeparam>
-        /// <param name="services">The services.</param>
-        /// <returns>The given <paramref name="services" />.</returns>
-        public static IServiceCollection AddUserService<TClientSessionHandle, TTransactionHandler>(
-            this IServiceCollection services
-        ) where TTransactionHandler : class, ITransactionHandler<TClientSessionHandle>
-        {
-            services
-                .AddScoped<IDomainService<User, User, User>, DomainService<User, User, User, TClientSessionHandle>>();
-            services.AddScoped<IControllerTransformer<User, ResultUser>, UserTransformer>();
-
-            services.AddScoped<ITransactionHandler<TClientSessionHandle>, TTransactionHandler>();
-            services
-                .AddScoped<IAtomicService<User, User, User, TClientSessionHandle>,
-                    AtomicService<User, User, User, TClientSessionHandle>>();
-
-            services.TryAddSingleton<IProvider<User, TClientSessionHandle>>();
-            services.AddScoped<IAtomicTransformer<User, User, User>, UserTransformer>();
-
-            return services;
-        }
     }
 }

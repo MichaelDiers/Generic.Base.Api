@@ -28,6 +28,7 @@
         ///     Invokes the middleware.
         /// </summary>
         /// <param name="context">The current context.</param>
+        // ReSharper disable once UnusedMember.Global
         public async Task Invoke(HttpContext context)
         {
             try

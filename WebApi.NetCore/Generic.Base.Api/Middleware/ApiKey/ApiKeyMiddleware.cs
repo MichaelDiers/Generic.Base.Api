@@ -33,6 +33,7 @@
         /// </summary>
         /// <param name="context">The current http context.</param>
         /// <param name="configuration">The api key configuration.</param>
+        // ReSharper disable once UnusedMember.Global
         public Task Invoke(HttpContext context, IApiKeyConfiguration configuration)
         {
             var apiKey = ApiKeyMiddleware.ReadApiKey(context);

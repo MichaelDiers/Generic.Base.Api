@@ -42,6 +42,7 @@
                 "Yh2k7QSu4l8CZg5p6X3Pna9L0Miy4D3Bvt0JVr87UcOj69Kqw5R2Nmf4FWs03Hdx");
             Environment.SetEnvironmentVariable(
                 AuthServicesDependencies.MongoDbConnectionStringKey,
+                // ReSharper disable once StringLiteralTypo
                 "mongodb://localhost:27017/?replicaSet=warehouse_replSet");
             Environment.SetEnvironmentVariable(
                 "X_API_KEY",
