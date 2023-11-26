@@ -19,7 +19,7 @@
             var defaultClaims = new[]
             {
                 new Claim(
-                    ClaimTypes.NameIdentifier,
+                    Constants.UserIdClaimType,
                     id),
                 new Claim(
                     ClaimTypes.Name,
@@ -106,7 +106,7 @@
             var defaultClaims = new[]
             {
                 new Claim(
-                    ClaimTypes.NameIdentifier,
+                    Constants.UserIdClaimType,
                     id),
                 new Claim(
                     ClaimTypes.Name,

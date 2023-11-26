@@ -7,6 +7,7 @@
     using Generic.Base.Api.AuthServices.UserService;
     using Generic.Base.Api.Database;
     using Generic.Base.Api.Exceptions;
+    using Generic.Base.Api.Extensions;
     using Generic.Base.Api.HashService;
     using Generic.Base.Api.Jwt;
     using Generic.Base.Api.Services;
@@ -546,7 +547,7 @@
             var token = DomainAuthService<TClientSessionHandle>.ReadJwtSecurityToken(refreshToken);
 
             var refreshTokenId = token.Claims.First(claim => claim.Type == Constants.RefreshTokenIdClaimType).Value;
-            var userId = token.Claims.First(claim => claim.Type == ClaimTypes.NameIdentifier).Value;
+            var userId = token.Claims.GetUserId();
             var validTo = token.ValidTo.ToString(DomainAuthService<TClientSessionHandle>.TokenValidToFormat);
 
             await this.atomicTokenEntryService.CreateAsync(

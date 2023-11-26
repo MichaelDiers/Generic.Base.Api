@@ -71,7 +71,7 @@
                 claimLink.CanBeAccessed(
                     claims.Append(
                             new Claim(
-                                ClaimTypes.NameIdentifier,
+                                Constants.UserIdClaimType,
                                 "id"))
                         .ToArray()));
         }

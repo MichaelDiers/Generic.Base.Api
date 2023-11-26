@@ -46,7 +46,7 @@
                     ClaimTypes.Name,
                     displayName),
                 new Claim(
-                    ClaimTypes.NameIdentifier,
+                    Constants.UserIdClaimType,
                     id),
                 new Claim(
                     Constants.RefreshTokenIdClaimType,

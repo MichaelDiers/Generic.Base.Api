@@ -249,7 +249,7 @@
                             ClaimTypes.Role,
                             Role.Accessor.ToString()),
                         new Claim(
-                            ClaimTypes.NameIdentifier,
+                            Constants.UserIdClaimType,
                             Guid.NewGuid().ToString()))
                     .PostAsync<ChangePassword, Token>(
                         changePassword,

@@ -1,8 +1,8 @@
 ﻿namespace Generic.Base.Api.AuthServices.AuthService
 {
-    using System.Security.Claims;
     using Generic.Base.Api.AuthServices.UserService;
     using Generic.Base.Api.Exceptions;
+    using Generic.Base.Api.Extensions;
     using Generic.Base.Api.Jwt;
     using Generic.Base.Api.Models;
     using Microsoft.AspNetCore.Authorization;
@@ -58,15 +58,14 @@
         [Authorize(Roles = nameof(Role.Accessor))]
         public async Task<ActionResult> Delete([FromBody] SignIn signIn, CancellationToken cancellationToken)
         {
-            var claim = this.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-            if (claim is null)
+            if (!this.User.Claims.TryGetUserId(out var userId))
             {
                 throw new UnauthorizedException();
             }
 
             await this.domainAuthService.DeleteAsync(
                 signIn,
-                claim.Value,
+                userId,
                 cancellationToken);
             return this.Ok();
         }
@@ -163,8 +162,7 @@
             CancellationToken cancellationToken
         )
         {
-            var userId = this.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-            if (userId is null)
+            if (!this.User.Claims.TryGetUserId(out var userId))
             {
                 throw new UnauthorizedException();
             }
@@ -173,7 +171,7 @@
 
             var tokens = await this.domainAuthService.ChangePasswordAsync(
                 changePassword,
-                userId.Value,
+                userId,
                 token,
                 cancellationToken);
             return this.Ok(tokens);
@@ -188,8 +186,7 @@
         [Authorize(Roles = nameof(Role.Refresher))]
         public async Task<ActionResult<IToken>> Post(CancellationToken cancellationToken)
         {
-            var claim = this.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-            if (claim is null)
+            if (!this.User.Claims.TryGetUserId(out var userId))
             {
                 throw new UnauthorizedException();
             }
@@ -198,7 +195,7 @@
 
             var result = await this.domainAuthService.RefreshAsync(
                 refreshToken,
-                claim.Value,
+                userId,
                 cancellationToken);
             return this.Ok(result);
         }
