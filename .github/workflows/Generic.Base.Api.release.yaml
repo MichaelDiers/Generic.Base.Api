@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       working-directory: WebApi.NetCore/Generic.Base.Api
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NUGET_GITHUB_TOKEN: ${{ secrets.NUGET_GITHUB_TOKEN }}
     steps:
     - name: checkout
       uses: actions/checkout@v3
@@ -25,5 +25,5 @@ jobs:
       run: dotnet pack --configuration Release /p:Version=${VERSION} --no-build --output .
       working-directory: ${{env.working-directory}}
     - name: Push
-      run: dotnet nuget push Generic.Base.Api.${VERSION}.nupkg --source https://nuget.pkg.github.com/MichaelDiers/index.json --api-key ${{env.GITHUB_TOKEN}}
+      run: dotnet nuget push Generic.Base.Api.${VERSION}.nupkg --source https://nuget.pkg.github.com/MichaelDiers/index.json --api-key ${{env.NUGET_GITHUB_TOKEN}}
       working-directory: ${{env.working-directory}}
