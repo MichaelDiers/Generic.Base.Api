@@ -15,14 +15,14 @@
     public static class WebApplicationBuilderExtensions
     {
         public static WebApplicationBuilder
-            AddUserBoundServices<TCreate, TEntry, TUpdate, TResult, TTransformer, TDatabaseConfiguration>(
-                this WebApplicationBuilder builder
-            )
+            AddUserBoundServices<TCreate, TEntry, TUpdate, TResult, TDatabaseEntry, TTransformer,
+                TDatabaseConfiguration>(this WebApplicationBuilder builder)
             where TResult : ILinkResult
             where TTransformer : class, IControllerTransformer<TEntry, TResult>,
-            IUserBoundAtomicTransformer<TCreate, TEntry, TUpdate>
+            IUserBoundAtomicTransformer<TCreate, TEntry, TUpdate>, IProviderEntryTransformer<TEntry, TDatabaseEntry>
             where TDatabaseConfiguration : class, IDatabaseConfiguration
             where TEntry : IUserBoundEntry
+            where TDatabaseEntry : IUserBoundEntry
         {
             builder.Services
                 .TryAddScoped<IUserBoundDomainService<TCreate, TEntry, TUpdate>,
@@ -35,9 +35,9 @@
             builder.Services.TryAddScoped<ITransactionHandler<IClientSessionHandle>, TransactionHandler>();
             builder.Services
                 .TryAddScoped<IUserBoundProvider<TEntry, IClientSessionHandle>,
-                    MongoDbUserBoundProvider<TEntry, TEntry, TDatabaseConfiguration>>();
+                    MongoDbUserBoundProvider<TEntry, TDatabaseEntry, TDatabaseConfiguration>>();
             builder.Services.TryAddScoped<IUserBoundAtomicTransformer<TCreate, TEntry, TUpdate>, TTransformer>();
-
+            builder.Services.TryAddScoped<IProviderEntryTransformer<TEntry, TDatabaseEntry>, TTransformer>();
             builder.Services.TryAddScoped(
                 _ => WebApplicationBuilderExtensions.ReadDatabaseConfiguration<TDatabaseConfiguration>(builder));
 
