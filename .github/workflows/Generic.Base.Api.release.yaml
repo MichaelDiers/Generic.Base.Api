@@ -1,0 +1,29 @@
+on:
+  push:
+    paths:
+      - WebApi.NetCore/Generic.Base.Api/**
+    tags:
+    - "v[0-9]+.[0-9]+.[0-9]+"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      working-directory: WebApi.NetCore/Generic.Base.Api
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+    - name: checkout
+      uses: actions/checkout@v3
+    - name: set VERSION variable from tag
+      run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
+    - name: build
+      run: dotnet build --configuration Release /p:Version=${VERSION}
+      working-directory: ${{env.working-directory}}
+    - name: Test
+      run: dotnet test --configuration Release /p:Version=${VERSION} --no-build
+      working-directory: ${{env.working-directory}}
+    - name: Pack
+      run: dotnet pack --configuration Release /p:Version=${VERSION} --no-build --output .
+      working-directory: ${{env.working-directory}}
+    - name: Push
+      run: dotnet nuget push Generic.Base.Api.${VERSION}.nupkg --source https://nuget.pkg.github.com/MichaelDiers/index.json --api-key ${GITHUB_TOKEN}
+      working-directory: ${{env.working-directory}}
