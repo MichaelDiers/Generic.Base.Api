@@ -7,11 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Generic.Base.Api" Version="0.0.4" />
     <PackageReference Include="MongoDB.Driver" Version="2.22.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Generic.Base.Api\Generic.Base.Api.csproj" />
   </ItemGroup>
 
 </Project>
