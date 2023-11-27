@@ -59,6 +59,12 @@
                     HttpStatusCode.Unauthorized,
                     ex.Message);
             }
+            catch (UnauthorizedAccessException ex)
+            {
+                await context.SetResponse(
+                    HttpStatusCode.Unauthorized,
+                    ex.Message);
+            }
             catch (Exception ex)
             {
                 await context.SetResponse(
