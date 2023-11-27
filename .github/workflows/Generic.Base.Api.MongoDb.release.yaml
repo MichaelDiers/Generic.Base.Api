@@ -5,6 +5,9 @@ on:
       - WebApi.NetCore/Generic.Base.Api.MongoDb/**
     tags:
     - "v[0-9]+.[0-9]+.[0-9]+"
+permissions:
+  contents: read
+  packages: read
 jobs:
   build:
     runs-on: ubuntu-latest
