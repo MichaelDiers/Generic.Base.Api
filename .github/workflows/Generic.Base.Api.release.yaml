@@ -25,5 +25,5 @@ jobs:
       run: dotnet pack --configuration Release /p:Version=${VERSION} --no-build --output .
       working-directory: ${{env.working-directory}}
     - name: Push
-      run: dotnet nuget push Generic.Base.Api.${VERSION}.nupkg --source https://nuget.pkg.github.com/MichaelDiers/index.json --api-key ${GITHUB_TOKEN}
+      run: dotnet nuget push Generic.Base.Api.${VERSION}.nupkg --source https://nuget.pkg.github.com/MichaelDiers/index.json --api-key ${env.GITHUB_TOKEN}
       working-directory: ${{env.working-directory}}
