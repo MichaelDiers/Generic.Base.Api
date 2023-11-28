@@ -13,9 +13,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      altcover-xml: ../../doc/coverage/altcover.xml
-      working-directory: Generic.Base.Api
-      REPORT_XML: doc/coverage/altcover.xml
+      REPORT_XML: doc/coverage/Generic.Base.Api-altcover.xml
       REPORT_TARGET: doc/coverage
       ASSEMBLY_FILTERS: -*.Tests;-AltCover.Monitor
     steps:
@@ -25,16 +23,12 @@ jobs:
       run: |
         dotnet new nugetconfig
         dotnet nuget add source https://nuget.pkg.github.com/MichaelDiers/index.json --name github --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text 
-      working-directory: ${{env.working-directory}}
-    - name: add packages
-      run: dotnet add package altcover
-      working-directory: ${{env.working-directory}}/${{env.working-directory}}.Tests
-    - name: build
-      run: dotnet build --configuration Release 
-      working-directory: ${{env.working-directory}}
-    - name: test
-      run: dotnet test --configuration Release --no-build --filter "TestType=InMemoryIntegrationTest|TestType=UnitTest" /p:AltCover=true --no-build --no-restore /p:AltCoverReport="${{ env.altcover-xml }}" /p:AltCoverAssemblyFilter=xunit.*
-      working-directory: ${{env.working-directory}}
+        dotnet add package altcover
+        dotnet build --configuration Release 
+        dotnet test --configuration Release --no-build --filter "TestType=InMemoryIntegrationTest|TestType=UnitTest" /p:AltCover=true --no-build --no-restore /p:AltCoverReport="${{ env.altcover-xml }}/" /p:AltCoverAssemblyFilter=xunit.*
+      env:
+        altcover-xml: ../../doc/coverage/Generic.Base.Api-altcover.xml
+      working-directory: Generic.Base.Api
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v3
       with:
