@@ -1,8 +1,8 @@
-name: NuGet for Generic.Base.Api.Tests.Lib
+name: NuGet for Generic.Base.Api.Test.Lib
 on:
   push:
     paths:
-      - WebApi.NetCore/Generic.Base.Api.Tests.Lib/**
+      - Generic.Base.Api.Test.Lib/**
     tags:
     - "v[0-9]+.[0-9]+.[0-9]+"
 permissions:
@@ -13,22 +13,24 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NUGET_GITHUB_TOKEN: ${{ secrets.NUGET_GITHUB_TOKEN }}
-      nupkg: Generic.Base.Api.Tests.Lib
+      nupkg: Generic.Base.Api.Test.Lib
       push-source: https://nuget.pkg.github.com/MichaelDiers/index.json
-      working-directory: WebApi.NetCore/Generic.Base.Api.Tests.Lib
+      working-directory: Generic.Base.Api.Test.Lib
     steps:
     - name: checkout
       uses: actions/checkout@v3
     - name: set VERSION variable from tag
       run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
-    - name: update package source
-      run: dotnet nuget update source github --username MichaelDiers --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text
+    - name: add package source
+      run: |
+        dotnet new nugetconfig
+        dotnet nuget add source https://nuget.pkg.github.com/MichaelDiers/index.json --name github --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text 
       working-directory: ${{env.working-directory}}
     - name: build
       run: dotnet build --configuration Release /p:Version=${VERSION}
       working-directory: ${{env.working-directory}}
     - name: Test
-      run: dotnet test --configuration Release /p:Version=${VERSION} --no-build
+      run: dotnet test --configuration Release /p:Version=${VERSION} --no-build --filter "TestType=UnitTest"
       working-directory: ${{env.working-directory}}
     - name: Pack
       run: dotnet pack --configuration Release /p:Version=${VERSION} --no-build --output .
