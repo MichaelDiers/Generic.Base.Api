@@ -9,6 +9,20 @@
     /// </summary>
     public static class ServiceCollectionExtensions
     {
+        public static IServiceCollection AddServices<TCreate, TEntry, TUpdate, TClientSessionHandle>(
+            this IServiceCollection services
+        )
+        {
+            services
+                .TryAddScoped<IDomainService<TCreate, TEntry, TUpdate>,
+                    DomainService<TCreate, TEntry, TUpdate, TClientSessionHandle>>();
+            services
+                .TryAddScoped<IAtomicService<TCreate, TEntry, TUpdate, TClientSessionHandle>,
+                    AtomicService<TCreate, TEntry, TUpdate, TClientSessionHandle>>();
+
+            return services;
+        }
+
         /// <summary>
         ///     Adds the user bound services.
         /// </summary>
