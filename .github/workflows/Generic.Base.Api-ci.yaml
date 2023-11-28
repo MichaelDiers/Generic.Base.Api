@@ -7,11 +7,13 @@ on:
 permissions:
   contents: read
   packages: write
+  pages: write
+  id-token: write
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      altcover-xml: ../doc/coverage/altcover.xml
+      altcover-xml: ../../doc/coverage/altcover.xml
       working-directory: Generic.Base.Api
       REPORT_XML: doc/coverage/altcover.xml
       REPORT_TARGET: doc/coverage
