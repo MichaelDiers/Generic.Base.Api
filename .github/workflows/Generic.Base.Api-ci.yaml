@@ -25,9 +25,9 @@ jobs:
       run: dotnet add package altcover
       working-directory: ${{env.working-directory}}/${{env.working-directory}}.Tests
     - name: build
-      run: dotnet build --configuration Release /p:Version=${VERSION}
+      run: dotnet build --configuration Release 
       working-directory: ${{env.working-directory}}
     - name: test
-      run: dotnet test --configuration Release /p:Version=${VERSION} --no-build --filter "TestType=InMemoryIntegrationTest|TestType=UnitTest" /p:AltCover=true --no-build --no-restore /p:AltCoverReport="${{ env.altcover-xml }}" /p:AltCoverAssemblyFilter=xunit.*
+      run: dotnet test --configuration Release --no-build --filter "TestType=InMemoryIntegrationTest|TestType=UnitTest" /p:AltCover=true --no-build --no-restore /p:AltCoverReport="${{ env.altcover-xml }}" /p:AltCoverAssemblyFilter=xunit.*
       working-directory: ${{env.working-directory}}
     
