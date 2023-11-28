@@ -13,6 +13,9 @@ jobs:
     env:
       altcover-xml: ../doc/coverage/altcover.xml
       working-directory: Generic.Base.Api
+      REPORT_XML: doc/coverage/altcover.xml
+      REPORT_TARGET: doc/coverage
+      ASSEMBLY_FILTERS: -*.Tests;-AltCover.Monitor
     steps:
     - name: checkout
       uses: actions/checkout@v3
@@ -30,4 +33,25 @@ jobs:
     - name: test
       run: dotnet test --configuration Release --no-build --filter "TestType=InMemoryIntegrationTest|TestType=UnitTest" /p:AltCover=true --no-build --no-restore /p:AltCoverReport="${{ env.altcover-xml }}" /p:AltCoverAssemblyFilter=xunit.*
       working-directory: ${{env.working-directory}}
-    
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 6.x
+        dotnet-quality: 'ga'
+    - name: ReportGenerator
+      uses: danielpalme/ReportGenerator-GitHub-Action@5.1.26
+      with:
+        reports: ${{ env.REPORT_XML }}
+        targetdir: ${{ env.REPORT_TARGET }}
+        reporttypes: Html_Dark
+        assemblyfilters: ${{ env.ASSEMBLY_FILTERS }}
+        title: "WebApi.NetCore Code Coverage"
+    - name: Setup Pages
+      uses: actions/configure-pages@v3
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v2
+      with:
+        path: ${{ env.REPORT_TARGET }}
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v2
