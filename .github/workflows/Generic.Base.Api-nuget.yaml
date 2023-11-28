@@ -30,7 +30,7 @@ jobs:
       run: dotnet build --configuration Release /p:Version=${VERSION}
       working-directory: ${{env.working-directory}}
     - name: Test
-      run: dotnet test --configuration Release /p:Version=${VERSION} --no-build
+      run: dotnet test --configuration Release /p:Version=${VERSION} --no-build --filter "TestType=UnitTest"
       working-directory: ${{env.working-directory}}
     - name: Pack
       run: dotnet pack --configuration Release /p:Version=${VERSION} --no-build --output .

@@ -37,7 +37,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Generic.Base.Api.MongoDb\Generic.Base.Api.MongoDb.csproj" />
-    <ProjectReference Include="..\Generic.Base.Api\Generic.Base.Api.csproj" />
   </ItemGroup>
 
 </Project>
