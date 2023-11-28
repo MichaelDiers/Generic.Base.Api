@@ -7,7 +7,7 @@
     ///     A <see cref="WebApplicationFactory{TEntryPoint}" /> that setups the application.
     /// </summary>
     /// <seealso cref="Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory&lt;Program&gt;" />
-    internal class TestFactory : WebApplicationFactory<Program>
+    public class TestFactory : WebApplicationFactory<Program>
     {
         /// <summary>
         ///     The API key used for requests.

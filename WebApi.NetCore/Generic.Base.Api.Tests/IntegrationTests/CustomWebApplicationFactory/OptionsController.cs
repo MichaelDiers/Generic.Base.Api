@@ -2,6 +2,8 @@
 {
     using Generic.Base.Api.Controllers;
     using Generic.Base.Api.Models;
+    using Generic.Base.Api.Tests.IntegrationTests.CustomWebApplicationFactory.Items;
+    using Generic.Base.Api.Tests.IntegrationTests.CustomWebApplicationFactory.UserIndependentItems;
     using Microsoft.AspNetCore.Mvc;
 
     /// <summary>
@@ -36,7 +38,15 @@
                 ClaimLink.Create(
                     nameof(AuthController),
                     Urn.Options,
-                    $"../{nameof(AuthController)[..^10]}"))
+                    $"../{nameof(AuthController)[..^10]}"),
+                ClaimLink.Create(
+                    nameof(ItemController),
+                    Urn.Options,
+                    $"../{nameof(ItemController)[..^10]}"),
+                ClaimLink.Create(
+                    nameof(Item2Controller),
+                    Urn.Options,
+                    $"../{nameof(Item2Controller)[..^10]}"))
 
         {
         }
