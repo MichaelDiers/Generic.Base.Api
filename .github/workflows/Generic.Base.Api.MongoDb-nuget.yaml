@@ -1,20 +1,29 @@
+name: NuGet for Generic.Base.Api.MongoDb
 on:
   push:
     paths:
-      - WebApi.NetCore/Generic.Base.Api/**
+      - WebApi.NetCore/Generic.Base.Api.MongoDb/**
     tags:
     - "v[0-9]+.[0-9]+.[0-9]+"
+permissions:
+  contents: read
+  packages: write
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      working-directory: WebApi.NetCore/Generic.Base.Api
       NUGET_GITHUB_TOKEN: ${{ secrets.NUGET_GITHUB_TOKEN }}
+      nupkg: Generic.Base.Api.MongoDb
+      push-source: https://nuget.pkg.github.com/MichaelDiers/index.json
+      working-directory: WebApi.NetCore/Generic.Base.Api.MongoDb
     steps:
     - name: checkout
       uses: actions/checkout@v3
     - name: set VERSION variable from tag
       run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
+    - name: update package source
+      run: dotnet nuget update source github --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text
+      working-directory: ${{env.working-directory}}
     - name: build
       run: dotnet build --configuration Release /p:Version=${VERSION}
       working-directory: ${{env.working-directory}}
@@ -25,5 +34,5 @@ jobs:
       run: dotnet pack --configuration Release /p:Version=${VERSION} --no-build --output .
       working-directory: ${{env.working-directory}}
     - name: Push
-      run: dotnet nuget push Generic.Base.Api.${VERSION}.nupkg --source https://nuget.pkg.github.com/MichaelDiers/index.json --api-key ${{env.NUGET_GITHUB_TOKEN}}
+      run: dotnet nuget push ${{env.nupkg}}.${VERSION}.nupkg --source ${{env.push-source}} --api-key ${{ secrets.GITHUB_TOKEN }}
       working-directory: ${{env.working-directory}}

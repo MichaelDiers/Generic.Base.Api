@@ -1,8 +1,8 @@
-name: NuGet for Generic.Base.Api.MongoDb
+name: NuGet for Generic.Base.Api.Tests.Lib
 on:
   push:
     paths:
-      - WebApi.NetCore/Generic.Base.Api.MongoDb/**
+      - WebApi.NetCore/Generic.Base.Api.Tests.Lib/**
     tags:
     - "v[0-9]+.[0-9]+.[0-9]+"
 permissions:
@@ -13,9 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NUGET_GITHUB_TOKEN: ${{ secrets.NUGET_GITHUB_TOKEN }}
-      nupkg: Generic.Base.Api.MongoDb
+      nupkg: Generic.Base.Api.Tests.Lib
       push-source: https://nuget.pkg.github.com/MichaelDiers/index.json
-      working-directory: WebApi.NetCore/Generic.Base.Api.MongoDb
+      working-directory: WebApi.NetCore/Generic.Base.Api.Tests.Lib
     steps:
     - name: checkout
       uses: actions/checkout@v3
