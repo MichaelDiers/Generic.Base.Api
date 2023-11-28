@@ -23,11 +23,12 @@ jobs:
       run: |
         dotnet new nugetconfig
         dotnet nuget add source https://nuget.pkg.github.com/MichaelDiers/index.json --name github --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text 
-        dotnet add package altcover
+        dotnet add ${{env.test-project}} package altcover
         dotnet build --configuration Release 
         dotnet test --configuration Release --no-build --filter "TestType=InMemoryIntegrationTest|TestType=UnitTest" /p:AltCover=true --no-build --no-restore /p:AltCoverReport="${{ env.altcover-xml }}/" /p:AltCoverAssemblyFilter=xunit.*
       env:
         altcover-xml: ../../doc/coverage/Generic.Base.Api-altcover.xml
+        test-project: Generic.Base.Api.Tests
       working-directory: Generic.Base.Api
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v3
