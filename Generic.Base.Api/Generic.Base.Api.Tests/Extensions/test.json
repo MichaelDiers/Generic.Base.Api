@@ -1,0 +1,6 @@
+{
+  "ExtensionTest": {
+    "ExtensionTestKey1": "ExtensionTestValue1",
+    "ExtensionTestKey2": "ExtensionTestValue2"
+  }
+}
