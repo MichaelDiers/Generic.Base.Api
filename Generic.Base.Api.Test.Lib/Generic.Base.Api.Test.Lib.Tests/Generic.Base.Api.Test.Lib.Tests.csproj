@@ -22,4 +22,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Generic.Base.Api.Test.Lib\Generic.Base.Api.Test.Lib.csproj" />
+  </ItemGroup>
+
 </Project>
