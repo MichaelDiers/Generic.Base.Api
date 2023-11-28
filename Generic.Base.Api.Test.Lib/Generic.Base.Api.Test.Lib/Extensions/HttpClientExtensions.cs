@@ -1,16 +1,28 @@
-﻿namespace Generic.Base.Api.Tests.Lib.Extensions
+﻿namespace Generic.Base.Api.Test.Lib.Extensions
 {
     using System.Net;
     using System.Net.Http.Headers;
     using System.Net.Http.Json;
     using System.Security.Claims;
     using Generic.Base.Api.AuthServices.UserService;
-    using Generic.Base.Api.Tests.Lib.CrudTest;
+    using Generic.Base.Api.Test.Lib.CrudTest;
 
+    /// <summary>
+    ///     Extensions for <see cref="HttpClient" />.
+    /// </summary>
     public static class HttpClientExtensions
     {
+        /// <summary>
+        ///     The name of the api key header.
+        /// </summary>
         public const string XApiKeyName = "x-api-key";
 
+        /// <summary>
+        ///     Adds the API key.
+        /// </summary>
+        /// <param name="client">The client.</param>
+        /// <param name="apiKey">The API key.</param>
+        /// <returns>The given <paramref name="client" />.</returns>
         public static HttpClient AddApiKey(this HttpClient client, string apiKey)
         {
             client.DefaultRequestHeaders.Remove(HttpClientExtensions.XApiKeyName);
@@ -20,6 +32,13 @@
             return client;
         }
 
+        /// <summary>
+        ///     Adds the token.
+        /// </summary>
+        /// <param name="client">The client.</param>
+        /// <param name="roles">The roles.</param>
+        /// <param name="userId">The user identifier.</param>
+        /// <returns>The given <paramref name="client" />.</returns>
         public static HttpClient AddToken(this HttpClient client, IEnumerable<Role> roles, string? userId = null)
         {
             var claims = roles.Select(
@@ -37,13 +56,35 @@
             return client.AddToken(claims);
         }
 
+        /// <summary>
+        ///     Adds the token.
+        /// </summary>
+        /// <param name="client">The client.</param>
+        /// <param name="claims">The claims.</param>
+        /// <returns>The given <paramref name="client" />.</returns>
         public static HttpClient AddToken(this HttpClient client, IEnumerable<Claim> claims)
         {
             var token = ClientJwtTokenService.CreateToken(claims);
+            return client.AddToken(token);
+        }
+
+        /// <summary>
+        ///     Adds the token.
+        /// </summary>
+        /// <param name="client">The client.</param>
+        /// <param name="token">The token.</param>
+        /// <returns>The given <paramref name="client" />.</returns>
+        public static HttpClient AddToken(this HttpClient client, string token)
+        {
             client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {token}");
             return client;
         }
 
+        /// <summary>
+        ///     Remove api key and authorization settings from the given client.
+        /// </summary>
+        /// <param name="client">The client.</param>
+        /// <returns>The given <paramref name="client" />.</returns>
         public static HttpClient Clear(this HttpClient client)
         {
             client.DefaultRequestHeaders.Authorization = null;

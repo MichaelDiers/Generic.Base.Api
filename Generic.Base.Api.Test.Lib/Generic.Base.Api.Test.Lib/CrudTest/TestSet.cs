@@ -1,4 +1,4 @@
-﻿namespace Generic.Base.Api.Tests.Lib.CrudTest
+﻿namespace Generic.Base.Api.Test.Lib.CrudTest
 {
     public class TestSet<TCreate> where TCreate : class
     {

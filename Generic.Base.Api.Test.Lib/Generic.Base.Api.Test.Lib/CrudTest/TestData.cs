@@ -1,4 +1,4 @@
-﻿namespace Generic.Base.Api.Tests.Lib.CrudTest
+﻿namespace Generic.Base.Api.Test.Lib.CrudTest
 {
     using System.Net;
     using Generic.Base.Api.AuthServices.UserService;

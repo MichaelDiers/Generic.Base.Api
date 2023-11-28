@@ -1,11 +1,11 @@
-﻿namespace Generic.Base.Api.Tests.Lib.CrudTest
+﻿namespace Generic.Base.Api.Test.Lib.CrudTest
 {
     using System.Net;
     using System.Security.Claims;
     using Generic.Base.Api.AuthServices.UserService;
     using Generic.Base.Api.Exceptions;
     using Generic.Base.Api.Models;
-    using Generic.Base.Api.Tests.Lib.Extensions;
+    using Generic.Base.Api.Test.Lib.Extensions;
     using Microsoft.AspNetCore.Mvc.Testing;
 
     public abstract class

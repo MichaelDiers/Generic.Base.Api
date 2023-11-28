@@ -1,4 +1,4 @@
-﻿namespace Generic.Base.Api.Tests.Lib.CrudTest
+﻿namespace Generic.Base.Api.Test.Lib.CrudTest
 {
     using System.IdentityModel.Tokens.Jwt;
     using System.Security.Claims;
@@ -12,7 +12,7 @@
     /// <summary>
     ///     Create jwt for testing.
     /// </summary>
-    internal static class ClientJwtTokenService
+    public static class ClientJwtTokenService
     {
         /// <summary>
         ///     Creates a token.
@@ -35,7 +35,9 @@
         /// <returns>The generated token.</returns>
         public static string CreateToken(IEnumerable<Claim> claims)
         {
-            var configuration = new HostApplicationBuilder().Configuration.GetSection("Jwt").Get<JwtConfiguration>();
+            var configuration = new HostApplicationBuilder().Configuration
+                .GetSection(JwtConfiguration.ConfigurationSection)
+                .Get<JwtConfiguration>();
             Assert.NotNull(configuration);
 
             var key = Environment.GetEnvironmentVariable(configuration.KeyName);
