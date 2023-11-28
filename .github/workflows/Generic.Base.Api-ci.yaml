@@ -4,6 +4,8 @@ on:
     paths:
       - Generic.Base.Api/**
       - Generic.Base.Api.MongoDb/**
+      - Generic.Base.Api.Test.Lib/**
+      - .github/workflows/Generic.Base.Api-ci.yaml
   workflow_dispatch:
 permissions:
   contents: read
