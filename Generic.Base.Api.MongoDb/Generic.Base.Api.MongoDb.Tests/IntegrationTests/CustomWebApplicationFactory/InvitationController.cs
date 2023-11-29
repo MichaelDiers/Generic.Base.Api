@@ -1,5 +1,6 @@
 ﻿namespace Generic.Base.Api.MongoDb.Tests.IntegrationTests.CustomWebApplicationFactory
 {
+    using System.Security.Claims;
     using Generic.Base.Api.AuthServices.InvitationService;
     using Generic.Base.Api.AuthServices.UserService;
     using Generic.Base.Api.Controllers;
@@ -25,7 +26,16 @@
         )
             : base(
                 domainService,
-                transformer)
+                transformer,
+                new[]
+                {
+                    new Claim(
+                        ClaimTypes.Role,
+                        Role.Admin.ToString()),
+                    new Claim(
+                        ClaimTypes.Role,
+                        Role.Accessor.ToString())
+                })
         {
         }
     }
