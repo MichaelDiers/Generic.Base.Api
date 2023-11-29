@@ -4,7 +4,6 @@
     using Generic.Base.Api.AuthServices.TokenService;
     using Generic.Base.Api.AuthServices.UserService;
     using Generic.Base.Api.EnvironmentService;
-    using Generic.Base.Api.MongoDb;
     using Generic.Base.Api.Transformer;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.Extensions.Configuration;
@@ -54,13 +53,9 @@
                     builder,
                     MongoDbDatabaseConfiguration.UserDatabaseConfiguration));
 
-            builder.Services.AddSingleton<IMongoClient>(
-                _ =>
-                {
-                    var connectionString =
-                        EnvironmentService.GetValue(AuthServicesDependencies.MongoDbConnectionStringKey);
-                    return new MongoClient(connectionString);
-                });
+            var connectionString = EnvironmentService.GetValue(AuthServicesDependencies.MongoDbConnectionStringKey);
+            var mongoClient = new MongoClient(connectionString);
+            builder.Services.AddSingleton<IMongoClient>(_ => mongoClient);
 
             return builder;
         }
