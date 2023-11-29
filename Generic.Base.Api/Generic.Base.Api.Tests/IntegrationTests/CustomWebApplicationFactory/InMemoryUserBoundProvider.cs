@@ -41,7 +41,7 @@
 
             if (!userDictionary.TryGetValue(
                     entry.Id,
-                    out var _))
+                    out _))
             {
                 userDictionary[entry.Id] = entry;
                 return Task.FromResult(entry);

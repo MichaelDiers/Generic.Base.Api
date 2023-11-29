@@ -1,5 +1,6 @@
 ﻿namespace Generic.Base.Api.Tests.IntegrationTests.CustomWebApplicationFactory
 {
+    using System.Security.Claims;
     using Generic.Base.Api.AuthServices.UserService;
     using Generic.Base.Api.Controllers;
     using Generic.Base.Api.Services;
@@ -24,7 +25,16 @@
         )
             : base(
                 domainService,
-                transformer)
+                transformer,
+                new[]
+                {
+                    new Claim(
+                        ClaimTypes.Role,
+                        Role.Admin.ToString()),
+                    new Claim(
+                        ClaimTypes.Role,
+                        Role.Accessor.ToString())
+                })
         {
         }
     }

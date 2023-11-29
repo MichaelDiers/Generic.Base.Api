@@ -1,5 +1,6 @@
 ﻿namespace Generic.Base.Api.AuthServices.InvitationService
 {
+    using System.Security.Claims;
     using Generic.Base.Api.Controllers;
     using Generic.Base.Api.Services;
     using Generic.Base.Api.Transformer;
@@ -15,13 +16,16 @@
         /// </summary>
         /// <param name="domainService">The domain service.</param>
         /// <param name="transformer">Transformer for entries used by controllers.</param>
+        /// <param name="requiredClaims">The required claims for accessing the service.</param>
         protected InvitationControllerBase(
             IDomainService<Invitation, Invitation, Invitation> domainService,
-            IControllerTransformer<Invitation, ResultInvitation> transformer
+            IControllerTransformer<Invitation, ResultInvitation> transformer,
+            IEnumerable<Claim> requiredClaims
         )
             : base(
                 domainService,
-                transformer)
+                transformer,
+                requiredClaims)
         {
         }
 

@@ -1,13 +1,12 @@
 ﻿namespace Generic.Base.Api.Controllers
 {
-    using Generic.Base.Api.AuthServices.UserService;
+    using System.Security.Claims;
     using Generic.Base.Api.Database;
     using Generic.Base.Api.Exceptions;
     using Generic.Base.Api.Extensions;
     using Generic.Base.Api.Models;
     using Generic.Base.Api.Services;
     using Generic.Base.Api.Transformer;
-    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
 
@@ -19,7 +18,7 @@
     /// <typeparam name="TUpdate">The data for updating an instance of <typeparamref name="TEntry" />.</typeparam>
     /// <typeparam name="TResult">The type of the result that is sent to the client.</typeparam>
     /// <seealso cref="ControllerBase" />
-    public abstract class UserBoundCrudController<TCreate, TEntry, TUpdate, TResult> : ControllerBase
+    public abstract class UserBoundCrudController<TCreate, TEntry, TUpdate, TResult> : CrudControllerBase
         where TEntry : IIdEntry where TResult : ILinkResult
     {
         /// <summary>
@@ -37,10 +36,13 @@
         /// </summary>
         /// <param name="domainService">The domain service.</param>
         /// <param name="transformer">Transformer for entries used by controllers.</param>
+        /// <param name="requiredClaims">The required claims necessary for accessing the service.</param>
         protected UserBoundCrudController(
             IUserBoundDomainService<TCreate, TEntry, TUpdate> domainService,
-            IControllerTransformer<TEntry, TResult> transformer
+            IControllerTransformer<TEntry, TResult> transformer,
+            IEnumerable<Claim> requiredClaims
         )
+            : base(requiredClaims)
         {
             this.domainService = domainService;
             this.transformer = transformer;
@@ -170,33 +172,6 @@
         }
 
         /// <summary>
-        ///     An options request for the available operations of the api.
-        /// </summary>
-        /// <returns>A <see cref="OkObjectResult" /> with the available operations.</returns>
-        /// <remarks>
-        ///     Sample request:
-        ///     OPTIONS /
-        /// </remarks>
-        /// <response code="200">If the operation succeeds.</response>
-        /// <response code="401">If no api key is provided or the authentication fails.</response>
-        /// <response code="403">If the api key is invalid or the user has no permission for the requested operation.</response>
-        [ProducesResponseType(
-            typeof(ILinkResult),
-            StatusCodes.Status200OK)]
-        [ProducesResponseType(
-            typeof(NoContentResult),
-            StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(
-            typeof(NoContentResult),
-            StatusCodes.Status403Forbidden)]
-        [HttpOptions]
-        [AllowAnonymous]
-        public ActionResult Options()
-        {
-            return this.Ok(new LinkResult(this.CreateUrns(this.Request.Path.Value)));
-        }
-
-        /// <summary>
         ///     Create a new entry.
         /// </summary>
         /// <param name="create">The data for creating a new entry.</param>
@@ -296,69 +271,5 @@
         ///     <c>true</c> if the specified identifier is valid; otherwise, <c>false</c>.
         /// </returns>
         protected abstract bool IsIdValid(string id);
-
-        /// <summary>
-        ///     Creates the urns for the given url and urn.
-        /// </summary>
-        /// <param name="baseUrl">The base url of the urn.</param>
-        /// <param name="id">The optional identifier that is added to the url.</param>
-        /// <returns>An <see cref="IEnumerable{T}" /> containing the available links.</returns>
-        private IEnumerable<ClaimLink> CreateUrns(string? baseUrl, string? id = null)
-        {
-            if (string.IsNullOrWhiteSpace(baseUrl))
-            {
-                return Enumerable.Empty<ClaimLink>();
-            }
-
-            var urnNamespace = this.GetType().Name;
-
-            IEnumerable<ClaimLink> claimLinks = new[]
-            {
-                ClaimLink.Create(
-                    urnNamespace,
-                    Urn.ReadAll,
-                    baseUrl,
-                    Role.Admin,
-                    Role.Accessor),
-                ClaimLink.Create(
-                    urnNamespace,
-                    Urn.Options,
-                    baseUrl),
-                ClaimLink.Create(
-                    urnNamespace,
-                    Urn.Create,
-                    baseUrl,
-                    Role.Admin,
-                    Role.Accessor),
-                ClaimLink.Create(
-                    urnNamespace,
-                    Urn.ReadById,
-                    $"{baseUrl}/{id ?? string.Empty}",
-                    Role.Admin,
-                    Role.Accessor)
-            };
-
-            if (!string.IsNullOrWhiteSpace(id))
-            {
-                claimLinks = claimLinks.Concat(
-                    new[]
-                    {
-                        ClaimLink.Create(
-                            urnNamespace,
-                            Urn.Delete,
-                            $"{baseUrl}/{id}",
-                            Role.Admin,
-                            Role.Accessor),
-                        ClaimLink.Create(
-                            urnNamespace,
-                            Urn.Update,
-                            $"{baseUrl}/{id}",
-                            Role.Admin,
-                            Role.Accessor)
-                    });
-            }
-
-            return claimLinks.Where(link => link.CanBeAccessed(this.User.Claims));
-        }
     }
 }

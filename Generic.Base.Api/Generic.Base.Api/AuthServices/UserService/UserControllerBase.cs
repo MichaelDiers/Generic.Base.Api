@@ -1,5 +1,6 @@
 ﻿namespace Generic.Base.Api.AuthServices.UserService
 {
+    using System.Security.Claims;
     using Generic.Base.Api.Controllers;
     using Generic.Base.Api.Services;
     using Generic.Base.Api.Transformer;
@@ -14,13 +15,16 @@
         /// </summary>
         /// <param name="domainService">The domain service.</param>
         /// <param name="transformer">Transformer for entries used by the controller.</param>
+        /// <param name="requiredClaims">The required claims for accessing the service.</param>
         protected UserControllerBase(
             IDomainService<User, User, User> domainService,
-            IControllerTransformer<User, ResultUser> transformer
+            IControllerTransformer<User, ResultUser> transformer,
+            IEnumerable<Claim> requiredClaims
         )
             : base(
                 domainService,
-                transformer)
+                transformer,
+                requiredClaims)
         {
         }
 

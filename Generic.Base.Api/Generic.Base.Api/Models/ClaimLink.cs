@@ -143,9 +143,34 @@
         /// <param name="urnNamespace">The namespace of the urn.</param>
         /// <param name="urn">The urn of the operation.</param>
         /// <param name="url">The url of the operation.</param>
+        /// <param name="roles">The roles required for executing the operation.</param>
+        /// <returns>A new instance of <see cref="ClaimLink" />.</returns>
+        public static ClaimLink Create(
+            string urnNamespace,
+            Urn urn,
+            string url,
+            IEnumerable<Role> roles
+        )
+        {
+            return ClaimLink.Create(
+                urnNamespace,
+                urn,
+                url,
+                roles.Select(
+                    r => new Claim(
+                        ClaimTypes.Role,
+                        r.ToString())));
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ClaimLink" /> class.
+        /// </summary>
+        /// <param name="urnNamespace">The namespace of the urn.</param>
+        /// <param name="urn">The urn of the operation.</param>
+        /// <param name="url">The url of the operation.</param>
         /// <param name="claims">The claims required for executing the operation.</param>
         /// <returns>A new instance of <see cref="ClaimLink" />.</returns>
-        private static ClaimLink Create(
+        public static ClaimLink Create(
             string urnNamespace,
             Urn urn,
             string url,
