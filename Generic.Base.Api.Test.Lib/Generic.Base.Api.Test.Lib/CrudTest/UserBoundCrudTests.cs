@@ -19,8 +19,6 @@
         where TUpdateResult : class
 
     {
-        private readonly IDictionary<string, string> urlCache = new Dictionary<string, string>();
-
         protected UserBoundCrudTests(
             string urnNamespace,
             string entryPointUrl,

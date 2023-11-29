@@ -54,7 +54,7 @@
             Role.User)]
         public void AddTokenClaims(string? userId, params Role[] roles)
         {
-            this.SetUp();
+            HttpClientExtensionsTests.SetUp();
 
             var claims = roles.Select(
                 role => new Claim(
@@ -108,7 +108,7 @@
             Role.User)]
         public void AddTokenRoles(string? userId, params Role[] roles)
         {
-            this.SetUp();
+            HttpClientExtensionsTests.SetUp();
 
             using var client = new HttpClient();
             client.AddToken(
@@ -172,10 +172,10 @@
             Assert.False(
                 client.DefaultRequestHeaders.TryGetValues(
                     HttpClientExtensions.XApiKeyName,
-                    out var _));
+                    out _));
         }
 
-        private void SetUp()
+        private static void SetUp()
         {
             var configuration = new HostApplicationBuilder().Configuration
                 .GetSection(JwtConfiguration.ConfigurationSection)

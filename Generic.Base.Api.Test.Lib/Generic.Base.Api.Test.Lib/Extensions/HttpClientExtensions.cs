@@ -5,6 +5,7 @@
     using System.Net.Http.Json;
     using System.Security.Claims;
     using Generic.Base.Api.AuthServices.UserService;
+    using Generic.Base.Api.Models;
     using Generic.Base.Api.Test.Lib.CrudTest;
 
     /// <summary>
@@ -96,9 +97,9 @@
         {
             var response = await client.DeleteAsync(url);
 
-            Assert.Equal(
-                expectedStatusCode,
-                response.StatusCode);
+            await HttpClientExtensions.AssertStatusCode(
+                response,
+                expectedStatusCode);
         }
 
         public static Task<TResponseData?> GetAsync<TResponseData>(
@@ -154,6 +155,22 @@
                 expectedStatusCode);
         }
 
+        private static async Task AssertStatusCode(HttpResponseMessage message, HttpStatusCode expectedStatusCode)
+        {
+            if (message.StatusCode != expectedStatusCode &&
+                ((int) message.StatusCode < 200 || (int) message.StatusCode > 299))
+            {
+                var error = await message.Content.ReadFromJsonAsync<ErrorResult>();
+
+                Assert.Fail(
+                    $"Expected status code: {expectedStatusCode}; actual: {message.StatusCode}; message: {error?.Error}");
+            }
+
+            Assert.Equal(
+                expectedStatusCode,
+                message.StatusCode);
+        }
+
         private static async Task<TResponseData?> SendAsync<TResponseData>(
             this HttpClient client,
             HttpMethod httpMethod,
@@ -166,9 +183,9 @@
                     httpMethod,
                     url));
 
-            Assert.Equal(
-                expectedStatusCode,
-                response.StatusCode);
+            await HttpClientExtensions.AssertStatusCode(
+                response,
+                expectedStatusCode);
 
             if ((int) expectedStatusCode < 200 || (int) expectedStatusCode > 299)
             {
@@ -194,9 +211,9 @@
                 url) {Content = JsonContent.Create(requestData)};
             var response = await client.SendAsync(message);
 
-            Assert.Equal(
-                expectedStatusCode,
-                response.StatusCode);
+            await HttpClientExtensions.AssertStatusCode(
+                response,
+                expectedStatusCode);
 
             if ((int) expectedStatusCode < 199 || (int) expectedStatusCode > 299)
             {
