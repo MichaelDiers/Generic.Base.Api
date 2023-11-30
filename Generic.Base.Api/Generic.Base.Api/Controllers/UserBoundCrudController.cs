@@ -160,7 +160,7 @@
         public async Task<ActionResult> Get(CancellationToken cancellationToken)
         {
             var result = await this.domainService.ReadAsync(
-                this.User.Claims.GetUserId(),
+                this.GetRequiredUserId(),
                 cancellationToken);
             return this.Ok(
                 result.Select(
@@ -271,5 +271,28 @@
         ///     <c>true</c> if the specified identifier is valid; otherwise, <c>false</c>.
         /// </returns>
         protected abstract bool IsIdValid(string id);
+
+        /// <summary>
+        ///     Gets the required user identifier from the claims of the user.
+        /// </summary>
+        /// <returns>The id of the user.</returns>
+        /// <exception cref="UnauthorizedException">Thrown if no user id claim is available.</exception>
+        private string GetRequiredUserId()
+        {
+            try
+            {
+                var userId = this.User.Claims.GetUserId();
+                if (this.IsIdValid(userId))
+                {
+                    return userId;
+                }
+
+                throw new UnauthorizedException();
+            }
+            catch (ArgumentException)
+            {
+                throw new UnauthorizedException();
+            }
+        }
     }
 }
