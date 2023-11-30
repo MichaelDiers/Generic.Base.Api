@@ -93,6 +93,12 @@
             return client;
         }
 
+        /// <summary>
+        ///     Sends a delete request.
+        /// </summary>
+        /// <param name="client">The http client.</param>
+        /// <param name="url">The URL.</param>
+        /// <param name="expectedStatusCode">The expected status code.</param>
         public static async Task DeleteAsync(this HttpClient client, string url, HttpStatusCode expectedStatusCode)
         {
             var response = await client.DeleteAsync(url);
@@ -102,6 +108,14 @@
                 expectedStatusCode);
         }
 
+        /// <summary>
+        ///     Sends a get request.
+        /// </summary>
+        /// <typeparam name="TResponseData">The type of the response data.</typeparam>
+        /// <param name="client">The client.</param>
+        /// <param name="url">The URL.</param>
+        /// <param name="expectedStatusCode">The expected status code.</param>
+        /// <returns>The parsed json response.</returns>
         public static Task<TResponseData?> GetAsync<TResponseData>(
             this HttpClient client,
             string url,
@@ -114,6 +128,13 @@
                 expectedStatusCode);
         }
 
+        /// <summary>
+        ///     Sends an options request.
+        /// </summary>
+        /// <typeparam name="TResponseData">The type of the response data.</typeparam>
+        /// <param name="client">The http client.</param>
+        /// <param name="url">The URL.</param>
+        /// <returns>The parsed json response.</returns>
         public static async Task<TResponseData> OptionsAsync<TResponseData>(this HttpClient client, string url)
             where TResponseData : class
         {
@@ -127,6 +148,16 @@
             return result;
         }
 
+        /// <summary>
+        ///     Sends a post request.
+        /// </summary>
+        /// <typeparam name="TRequestData">The type of the request data.</typeparam>
+        /// <typeparam name="TResponseData">The type of the response data.</typeparam>
+        /// <param name="client">The http client.</param>
+        /// <param name="url">The URL.</param>
+        /// <param name="requestData">The request data.</param>
+        /// <param name="expectedStatusCode">The expected status code.</param>
+        /// <returns>The parsed json response.</returns>
         public static Task<TResponseData?> PostAsync<TRequestData, TResponseData>(
             this HttpClient client,
             string url,
@@ -141,6 +172,16 @@
                 expectedStatusCode);
         }
 
+        /// <summary>
+        ///     Sends a put request.
+        /// </summary>
+        /// <typeparam name="TRequestData">The type of the request data.</typeparam>
+        /// <typeparam name="TResponseData">The type of the response data.</typeparam>
+        /// <param name="client">The http client.</param>
+        /// <param name="url">The URL.</param>
+        /// <param name="requestData">The request data.</param>
+        /// <param name="expectedStatusCode">The expected status code.</param>
+        /// <returns>The parsed json response.</returns>
         public static Task<TResponseData?> PutAsync<TRequestData, TResponseData>(
             this HttpClient client,
             string url,
@@ -155,15 +196,26 @@
                 expectedStatusCode);
         }
 
+        /// <summary>
+        ///     Asserts the status code.
+        /// </summary>
+        /// <param name="message">The http message.</param>
+        /// <param name="expectedStatusCode">The expected status code.</param>
         private static async Task AssertStatusCode(HttpResponseMessage message, HttpStatusCode expectedStatusCode)
         {
             if (message.StatusCode != expectedStatusCode &&
                 ((int) message.StatusCode < 200 || (int) message.StatusCode > 299))
             {
-                var error = await message.Content.ReadFromJsonAsync<ErrorResult>();
-
-                Assert.Fail(
-                    $"Expected status code: {expectedStatusCode}; actual: {message.StatusCode}; message: {error?.Error}");
+                try
+                {
+                    var error = await message.Content.ReadFromJsonAsync<ErrorResult>();
+                    Assert.Fail(
+                        $"Expected status code: {expectedStatusCode}; actual: {message.StatusCode}; message: {error?.Error}");
+                }
+                catch
+                {
+                    Assert.Fail($"Expected status code: {expectedStatusCode}; actual: {message.StatusCode}");
+                }
             }
 
             Assert.Equal(
@@ -171,6 +223,15 @@
                 message.StatusCode);
         }
 
+        /// <summary>
+        ///     Sends a http request.
+        /// </summary>
+        /// <typeparam name="TResponseData">The type of the response data.</typeparam>
+        /// <param name="client">The http client.</param>
+        /// <param name="httpMethod">The HTTP method.</param>
+        /// <param name="url">The URL.</param>
+        /// <param name="expectedStatusCode">The expected status code.</param>
+        /// <returns>The parsed json response.</returns>
         private static async Task<TResponseData?> SendAsync<TResponseData>(
             this HttpClient client,
             HttpMethod httpMethod,
@@ -198,6 +259,17 @@
             return responseData;
         }
 
+        /// <summary>
+        ///     Sends a http request.
+        /// </summary>
+        /// <typeparam name="TRequestData">The type of the request data.</typeparam>
+        /// <typeparam name="TResponseData">The type of the response data.</typeparam>
+        /// <param name="client">The client.</param>
+        /// <param name="httpMethod">The HTTP method.</param>
+        /// <param name="url">The URL.</param>
+        /// <param name="requestData">The request data.</param>
+        /// <param name="expectedStatusCode">The expected status code.</param>
+        /// <returns>The parsed json response.</returns>
         private static async Task<TResponseData?> SendAsync<TRequestData, TResponseData>(
             this HttpClient client,
             HttpMethod httpMethod,

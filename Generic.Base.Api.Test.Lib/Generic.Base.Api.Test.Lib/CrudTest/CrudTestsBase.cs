@@ -270,7 +270,7 @@
 
         protected string FindOperationUrl(ILinkResult linkResult, string urnNamespace, Urn urn)
         {
-            var url = linkResult.Links.FirstOrDefault(link => link.Urn == $"urn:${urnNamespace}:{Urn.ReadById}")?.Url;
+            var url = linkResult.Links.FirstOrDefault(link => link.Urn == $"urn:{urnNamespace}:{Urn.ReadById}")?.Url;
             if (string.IsNullOrWhiteSpace(url))
             {
                 Assert.Fail(

@@ -1,12 +1,15 @@
 ﻿namespace Generic.Base.Api.Test.Lib.Tests.Extensions
 {
+    using System.Net;
     using System.Security.Claims;
     using Generic.Base.Api.AuthServices.UserService;
     using Generic.Base.Api.Jwt;
     using Generic.Base.Api.Test.Lib.CrudTest;
     using Generic.Base.Api.Test.Lib.Extensions;
+    using Generic.Base.Api.Test.Lib.Tests.Lib;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Hosting;
+    using Xunit.Sdk;
 
     /// <summary>
     ///     Tests for <see cref="HttpClientExtensions" />.
@@ -173,6 +176,152 @@
                 client.DefaultRequestHeaders.TryGetValues(
                     HttpClientExtensions.XApiKeyName,
                     out _));
+        }
+
+        [Fact]
+        public async Task DeleteFailsErrorResult()
+        {
+            using var client = new TestFactory().CreateClient();
+
+            await Assert.ThrowsAsync<FailException>(
+                () => client.DeleteAsync(
+                    $"/errorResult/{(int) HttpStatusCode.BadRequest}",
+                    HttpStatusCode.OK));
+        }
+
+        [Fact]
+        public async Task DeleteFailsPlain()
+        {
+            using var client = new TestFactory().CreateClient();
+
+            await Assert.ThrowsAsync<FailException>(
+                () => client.DeleteAsync(
+                    $"/{(int) HttpStatusCode.BadRequest}",
+                    HttpStatusCode.OK));
+        }
+
+        [Fact]
+        public async Task DeleteSucceeds()
+        {
+            var expectedStatusCode = HttpStatusCode.OK;
+
+            using var client = new TestFactory().CreateClient();
+
+            await client.DeleteAsync(
+                $"/{(int) expectedStatusCode}",
+                expectedStatusCode);
+        }
+
+        [Fact]
+        public async Task GetFails()
+        {
+            using var client = new TestFactory().CreateClient();
+
+            await Assert.ThrowsAsync<FailException>(
+                () => client.GetAsync<string>(
+                    $"/HelloWorld/{(int) HttpStatusCode.BadRequest}",
+                    HttpStatusCode.OK));
+        }
+
+        [Fact]
+        public async Task GetSucceeds()
+        {
+            var expectedResult = "Hello World";
+            var expectedStatusCode = HttpStatusCode.OK;
+
+            using var client = new TestFactory().CreateClient();
+
+            var result = await client.GetAsync<string>(
+                $"/{expectedResult}/{(int) expectedStatusCode}",
+                expectedStatusCode);
+
+            Assert.Equal(
+                expectedResult,
+                result);
+        }
+
+        [Fact]
+        public async Task OptionsFails()
+        {
+            using var client = new TestFactory().CreateClient();
+
+            await Assert.ThrowsAsync<FailException>(
+                () => client.OptionsAsync<string>($"/HelloWorld/{(int) HttpStatusCode.BadRequest}"));
+        }
+
+        [Fact]
+        public async Task OptionsSucceeds()
+        {
+            var expectedResult = "Hello World";
+            var expectedStatusCode = HttpStatusCode.OK;
+
+            using var client = new TestFactory().CreateClient();
+
+            var result = await client.OptionsAsync<string>($"/{expectedResult}/{(int) expectedStatusCode}");
+
+            Assert.Equal(
+                expectedResult,
+                result);
+        }
+
+        [Fact]
+        public async Task PostFails()
+        {
+            using var client = new TestFactory().CreateClient();
+
+            await Assert.ThrowsAsync<FailException>(
+                () => client.PostAsync<string, string>(
+                    $"/HelloWorld/{(int) HttpStatusCode.BadRequest}",
+                    "Hello World",
+                    HttpStatusCode.OK));
+        }
+
+        [Fact]
+        public async Task PostSucceeds()
+        {
+            var expectedResult = "Hello World";
+            var expectedStatusCode = HttpStatusCode.OK;
+
+            using var client = new TestFactory().CreateClient();
+
+            var result = await client.PostAsync<string, string>(
+                $"/{expectedResult}/{(int) expectedStatusCode}",
+                expectedResult,
+                expectedStatusCode);
+
+            Assert.Equal(
+                expectedResult,
+                result);
+        }
+
+        [Fact]
+        public async Task PutFails()
+        {
+            using var client = new TestFactory().CreateClient();
+
+            await Assert.ThrowsAsync<FailException>(
+                () => client.PutAsync<string, string>(
+                    $"/HelloWorld/{(int) HttpStatusCode.BadRequest}",
+                    "Hello World",
+                    HttpStatusCode.OK));
+        }
+
+        [Fact]
+        public async Task PutSucceeds()
+        {
+            var expectedResult = "Hello World";
+            var expectedStatusCode = HttpStatusCode.OK;
+
+            using var client = new TestFactory().CreateClient();
+
+            var result = await client.PutAsync<string, string>(
+                $"/{expectedResult}/{(int) expectedStatusCode}",
+                expectedResult,
+                expectedStatusCode);
+
+            Assert.Equal(
+                expectedResult,
+                result);
         }
 
         private static void SetUp()
