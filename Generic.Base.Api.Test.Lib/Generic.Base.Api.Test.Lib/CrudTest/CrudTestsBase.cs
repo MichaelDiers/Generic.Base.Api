@@ -241,6 +241,23 @@
         /// <param name="readResult">The actual read result that should match the created result.</param>
         protected abstract void AssertEntry(TCreateResult createResult, TReadResult readResult);
 
+        protected async Task<TCreateResult?> Create(HttpClient? httpClient = null, string? userId = null)
+        {
+            var url = await this.GetUrl(
+                this.UrnNamespace,
+                Urn.Create);
+            var client = httpClient ?? new TFactory().CreateClient();
+            return await client.AddApiKey(this.ApiKey)
+                .AddToken(
+                    this.GetClaims(
+                        this.RequiredCreateRoles,
+                        userId ?? Guid.NewGuid().ToString()))
+                .PostAsync<TCreate, TCreateResult>(
+                    url,
+                    this.GetValidCreateEntry(),
+                    HttpStatusCode.Created);
+        }
+
         protected abstract IEnumerable<Claim> GetClaims(IEnumerable<Role> roles, string userId);
 
         protected async Task<string> GetUrl(string urnNamespace, Urn urn)
@@ -394,23 +411,6 @@
             client.Clear();
 
             return (client, created);
-        }
-
-        private async Task<TCreateResult?> Create(HttpClient? httpClient = null, string? userId = null)
-        {
-            var url = await this.GetUrl(
-                this.UrnNamespace,
-                Urn.Create);
-            var client = httpClient ?? new TFactory().CreateClient();
-            return await client.AddApiKey(this.ApiKey)
-                .AddToken(
-                    this.GetClaims(
-                        this.RequiredCreateRoles,
-                        userId ?? Guid.NewGuid().ToString()))
-                .PostAsync<TCreate, TCreateResult>(
-                    url,
-                    this.GetValidCreateEntry(),
-                    HttpStatusCode.Created);
         }
 
         private async Task FailsIfRoleIsMissing(

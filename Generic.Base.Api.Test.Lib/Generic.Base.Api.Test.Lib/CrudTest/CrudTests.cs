@@ -11,7 +11,7 @@
         where TFactory : WebApplicationFactory<TEntryPoint>, new()
         where TCreate : class
         where TCreateResult : class, ILinkResult
-        where TReadResult : class
+        where TReadResult : class, ILinkResult
         where TUpdate : class
         where TUpdateResult : class
 

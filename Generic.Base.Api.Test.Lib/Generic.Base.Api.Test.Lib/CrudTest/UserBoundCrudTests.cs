@@ -14,7 +14,7 @@
         where TFactory : WebApplicationFactory<TEntryPoint>, new()
         where TCreate : class
         where TCreateResult : class, ILinkResult
-        where TReadResult : class
+        where TReadResult : class, ILinkResult
         where TUpdate : class
         where TUpdateResult : class
 
@@ -39,6 +39,24 @@
                     url,
                     this.GetValidCreateEntry(),
                     HttpStatusCode.Unauthorized);
+        }
+
+        [Fact]
+        public async Task ReadByIdFailsWithoutUserIdClaim()
+        {
+            var userId = Guid.NewGuid().ToString();
+            var client = new TFactory().CreateClient();
+            var createResult = await this.Create(
+                client,
+                userId);
+            Assert.NotNull(createResult);
+            var url = createResult.Links.First(link => link.Urn == $"urn:${this.UrnNamespace}:{Urn.ReadById}").Url;
+
+            await client.AddApiKey(this.ApiKey)
+            .AddToken(this.RequiredReadByIdRoles)
+            .GetAsync<TReadResult>(
+                url,
+                HttpStatusCode.Unauthorized);
         }
 
         protected override IEnumerable<Claim> GetClaims(IEnumerable<Role> roles, string userId)
