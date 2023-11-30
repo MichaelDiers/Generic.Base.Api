@@ -50,7 +50,13 @@
                 client,
                 userId);
             Assert.NotNull(createResult);
-            var url = createResult.Links.First(link => link.Urn == $"urn:${this.UrnNamespace}:{Urn.ReadById}").Url;
+            var url = createResult.Links.FirstOrDefault(link => link.Urn == $"urn:${this.UrnNamespace}:{Urn.ReadById}")
+                ?.Url;
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                Assert.Fail(
+                    $"Cannot find {Urn.ReadById} link using {this.UrnNamespace} in: {string.Join(";", createResult.Links.Select(link => link.Urn))}");
+            }
 
             await client.AddApiKey(this.ApiKey)
             .AddToken(this.RequiredReadByIdRoles)
