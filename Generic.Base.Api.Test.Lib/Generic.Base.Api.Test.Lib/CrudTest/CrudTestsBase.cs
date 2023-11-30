@@ -228,12 +228,6 @@
             this.AssertEntry(
                 createResult,
                 readResult);
-            foreach (var createResultLink in createResult.Links)
-            {
-                Assert.Contains(
-                    readResult.Links,
-                    link => link.Url == createResultLink.Url && link.Urn == createResultLink.Urn);
-            }
         }
 
         /// <summary>

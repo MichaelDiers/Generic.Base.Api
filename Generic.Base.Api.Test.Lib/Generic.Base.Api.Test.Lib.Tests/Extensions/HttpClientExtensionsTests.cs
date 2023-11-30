@@ -212,15 +212,30 @@
                 expectedStatusCode);
         }
 
-        [Fact]
-        public async Task GetFails()
+        [Theory]
+        [InlineData(
+            HttpStatusCode.BadRequest,
+            HttpStatusCode.OK)]
+        [InlineData(
+            HttpStatusCode.OK,
+            HttpStatusCode.BadRequest)]
+        [InlineData(
+            HttpStatusCode.EarlyHints,
+            HttpStatusCode.OK)]
+        [InlineData(
+            HttpStatusCode.OK,
+            HttpStatusCode.EarlyHints)]
+        public async Task GetFails(HttpStatusCode expected, HttpStatusCode actual)
         {
             using var client = new TestFactory().CreateClient();
 
-            await Assert.ThrowsAsync<FailException>(
+            var exception = (int) actual > 199 && (int) actual < 300 ? typeof(EqualException) : typeof(FailException);
+
+            await Assert.ThrowsAsync(
+                exception,
                 () => client.GetAsync<string>(
-                    $"/HelloWorld/{(int) HttpStatusCode.BadRequest}",
-                    HttpStatusCode.OK));
+                    $"/HelloWorld/{(int) actual}",
+                    expected));
         }
 
         [Fact]
@@ -264,16 +279,31 @@
                 result);
         }
 
-        [Fact]
-        public async Task PostFails()
+        [Theory]
+        [InlineData(
+            HttpStatusCode.BadRequest,
+            HttpStatusCode.OK)]
+        [InlineData(
+            HttpStatusCode.OK,
+            HttpStatusCode.BadRequest)]
+        [InlineData(
+            HttpStatusCode.EarlyHints,
+            HttpStatusCode.OK)]
+        [InlineData(
+            HttpStatusCode.OK,
+            HttpStatusCode.EarlyHints)]
+        public async Task PostFailsOk(HttpStatusCode expected, HttpStatusCode actual)
         {
             using var client = new TestFactory().CreateClient();
 
-            await Assert.ThrowsAsync<FailException>(
+            var exception = (int) actual > 199 && (int) actual < 300 ? typeof(EqualException) : typeof(FailException);
+
+            await Assert.ThrowsAsync(
+                exception,
                 () => client.PostAsync<string, string>(
-                    $"/HelloWorld/{(int) HttpStatusCode.BadRequest}",
+                    $"/HelloWorld/{(int) actual}",
                     "Hello World",
-                    HttpStatusCode.OK));
+                    expected));
         }
 
         [Fact]
