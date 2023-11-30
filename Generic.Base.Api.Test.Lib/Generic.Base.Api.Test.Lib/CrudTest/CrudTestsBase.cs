@@ -211,7 +211,9 @@
                 client,
                 userId);
             Assert.NotNull(createResult);
-            var url = createResult.Links.First(link => link.Urn == $"urn:${this.UrnNamespace}:{Urn.ReadById}").Url;
+            var url = this.FindOperationUrl(
+                createResult,
+                Urn.ReadById);
 
             var readResult = await client.AddApiKey(this.ApiKey)
                 .AddToken(
@@ -256,6 +258,26 @@
                     url,
                     this.GetValidCreateEntry(),
                     HttpStatusCode.Created);
+        }
+
+        protected string FindOperationUrl(ILinkResult linkResult, Urn urn)
+        {
+            return this.FindOperationUrl(
+                linkResult,
+                this.UrnNamespace,
+                urn);
+        }
+
+        protected string FindOperationUrl(ILinkResult linkResult, string urnNamespace, Urn urn)
+        {
+            var url = linkResult.Links.FirstOrDefault(link => link.Urn == $"urn:${urnNamespace}:{Urn.ReadById}")?.Url;
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                Assert.Fail(
+                    $"Cannot find {urn} link using {urnNamespace} in: {string.Join(";", linkResult.Links.Select(link => link.Urn))}");
+            }
+
+            return url;
         }
 
         protected abstract IEnumerable<Claim> GetClaims(IEnumerable<Role> roles, string userId);
