@@ -3,8 +3,7 @@ on:
   push:
     paths:
       - Generic.Base.Api.Test.Lib/**
-    tags:
-    - "v[0-9]+.[0-9]+.[0-9]+"
+  workflow_dispatch:
 permissions:
   contents: read
   packages: write
@@ -19,6 +18,11 @@ jobs:
     steps:
     - name: checkout
       uses: actions/checkout@v3
+    - name: version
+      run: |
+        echo "PATCH_VERSION=$(cat Generic.Base.Api.Test.Lib\Generic.Base.Api.Test.Lib/Generic.Base.Api.Test.Lib.csproj | grep -Po '<Version>[0-9]+\.[0-9]+\.\K.*?(?=</Version>)' | awk '{print $0+1}')" >> $GITHUB_ENV
+        echo "MAJOR_MINOR_VERSION=$(cat Generic.Base.Api.Test.Lib\Generic.Base.Api.Test.Lib/Generic.Base.Api.Test.Lib.csproj | grep -Po '<Version>\K.*?(?=[0-9]+</Version>)')" >> $GITHUB_ENV
+        echo ${MAJOR_MINOR_VERSION}${PATCH_VERSION}
     - name: set VERSION variable from tag
       run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
     - name: add package source
