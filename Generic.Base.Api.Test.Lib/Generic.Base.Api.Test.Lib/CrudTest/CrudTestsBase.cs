@@ -45,8 +45,21 @@
             this.ClientHelper = new TFactory().CreateClient().AddApiKey(apiKey);
         }
 
+        /// <summary>
+        ///     Gets the expected api key.
+        /// </summary>
         protected string ApiKey { get; }
+
+        /// <summary>
+        ///     Gets the client helper that is initialized with a valid api key.
+        /// </summary>
         protected HttpClient ClientHelper { get; }
+
+        /// <summary>
+        ///     Gets test data for that the data validation fails in the create context.
+        /// </summary>
+        protected IEnumerable<(TCreate createData, string testInfo)> CreateDataValidationFailsTestData { get; }
+
         protected string EntryPointUrl { get; }
         protected IEnumerable<Role> OptionsRoles { get; }
 
@@ -57,6 +70,34 @@
         protected IEnumerable<Role> RequiredReadByIdRoles { get; }
         protected IEnumerable<Role> RequiredUpdateRoles { get; }
         protected string UrnNamespace { get; }
+
+        [Fact]
+        public async Task CreateDataValidationFails()
+        {
+            var url = await this.GetUrl(
+                this.UrnNamespace,
+                Urn.Create);
+            var client = new TFactory().CreateClient()
+                .AddApiKey(this.ApiKey)
+                .AddToken(
+                    this.GetClaims(
+                        this.RequiredCreateRoles,
+                        Guid.NewGuid().ToString()));
+            foreach (var (create, info) in this.CreateDataValidationFailsTestData)
+            {
+                try
+                {
+                    await client.PostAsync<TCreate, TCreateResult>(
+                        url,
+                        create,
+                        HttpStatusCode.BadRequest);
+                }
+                catch (Exception ex)
+                {
+                    Assert.Fail($"{info}: {ex}");
+                }
+            }
+        }
 
         [Fact]
         public async Task CreateFailsIfRoleIsMissing()
