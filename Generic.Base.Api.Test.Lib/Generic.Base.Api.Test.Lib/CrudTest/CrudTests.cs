@@ -16,27 +16,8 @@
         where TUpdateResult : class
 
     {
-        protected CrudTests(
-            string urnNamespace,
-            string entryPointUrl,
-            string apiKey,
-            IEnumerable<Role> optionsRoles,
-            IEnumerable<Role> requiredCreateRoles,
-            IEnumerable<Role> requiredReadAllRoles,
-            IEnumerable<Role> requiredReadByIdRoles,
-            IEnumerable<Role> requiredUpdateRoles,
-            IEnumerable<Role> requiredDeleteRoles
-        )
-            : base(
-                urnNamespace,
-                entryPointUrl,
-                apiKey,
-                optionsRoles,
-                requiredCreateRoles,
-                requiredReadAllRoles,
-                requiredReadByIdRoles,
-                requiredUpdateRoles,
-                requiredDeleteRoles)
+        protected CrudTests(string apiKey)
+            : base(apiKey)
         {
         }
 

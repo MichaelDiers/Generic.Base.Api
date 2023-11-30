@@ -21,27 +21,9 @@
     {
         private readonly IDictionary<string, string> urlCache = new Dictionary<string, string>();
 
-        protected CrudTestsBase(
-            string urnNamespace,
-            string entryPointUrl,
-            string apiKey,
-            IEnumerable<Role> optionsRoles,
-            IEnumerable<Role> requiredCreateRoles,
-            IEnumerable<Role> requiredReadAllRoles,
-            IEnumerable<Role> requiredReadByIdRoles,
-            IEnumerable<Role> requiredUpdateRoles,
-            IEnumerable<Role> requiredDeleteRoles
-        )
+        protected CrudTestsBase(string apiKey)
         {
-            this.RequiredCreateRoles = requiredCreateRoles;
-            this.RequiredReadAllRoles = requiredReadAllRoles;
-            this.RequiredReadByIdRoles = requiredReadByIdRoles;
-            this.RequiredUpdateRoles = requiredUpdateRoles;
-            this.RequiredDeleteRoles = requiredDeleteRoles;
-            this.UrnNamespace = urnNamespace;
-            this.EntryPointUrl = entryPointUrl;
             this.ApiKey = apiKey;
-            this.OptionsRoles = optionsRoles;
             this.ClientHelper = new TFactory().CreateClient().AddApiKey(apiKey);
         }
 
@@ -58,18 +40,32 @@
         /// <summary>
         ///     Gets test data for that the data validation fails in the create context.
         /// </summary>
-        protected IEnumerable<(TCreate createData, string testInfo)> CreateDataValidationFailsTestData { get; }
+        protected abstract IEnumerable<(TCreate createData, string testInfo)> CreateDataValidationFailsTestData { get; }
 
-        protected string EntryPointUrl { get; }
-        protected IEnumerable<Role> OptionsRoles { get; }
+        /// <summary>
+        ///     Gets the entry point URL that is supposed to be an options operation.
+        /// </summary>
+        protected abstract string EntryPointUrl { get; }
 
+        /// <summary>
+        ///     Gets the roles that are required for options requests.
+        /// </summary>
+        protected abstract IEnumerable<Role> OptionsRoles { get; }
+
+        /// <summary>
+        ///     Gets a value indicating whether a double create raises a conflict.
+        /// </summary>
+        /// <value>
+        ///     <c>true</c> if a double create raises a conflict; otherwise, <c>false</c>.
+        /// </value>
         protected abstract bool RaiseDoubleCreateConflict { get; }
-        protected IEnumerable<Role> RequiredCreateRoles { get; }
-        protected IEnumerable<Role> RequiredDeleteRoles { get; }
-        protected IEnumerable<Role> RequiredReadAllRoles { get; }
-        protected IEnumerable<Role> RequiredReadByIdRoles { get; }
-        protected IEnumerable<Role> RequiredUpdateRoles { get; }
-        protected string UrnNamespace { get; }
+
+        protected abstract IEnumerable<Role> RequiredCreateRoles { get; }
+        protected abstract IEnumerable<Role> RequiredDeleteRoles { get; }
+        protected abstract IEnumerable<Role> RequiredReadAllRoles { get; }
+        protected abstract IEnumerable<Role> RequiredReadByIdRoles { get; }
+        protected abstract IEnumerable<Role> RequiredUpdateRoles { get; }
+        protected abstract string UrnNamespace { get; }
 
         [Fact]
         public async Task CreateDataValidationFails()
