@@ -7,12 +7,11 @@
         : IControllerTransformer<Item, ResultItem>, IAtomicTransformer<CreateItem, Item, UpdateItem>
     {
         /// <summary>
-        ///     Transforms the specified <paramref name="createEntry" /> of type <typeparamref name="TCreateEntry" /> to
-        ///     <typeparamref name="TEntry" />.
+        ///     Transforms the specified <paramref name="createEntry" /> of type <see cref="CreateItem" /> to
+        ///     <see cref="Item" />.
         /// </summary>
-        /// <param name="createEntry">The data for creating an entry of type <typeparamref name="TEntry" />.</param>
-        /// <param name="userId">The id of the owner.</param>
-        /// <returns>The transformed entry of type <typeparamref name="TEntry" />.</returns>
+        /// <param name="createEntry">The data for creating an entry of type <see cref="Item" />.</param>
+        /// <returns>The transformed entry of type <see cref="Item" />.</returns>
         public Item Transform(CreateItem createEntry)
         {
             return new Item(
@@ -21,13 +20,12 @@
         }
 
         /// <summary>
-        ///     Transforms the specified <paramref name="updateEntry" /> of type <typeparamref name="TUpdateEntry" /> to
-        ///     <typeparamref name="TEntry" />.
+        ///     Transforms the specified <paramref name="updateEntry" /> of type <see cref="UpdateItem" /> to
+        ///     <see cref="Item" />.
         /// </summary>
-        /// <param name="updateEntry">The data for creating an entry of type <typeparamref name="TEntry" />.</param>
-        /// <param name="userId">The id of the owner.</param>
+        /// <param name="updateEntry">The data for creating an entry of type <see cref="Item" />.</param>
         /// <param name="entryId">The id of the entry to be updated.</param>
-        /// <returns>The transformed entry of type <typeparamref name="TEntry" />.</returns>
+        /// <returns>The transformed entry of type <see cref="Item" />.</returns>
         public Item Transform(UpdateItem updateEntry, string entryId)
         {
             return new Item(
@@ -36,11 +34,11 @@
         }
 
         /// <summary>
-        ///     Transforms the specified entry of <typeparamref name="TEntry" /> to <typeparamref name="TResultEntry" />.
+        ///     Transforms the specified entry of <see cref="Item" /> to <see cref="ResultItem" />.
         /// </summary>
-        /// <param name="entry">The data for creating an instance of <typeparamref name="TResultEntry" />.</param>
+        /// <param name="entry">The data for creating an instance of <see cref="ResultItem" />.</param>
         /// <param name="links">The urn that describe the supported operations on the result entry.</param>
-        /// <returns>The transformed entry of type <typeparamref name="TResultEntry" />.</returns>
+        /// <returns>The transformed entry of type <see cref="ResultItem" />.</returns>
         public ResultItem Transform(Item entry, IEnumerable<Link> links)
         {
             return new ResultItem(

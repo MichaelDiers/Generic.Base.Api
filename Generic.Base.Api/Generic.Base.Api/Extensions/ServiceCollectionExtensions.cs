@@ -9,6 +9,15 @@
     /// </summary>
     public static class ServiceCollectionExtensions
     {
+        /// <summary>
+        ///     Adds the user independent services.
+        /// </summary>
+        /// <typeparam name="TCreate">The type of the create.</typeparam>
+        /// <typeparam name="TEntry">The type of the entry.</typeparam>
+        /// <typeparam name="TUpdate">The type of the update.</typeparam>
+        /// <typeparam name="TClientSessionHandle">The type of the client session handle.</typeparam>
+        /// <param name="services">The services.</param>
+        /// <returns>The given services.</returns>
         public static IServiceCollection AddServices<TCreate, TEntry, TUpdate, TClientSessionHandle>(
             this IServiceCollection services
         )

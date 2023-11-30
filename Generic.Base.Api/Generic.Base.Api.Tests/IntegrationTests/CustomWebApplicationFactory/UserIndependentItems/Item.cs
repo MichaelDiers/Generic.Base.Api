@@ -11,7 +11,6 @@
         ///     Initializes a new instance of the <see cref="IdEntry" /> class.
         /// </summary>
         /// <param name="id">The identifier of the entry.</param>
-        /// <param name="userId">The identifier of the user.</param>
         /// <param name="name">The name of the item.</param>
         public Item(string id, string name)
             : base(id)

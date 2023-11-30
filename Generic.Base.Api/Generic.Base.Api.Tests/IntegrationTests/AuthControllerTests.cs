@@ -444,6 +444,14 @@
                 signUp,
                 HttpStatusCode.OK);
 
+            // refresh fails without user id
+            await client.AddToken(ClientJwtTokenService.CreateToken(Role.Refresher))
+                .PostAsync<Token>(
+                    () => HttpClientExtensions.GetUrl(
+                        nameof(AuthController)[..^10],
+                        Urn.Refresh),
+                    HttpStatusCode.Unauthorized);
+
             var tokens = await client.PostAsync<SignIn, Token>(
                 signIn,
                 () => HttpClientExtensions.GetUrl(

@@ -39,15 +39,15 @@
                 this.database[entry.UserId] = userDictionary;
             }
 
-            if (!userDictionary.TryGetValue(
+            if (userDictionary.TryGetValue(
                     entry.Id,
                     out _))
             {
-                userDictionary[entry.Id] = entry;
-                return Task.FromResult(entry);
+                throw new ConflictException();
             }
 
-            throw new ConflictException();
+            userDictionary[entry.Id] = entry;
+            return Task.FromResult(entry);
         }
 
         /// <summary>
@@ -89,14 +89,12 @@
             ITransactionHandle<TClientSessionHandle> transactionHandle
         )
         {
-            if (!this.database.TryGetValue(
+            return Task.FromResult(
+                !this.database.TryGetValue(
                     userId,
-                    out var userDictionary))
-            {
-                return Task.FromResult(Enumerable.Empty<TEntry>());
-            }
-
-            return Task.FromResult(userDictionary.Values.Select(x => x));
+                    out var userDictionary)
+                    ? Enumerable.Empty<TEntry>()
+                    : userDictionary.Values.Select(x => x));
         }
 
         /// <summary>
