@@ -14,7 +14,7 @@
         where TFactory : WebApplicationFactory<TEntryPoint>, new()
         where TCreate : class
         where TCreateResult : class, ILinkResult
-        where TReadResult : class
+        where TReadResult : class, ILinkResult
         where TUpdate : class
         where TUpdateResult : class
 
@@ -126,19 +126,7 @@
         [Fact]
         public async Task CreateSucceeds()
         {
-            var url = await this.GetUrl(
-                this.UrnNamespace,
-                Urn.Create);
-            await new TFactory().CreateClient()
-                .AddApiKey(this.ApiKey)
-                .AddToken(
-                    this.GetClaims(
-                        this.RequiredCreateRoles,
-                        Guid.NewGuid().ToString()))
-                .PostAsync<TCreate, TCreateResult>(
-                    url,
-                    this.GetValidCreateEntry(),
-                    HttpStatusCode.Created);
+            await this.Create();
         }
 
         [Fact]
@@ -213,6 +201,45 @@
                 create,
                 this.RaiseDoubleCreateConflict ? HttpStatusCode.Conflict : HttpStatusCode.Created);
         }
+
+        [Fact]
+        public async Task ReadByIdSucceeds()
+        {
+            var userId = Guid.NewGuid().ToString();
+            var client = new TFactory().CreateClient();
+            var createResult = await this.Create(
+                client,
+                userId);
+            Assert.NotNull(createResult);
+            var url = createResult.Links.First(link => link.Urn == $"urn:${this.UrnNamespace}:{Urn.ReadById}").Url;
+
+            var readResult = await client.AddApiKey(this.ApiKey)
+                .AddToken(
+                    this.GetClaims(
+                        this.RequiredReadByIdRoles,
+                        userId))
+                .GetAsync<TReadResult>(
+                    url,
+                    HttpStatusCode.OK);
+
+            Assert.NotNull(readResult);
+            this.AssertEntry(
+                createResult,
+                readResult);
+            foreach (var createResultLink in createResult.Links)
+            {
+                Assert.Contains(
+                    readResult.Links,
+                    link => link.Url == createResultLink.Url && link.Urn == createResultLink.Urn);
+            }
+        }
+
+        /// <summary>
+        ///     Asserts that the created entry matches the read result.
+        /// </summary>
+        /// <param name="createResult">The expected created result.</param>
+        /// <param name="readResult">The actual read result that should match the created result.</param>
+        protected abstract void AssertEntry(TCreateResult createResult, TReadResult readResult);
 
         protected abstract IEnumerable<Claim> GetClaims(IEnumerable<Role> roles, string userId);
 
@@ -367,6 +394,23 @@
             client.Clear();
 
             return (client, created);
+        }
+
+        private async Task<TCreateResult?> Create(HttpClient? httpClient = null, string? userId = null)
+        {
+            var url = await this.GetUrl(
+                this.UrnNamespace,
+                Urn.Create);
+            var client = httpClient ?? new TFactory().CreateClient();
+            return await client.AddApiKey(this.ApiKey)
+                .AddToken(
+                    this.GetClaims(
+                        this.RequiredCreateRoles,
+                        userId ?? Guid.NewGuid().ToString()))
+                .PostAsync<TCreate, TCreateResult>(
+                    url,
+                    this.GetValidCreateEntry(),
+                    HttpStatusCode.Created);
         }
 
         private async Task FailsIfRoleIsMissing(
