@@ -83,7 +83,7 @@
             }
 
             await this.domainService.DeleteAsync(
-                this.User.Claims.GetUserId(),
+                this.GetRequiredUserId(),
                 id,
                 cancellationToken);
             return this.NoContent();
@@ -124,7 +124,7 @@
             }
 
             var result = await this.domainService.ReadByIdAsync(
-                this.User.Claims.GetUserId(),
+                this.GetRequiredUserId(),
                 id,
                 cancellationToken);
             return this.Ok(
@@ -200,13 +200,8 @@
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] TCreate create, CancellationToken cancellationToken)
         {
-            if (!this.User.Claims.TryGetUserId(out var userId))
-            {
-                throw new UnauthorizedAccessException();
-            }
-
             var result = await this.domainService.CreateAsync(
-                userId,
+                this.GetRequiredUserId(),
                 create,
                 cancellationToken);
 
@@ -257,7 +252,7 @@
 
             await this.domainService.UpdateAsync(
                 updateEntry,
-                this.User.Claims.GetUserId(),
+                this.GetRequiredUserId(),
                 id,
                 cancellationToken);
             return this.NoContent();
