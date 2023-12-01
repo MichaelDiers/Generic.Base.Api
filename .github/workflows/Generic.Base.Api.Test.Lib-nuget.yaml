@@ -53,3 +53,10 @@ jobs:
     - name: Push
       run: dotnet nuget push ${{env.nupkg}}.${VERSION}.nupkg --source ${{env.push-source}} --api-key ${{ secrets.GITHUB_TOKEN }}
       working-directory: ${{env.working-directory}}
+    - name: Commit version patch
+      run: |
+        git config --global user.name '${{ github.actor }}'
+        git config --global user.email '${{ github.actor }}@users.noreply.github.com'
+        git add Generic.Base.Api.Test.Lib/Generic.Base.Api.Test.Lib/Generic.Base.Api.Test.Lib.csproj
+        git commit -m "version update"
+        git push
