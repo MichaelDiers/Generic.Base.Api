@@ -10,6 +10,7 @@
         /// <summary>
         ///     Gets the client session handle for database transactions.
         /// </summary>
+        // ReSharper disable once UnusedMember.Global
         TClientSessionHandle ClientSessionHandle { get; }
 
         /// <summary>

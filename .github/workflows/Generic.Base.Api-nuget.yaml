@@ -45,7 +45,7 @@ jobs:
       run: dotnet pack --configuration Release --no-build --output .
       working-directory: ${{env.working-directory}}
     - name: Push
-      run: dotnet nuget push ${{env.nupkg}}.${VERSION}.nupkg --source ${{env.push-source}} --api-key ${{ secrets.GITHUB_TOKEN }}
+      run: dotnet nuget push ${{env.nupkg}}.${VERSION}.nupkg --source ${{env.push-source}} --api-key ${{ secrets.PACKAGE_PUSH_TOKEN }}
       working-directory: ${{env.working-directory}}
     - name: Commit version patch
       run: |
