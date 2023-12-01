@@ -17,7 +17,7 @@
 	
 
 	<ItemGroup>
-		<PackageReference Include="Generic.Base.Api" Version="0.0.43" />
+		<PackageReference Include="Generic.Base.Api" Version="0.0.44" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="7.0.14" />
 		<PackageReference Include="xunit" Version="2.4.2" />
 	</ItemGroup>
