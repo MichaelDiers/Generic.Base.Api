@@ -25,7 +25,6 @@ jobs:
         echo "MAJOR_MINOR_VERSION=$(echo ${OLD_VERSION} | grep -Po '<Version>\K.*?(?=[0-9]+</Version>)')" >> $GITHUB_ENV
         echo ${OLD_VERSION}
         echo ${MAJOR_MINOR_VERSION}${PATCH_VERSION}
-        sed -i -e 's/${OLD_VERSION}/<VERSION>${MAJOR_MINOR_VERSION}${PATCH_VERSION}</VERSION>/g' ${{env.CSPROJ}}
       env:
         CSPROJ: Generic.Base.Api.Test.Lib/Generic.Base.Api.Test.Lib/Generic.Base.Api.Test.Lib.csproj
     - name: set VERSION variable from tag
