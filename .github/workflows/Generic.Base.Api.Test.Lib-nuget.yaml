@@ -28,6 +28,10 @@ jobs:
         echo "MAJOR_MINOR_VERSION=$(echo ${OLD_VERSION} | grep -Po '<Version>\K.*?(?=[0-9]+</Version>)')" >> $GITHUB_ENV
     - name: new version
       run: echo "NEW_VERSION=<Version>${MAJOR_MINOR_VERSION}${PATCH_VERSION}</Version>" >> $GITHUB_ENV
+    - name: patch
+      run: sed -i 's/${OLD_VERSION}/${NEW_VERSION}/' ${{env.CSPROJ}}
+      env:
+        CSPROJ: Generic.Base.Api.Test.Lib/Generic.Base.Api.Test.Lib/Generic.Base.Api.Test.Lib.csproj
     - name: echo
       run: |
         echo ${OLD_VERSION}
