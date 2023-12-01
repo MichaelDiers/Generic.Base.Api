@@ -3,6 +3,7 @@ on:
   registry_package:
     action:
       - updated
+      - published
     package_name: 
       - 'Generic.Base.Api'
 permissions:

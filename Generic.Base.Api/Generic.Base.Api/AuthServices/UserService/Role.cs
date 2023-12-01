@@ -27,6 +27,7 @@
         /// <summary>
         ///     The guest role.
         /// </summary>
+        // ReSharper disable once UnusedMember.Global
         Guest,
 
         /// <summary>
