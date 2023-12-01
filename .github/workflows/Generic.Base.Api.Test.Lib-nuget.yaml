@@ -2,7 +2,7 @@ name: NuGet for Generic.Base.Api.Test.Lib
 on:
   push:
     paths:
-      - Generic.Base.Api.Test.Lib/**
+      - Generic.Base.Api.Test.Lib/Generic.Base.Api.Test.Lib/**
   workflow_dispatch:
 permissions:
   contents: write
