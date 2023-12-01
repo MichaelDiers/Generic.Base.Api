@@ -18,18 +18,20 @@ jobs:
     steps:
     - name: checkout
       uses: actions/checkout@v3
-    - name: old version
+    - name: extract old version
       run: echo "OLD_VERSION=$(cat ${{env.CSPROJ}} | grep -Po '<Version>.+?</Version>')" >> $GITHUB_ENV
       env:
         CSPROJ: Generic.Base.Api.Test.Lib/Generic.Base.Api.Test.Lib/Generic.Base.Api.Test.Lib.csproj
-    - name: echo
-      run: echo ${OLD_VERSION}
-    - name: version
-      run: |        
+    - name: extract major, minor, patch
+      run: |
         echo "PATCH_VERSION=$(echo ${OLD_VERSION} | grep -Po '<Version>[0-9]+\.[0-9]+\.\K.*?(?=</Version>)' | awk '{print $0+1}')" >> $GITHUB_ENV
         echo "MAJOR_MINOR_VERSION=$(echo ${OLD_VERSION} | grep -Po '<Version>\K.*?(?=[0-9]+</Version>)')" >> $GITHUB_ENV
+    - name: new version
+        echo "NEW_VERSION=$(echo '<VERSION>${MAJOR_MINOR_VERSION}${PATCH_VERSION}</VERSION>')" >> $GITHUB_ENV
+    - name: echo
+      run: |
         echo ${OLD_VERSION}
-        echo ${MAJOR_MINOR_VERSION}${PATCH_VERSION}
+        echo ${NEW_VERSION}
     - name: set VERSION variable from tag
       run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
     - name: add package source
