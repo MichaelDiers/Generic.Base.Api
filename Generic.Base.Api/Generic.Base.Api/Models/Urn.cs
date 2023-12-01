@@ -8,6 +8,7 @@
         /// <summary>
         ///     The undefined value.
         /// </summary>
+        // ReSharper disable once UnusedMember.Global
         None = 0,
 
         /// <summary>
