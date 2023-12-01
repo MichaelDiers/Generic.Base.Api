@@ -11,6 +11,7 @@
         /// <summary>
         ///     The undefined role.
         /// </summary>
+        // ReSharper disable once UnusedMember.Global
         None = 0,
 
         /// <summary>
