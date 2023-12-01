@@ -47,6 +47,10 @@
         /// </summary>
         protected abstract string EntryPointUrl { get; }
 
+        protected abstract string GetInvalidId { get; }
+
+        protected abstract string GetValidId { get; }
+
         /// <summary>
         ///     Gets the roles that are required for options requests.
         /// </summary>
@@ -200,6 +204,58 @@
                 url,
                 create,
                 this.RaiseDoubleCreateConflict ? HttpStatusCode.Conflict : HttpStatusCode.Created);
+        }
+
+        [Fact]
+        public async Task ReadByIdFailsIfIdIsInvalid()
+        {
+            var userId = Guid.NewGuid().ToString();
+            var client = new TFactory().CreateClient();
+            var createResult = await this.Create(
+                client,
+                userId);
+            Assert.NotNull(createResult);
+            var url = this.FindOperationUrl(
+                createResult,
+                Urn.ReadById);
+            url = string.Join(
+                "/",
+                url.Split("/")[..^1].Append(this.GetInvalidId));
+
+            await client.AddApiKey(this.ApiKey)
+                .AddToken(
+                    this.GetClaims(
+                        this.RequiredReadByIdRoles,
+                        userId))
+                .GetAsync<TReadResult>(
+                    url,
+                    HttpStatusCode.BadRequest);
+        }
+
+        [Fact]
+        public async Task ReadByIdFailsIfIdIsUnknown()
+        {
+            var userId = Guid.NewGuid().ToString();
+            var client = new TFactory().CreateClient();
+            var createResult = await this.Create(
+                client,
+                userId);
+            Assert.NotNull(createResult);
+            var url = this.FindOperationUrl(
+                createResult,
+                Urn.ReadById);
+            url = string.Join(
+                "/",
+                url.Split("/")[..^1].Append(this.GetValidId));
+
+            await client.AddApiKey(this.ApiKey)
+                .AddToken(
+                    this.GetClaims(
+                        this.RequiredReadByIdRoles,
+                        userId))
+                .GetAsync<TReadResult>(
+                    url,
+                    HttpStatusCode.NotFound);
         }
 
         [Fact]
