@@ -259,6 +259,17 @@
         }
 
         [Fact]
+        public async Task ReadByIdFailsIfRoleIsMissing()
+        {
+            await this.FailsIfRoleIsMissing(
+                Urn.ReadById,
+                this.RequiredReadByIdRoles,
+                (client, url) => client.GetAsync<TReadResult>(
+                    url,
+                    HttpStatusCode.Forbidden));
+        }
+
+        [Fact]
         public async Task ReadByIdSucceeds()
         {
             var userId = Guid.NewGuid().ToString();
@@ -486,33 +497,24 @@
         }
 
         private async Task FailsIfRoleIsMissing(
-            IEnumerable<Role> requiredRoles,
-            Func<HttpClient, Task> execute,
-            HttpClient? httpClient = null
-        )
-        {
-            var client = httpClient?.Clear() ?? new TFactory().CreateClient();
-
-            var allRequiredRoles = requiredRoles.ToArray();
-            foreach (var requiredRole in allRequiredRoles)
-            {
-                var roles = new List<Role>(allRequiredRoles);
-                roles.Remove(requiredRole);
-
-                await execute(new TFactory().CreateClient().AddApiKey(this.ApiKey).AddToken(roles));
-            }
-        }
-
-        private async Task FailsIfRoleIsMissing(
             Urn urn,
             IEnumerable<Role> requiredRoles,
             Func<HttpClient, string, Task> execute
         )
         {
-            var url = await this.GetUrl(
-                this.UrnNamespace,
-                urn);
+            // create an entry to access all urn options
+            var userId = Guid.NewGuid().ToString();
+            var client = new TFactory().CreateClient();
+            var created = await this.Create(
+                client,
+                userId);
+            Assert.NotNull(created);
 
+            // get url for the test
+            var url = created.Links.FirstOrDefault(link => link.Urn == $"urn:{this.UrnNamespace}:{Urn.Create}")?.Url;
+            Assert.NotNull(url);
+
+            // iterate roles
             var allRequiredRoles = requiredRoles.ToArray();
             foreach (var requiredRole in allRequiredRoles)
             {
@@ -520,7 +522,10 @@
                 roles.Remove(requiredRole);
 
                 await execute(
-                    new TFactory().CreateClient().AddApiKey(this.ApiKey).AddToken(roles),
+                    client.AddToken(
+                        this.GetClaims(
+                            roles,
+                            userId)),
                     url);
             }
         }
