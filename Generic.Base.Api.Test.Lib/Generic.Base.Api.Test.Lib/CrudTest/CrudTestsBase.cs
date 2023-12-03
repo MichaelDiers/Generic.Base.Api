@@ -360,7 +360,7 @@
                 linkResult.Links,
                 link => link.Urn == $"urn:{this.UrnNamespace}:{Urn.Create}");
 
-            if (!this.RequiredReadAllRoles.All(role1 => this.RequiredCreateRoles.Any(role2 => role1 == role2)))
+            if (this.RequiredReadAllRoles.All(role1 => this.RequiredCreateRoles.Any(role2 => role1 == role2)))
             {
                 ++count;
                 Assert.Contains(
@@ -403,7 +403,7 @@
                 linkResult.Links,
                 link => link.Urn == $"urn:{this.UrnNamespace}:{Urn.ReadAll}");
 
-            if (!this.RequiredCreateRoles.All(role1 => this.RequiredReadAllRoles.Any(role2 => role1 == role2)))
+            if (this.RequiredCreateRoles.All(role1 => this.RequiredReadAllRoles.Any(role2 => role1 == role2)))
             {
                 ++count;
                 Assert.Contains(
@@ -667,7 +667,7 @@
                 .PostAsync<TCreate, TCreateResult>(
                     createUrl,
                     this.GetValidCreateEntry(),
-                    HttpStatusCode.OK);
+                    HttpStatusCode.Created);
             Assert.NotNull(createResult);
 
             var requestedUrl = createResult.Links.FirstOrDefault(link => link.Urn == key)?.Url;
