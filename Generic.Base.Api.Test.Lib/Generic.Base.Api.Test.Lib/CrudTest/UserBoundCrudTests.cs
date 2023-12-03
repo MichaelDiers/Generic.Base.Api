@@ -60,7 +60,8 @@
                 this.UrnNamespace,
                 Urn.Create,
                 client,
-                userId);
+                userId,
+                this.RequiredCreateRoles);
             await client.Clear()
                 .AddApiKey(this.ApiKey)
                 .AddToken(this.RequiredCreateRoles)

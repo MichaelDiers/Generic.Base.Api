@@ -130,7 +130,8 @@
                 this.UrnNamespace,
                 Urn.Create,
                 client,
-                userId);
+                userId,
+                this.RequiredCreateRoles);
 
             client.Clear()
             .AddApiKey(this.ApiKey)
@@ -190,7 +191,8 @@
                 this.UrnNamespace,
                 Urn.Create,
                 client,
-                userId);
+                userId,
+                this.RequiredCreateRoles);
 
             await client.Clear()
                 .AddApiKey(Guid.NewGuid().ToString())
@@ -216,7 +218,8 @@
                 this.UrnNamespace,
                 Urn.Create,
                 client,
-                userId);
+                userId,
+                this.RequiredCreateRoles);
 
             await client.Clear()
                 .AddToken(
@@ -241,7 +244,8 @@
                 this.UrnNamespace,
                 Urn.Create,
                 client,
-                userId);
+                userId,
+                this.RequiredCreateRoles);
 
             await client.Clear()
             .AddApiKey(this.ApiKey)
@@ -263,7 +267,8 @@
                 this.UrnNamespace,
                 Urn.Create,
                 client,
-                userId);
+                userId,
+                this.RequiredCreateRoles);
 
             client.Clear()
             .AddApiKey(this.ApiKey)
@@ -296,7 +301,8 @@
                 this.UrnNamespace,
                 Urn.ReadById,
                 client,
-                userId);
+                userId,
+                this.RequiredReadByIdRoles);
 
             url = string.Join(
                 "/",
@@ -325,7 +331,8 @@
                 this.UrnNamespace,
                 Urn.ReadById,
                 client,
-                userId);
+                userId,
+                this.RequiredReadByIdRoles);
 
             url = string.Join(
                 "/",
@@ -408,7 +415,8 @@
                 this.UrnNamespace,
                 Urn.Create,
                 client,
-                validUserId);
+                validUserId,
+                this.RequiredCreateRoles);
 
             return await client.Clear()
                 .AddApiKey(this.ApiKey)
@@ -470,12 +478,14 @@
         /// <param name="urn">The requested operation.</param>
         /// <param name="httpClient">The http client.</param>
         /// <param name="userId">The id of the user.</param>
+        /// <param name="requiredRoles">The required roles for executing the operation.</param>
         /// <returns>A <see cref="Task{T}" /> whose result is the requested url.</returns>
         protected async Task<string> GetUrl(
             string urnNamespace,
             Urn urn,
             HttpClient httpClient,
-            string userId
+            string userId,
+            IEnumerable<Role> requiredRoles
         )
         {
             var key = $"urn:{urnNamespace}:{urn}";
@@ -493,7 +503,9 @@
                 Urn.Options,
                 client,
                 this.EntryPointUrl,
-                true);
+                true,
+                userId,
+                this.OptionsRoles);
             Assert.NotNull(optionsResultLink);
             if (optionsResultLink.Urn == key)
             {
@@ -505,7 +517,9 @@
                 urn,
                 client,
                 optionsResultLink.Url,
-                false);
+                false,
+                userId,
+                requiredRoles.Concat(this.RequiredCreateRoles));
 
             if (optionsResultLink is not null && key == optionsResultLink.Urn)
             {
@@ -564,17 +578,18 @@
         {
             var userId = Guid.NewGuid().ToString();
             var client = new TFactory().CreateClient();
+            var allRequiredRoles = requiredRoles.ToArray();
 
             var url = await this.GetUrl(
                 this.UrnNamespace,
                 urn,
                 client,
-                userId);
+                userId,
+                allRequiredRoles);
 
             client.Clear().AddApiKey(this.ApiKey);
 
             // iterate roles
-            var allRequiredRoles = requiredRoles.ToArray();
             foreach (var requiredRole in allRequiredRoles)
             {
                 var roles = new List<Role>(allRequiredRoles);
@@ -597,16 +612,24 @@
         /// <param name="client">The http client.</param>
         /// <param name="url">The options url to be used.</param>
         /// <param name="checkResult">Check the result of the given <paramref name="url" />.</param>
+        /// <param name="userId">The id of the user.</param>
+        /// <param name="requiredRoles">The required roles for executing the operation.</param>
         /// <returns>A <see cref="Task{T}" /> whose result is the requested link.</returns>
         private async Task<Link?> GetUrl(
             string urnNamespace,
             Urn urn,
             HttpClient client,
             string url,
-            bool checkResult
+            bool checkResult,
+            string userId,
+            IEnumerable<Role> requiredRoles
         )
         {
-            var optionsResult = await client.AddApiKey(this.ApiKey).OptionsAsync<LinkResult>(url);
+            var optionsResult = await client.AddApiKey(this.ApiKey)
+                .AddToken(
+                    requiredRoles,
+                    userId)
+                .OptionsAsync<LinkResult>(url);
             optionsResult.Links.Where(link => !this.urlCache.ContainsKey(link.Urn))
                 .ToList()
                 .ForEach(
