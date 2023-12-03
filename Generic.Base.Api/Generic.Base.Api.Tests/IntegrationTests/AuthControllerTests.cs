@@ -728,50 +728,43 @@
                     _ => { });
 
             // check refresh token exists
-
             Assert.NotNull(tokens);
             var tokenUrl = await HttpClientExtensions.GetUrl(
                 nameof(TokenEntryController)[..^10],
-                Urn.ReadById);
+                Urn.ReadAll);
             Assert.NotNull(tokenUrl);
 
             var decodedToken = ClientJwtTokenService.Decode(tokens.RefreshToken);
             Assert.NotNull(decodedToken);
             var tokenId = decodedToken.Claims.First(claim => claim.Type == Constants.RefreshTokenIdClaimType).Value;
 
-            await client.GetAsync<ResultTokenEntry>(
-                $"{tokenUrl}{tokenId}",
+            await client.GetAsync<IEnumerable<ResultTokenEntry>>(
+                tokenUrl,
                 HttpStatusCode.OK,
-                token =>
+                allTokens =>
                 {
-                    Assert.Equal(
-                        tokenId,
-                        token.Id);
-                    Assert.Equal(
-                        signUp.Id,
-                        token.UserId);
+                    Assert.Contains(
+                        allTokens,
+                        token => token.Id == tokenId && signUp.Id == token.UserId);
                 });
 
             // check user
             var userUrl = await HttpClientExtensions.GetUrl(
                 nameof(UserController)[..^10],
-                Urn.ReadById);
+                Urn.ReadAll);
             Assert.NotNull(userUrl);
 
-            await client.GetAsync<ResultUser>(
-                $"{userUrl}{signUp.Id}",
+            await client.GetAsync<IEnumerable<ResultUser>>(
+                userUrl,
                 HttpStatusCode.OK,
-                user =>
+                allUsers =>
                 {
-                    Assert.Equal(
-                        signUp.Id,
-                        user.Id);
-                    Assert.Equal(
-                        signUp.DisplayName,
-                        user.DisplayName);
-                    Assert.Equal(
-                        invitation.Roles,
-                        user.Roles);
+                    Assert.Contains(
+                        allUsers,
+                        user => user.Id == signUp.Id &&
+                                user.DisplayName == signUp.DisplayName &&
+                                user.Roles.Count() == invitation.Roles.Count() &&
+                                user.Roles.All(role1 => invitation.Roles.Any(role2 => role2 == role1)));
                 });
 
             // create conflict

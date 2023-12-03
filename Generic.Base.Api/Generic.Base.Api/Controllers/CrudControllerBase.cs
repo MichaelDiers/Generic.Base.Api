@@ -83,11 +83,6 @@
                     urnNamespace,
                     Urn.Create,
                     baseUrl,
-                    this.requiredClaims),
-                ClaimLink.Create(
-                    urnNamespace,
-                    Urn.ReadById,
-                    $"{baseUrl}/{id ?? string.Empty}",
                     this.requiredClaims)
             };
 
@@ -104,6 +99,11 @@
                         ClaimLink.Create(
                             urnNamespace,
                             Urn.Update,
+                            $"{baseUrl}/{id}",
+                            this.requiredClaims),
+                        ClaimLink.Create(
+                            urnNamespace,
+                            Urn.ReadById,
                             $"{baseUrl}/{id}",
                             this.requiredClaims)
                     });

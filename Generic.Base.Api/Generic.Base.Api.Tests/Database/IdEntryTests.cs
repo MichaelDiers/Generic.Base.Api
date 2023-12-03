@@ -10,7 +10,7 @@
             var idEntry = new IdEntry(nameof(IdEntry));
 
             Assert.Equal(
-                nameof(idEntry),
+                nameof(IdEntry),
                 idEntry.Id);
         }
     }
