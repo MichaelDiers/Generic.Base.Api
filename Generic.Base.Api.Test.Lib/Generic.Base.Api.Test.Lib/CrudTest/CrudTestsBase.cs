@@ -3,11 +3,20 @@
     using System.Net;
     using System.Security.Claims;
     using Generic.Base.Api.AuthServices.UserService;
-    using Generic.Base.Api.Exceptions;
     using Generic.Base.Api.Models;
     using Generic.Base.Api.Test.Lib.Extensions;
     using Microsoft.AspNetCore.Mvc.Testing;
 
+    /// <summary>
+    ///     Base class for user bound and user independent crud tests.
+    /// </summary>
+    /// <typeparam name="TEntryPoint">The type of the entry point.</typeparam>
+    /// <typeparam name="TFactory">The type of the factory.</typeparam>
+    /// <typeparam name="TCreate">The type of the data for creating a entry.</typeparam>
+    /// <typeparam name="TCreateResult">The type of the create result.</typeparam>
+    /// <typeparam name="TReadResult">The type of the read result.</typeparam>
+    /// <typeparam name="TUpdate">The type of the data for updating an entry.</typeparam>
+    /// <typeparam name="TUpdateResult">The type of the update result.</typeparam>
     public abstract class
         CrudTestsBase<TEntryPoint, TFactory, TCreate, TCreateResult, TReadResult, TUpdate, TUpdateResult>
         where TEntryPoint : class
@@ -17,10 +26,18 @@
         where TReadResult : class, ILinkResult
         where TUpdate : class
         where TUpdateResult : class
-
     {
+        /// <summary>
+        ///     A cache for requested urls.
+        /// </summary>
         private readonly IDictionary<string, string> urlCache = new Dictionary<string, string>();
 
+        /// <summary>
+        ///     Initializes a new instance of the
+        ///     <see cref="CrudTestsBase{TEntryPoint, TFactory, TCreate, TCreateResult, TReadResult, TUpdate, TUpdateResult}" />
+        ///     class.
+        /// </summary>
+        /// <param name="apiKey">The valid API key.</param>
         protected CrudTestsBase(string apiKey)
         {
             this.ApiKey = apiKey;
@@ -47,8 +64,14 @@
         /// </summary>
         protected abstract string EntryPointUrl { get; }
 
+        /// <summary>
+        ///     Gets an invalid id of an entry.
+        /// </summary>
         protected abstract string GetInvalidId { get; }
 
+        /// <summary>
+        ///     Gets a valid id of an entry.
+        /// </summary>
         protected abstract string GetValidId { get; }
 
         /// <summary>
@@ -64,25 +87,57 @@
         /// </value>
         protected abstract bool RaiseDoubleCreateConflict { get; }
 
+        /// <summary>
+        ///     The roles that required for creating an entry.
+        /// </summary>
         protected abstract IEnumerable<Role> RequiredCreateRoles { get; }
+
+        /// <summary>
+        ///     The roles that required for deleting an entry.
+        /// </summary>
         protected abstract IEnumerable<Role> RequiredDeleteRoles { get; }
+
+        /// <summary>
+        ///     The roles that required for reading all entries.
+        /// </summary>
         protected abstract IEnumerable<Role> RequiredReadAllRoles { get; }
+
+        /// <summary>
+        ///     The roles that required for reading an entry by its id.
+        /// </summary>
         protected abstract IEnumerable<Role> RequiredReadByIdRoles { get; }
+
+        /// <summary>
+        ///     The roles that required for updating an entry.
+        /// </summary>
         protected abstract IEnumerable<Role> RequiredUpdateRoles { get; }
+
+        /// <summary>
+        ///     Gets the urn namespace for the services under test.
+        /// </summary>
         protected abstract string UrnNamespace { get; }
 
+        /// <summary>
+        ///     The data validation fails for creating a new entry.
+        /// </summary>
         [Fact]
         public async Task CreateDataValidationFails()
         {
+            var client = new TFactory().CreateClient();
+            var userId = Guid.NewGuid().ToString();
+
             var url = await this.GetUrl(
                 this.UrnNamespace,
-                Urn.Create);
-            var client = new TFactory().CreateClient()
-                .AddApiKey(this.ApiKey)
-                .AddToken(
-                    this.GetClaims(
-                        this.RequiredCreateRoles,
-                        Guid.NewGuid().ToString()));
+                Urn.Create,
+                client,
+                userId);
+
+            client.Clear()
+            .AddApiKey(this.ApiKey)
+            .AddToken(
+                this.GetClaims(
+                    this.RequiredCreateRoles,
+                    userId));
             foreach (var (create, info) in this.CreateDataValidationFailsTestData)
             {
                 try
@@ -99,6 +154,9 @@
             }
         }
 
+        /// <summary>
+        ///     Creating a new entry fails if a required role is missing.
+        /// </summary>
         [Fact]
         public async Task CreateFailsIfRoleIsMissing()
         {
@@ -107,122 +165,145 @@
                 this.RequiredCreateRoles,
                 (client, url) => client.PostAsync<TCreate, TCreateResult>(
                     url,
-                    null,
+                    this.GetValidCreateEntry(),
                     HttpStatusCode.Forbidden));
         }
 
-        /*
-        [Fact]
-        public async Task CreateFailsWithoutUserIdClaim()
-        {
-            var url = await this.GetUrl(
-                this.UrnNamespace,
-                Urn.Create);
-            await new TFactory().CreateClient()
-                .AddApiKey(this.ApiKey)
-                .AddToken(this.RequiredCreateRoles)
-                .PostAsync<TCreate, TCreateResult>(
-                    url,
-                    this.GetValidCreateEntry(),
-                    HttpStatusCode.Unauthorized);
-        }
-        */
+        /// <summary>
+        ///     Creating a new entry succeeds.
+        /// </summary>
         [Fact]
         public async Task CreateSucceeds()
         {
             await this.Create();
         }
 
+        /// <summary>
+        ///     Creating a new entry fails using an invalid api key.
+        /// </summary>
         [Fact]
         public async Task CreateUsingInvalidApiKeyFails()
         {
+            var userId = Guid.NewGuid().ToString();
+            var client = new TFactory().CreateClient();
             var url = await this.GetUrl(
                 this.UrnNamespace,
-                Urn.Create);
+                Urn.Create,
+                client,
+                userId);
 
-            await new TFactory().CreateClient()
+            await client.Clear()
                 .AddApiKey(Guid.NewGuid().ToString())
+                .AddToken(
+                    this.GetClaims(
+                        this.RequiredCreateRoles,
+                        userId))
                 .PostAsync<TCreate, TCreateResult>(
                     url,
-                    null,
+                    this.GetValidCreateEntry(),
                     HttpStatusCode.Forbidden);
         }
 
+        /// <summary>
+        ///     Creating a new entry fails without an api key.
+        /// </summary>
         [Fact]
         public async Task CreateWithoutApiKeyFails()
         {
+            var userId = Guid.NewGuid().ToString();
+            var client = new TFactory().CreateClient();
             var url = await this.GetUrl(
                 this.UrnNamespace,
-                Urn.Create);
+                Urn.Create,
+                client,
+                userId);
 
-            await new TFactory().CreateClient()
-            .PostAsync<TCreate, TCreateResult>(
-                url,
-                null,
-                HttpStatusCode.Unauthorized);
+            await client.Clear()
+                .AddToken(
+                    this.GetClaims(
+                        this.RequiredCreateRoles,
+                        userId))
+                .PostAsync<TCreate, TCreateResult>(
+                    url,
+                    this.GetValidCreateEntry(),
+                    HttpStatusCode.Unauthorized);
         }
 
+        /// <summary>
+        ///     Creating a new entry without a token fails.
+        /// </summary>
         [Fact]
         public async Task CreateWithoutTokenFails()
         {
+            var userId = Guid.NewGuid().ToString();
+            var client = new TFactory().CreateClient();
             var url = await this.GetUrl(
                 this.UrnNamespace,
-                Urn.Create);
+                Urn.Create,
+                client,
+                userId);
 
-            await new TFactory().CreateClient()
+            await client.Clear()
             .AddApiKey(this.ApiKey)
             .PostAsync<TCreate, TCreateResult>(
                 url,
-                null,
+                this.GetValidCreateEntry(),
                 HttpStatusCode.Unauthorized);
         }
 
+        /// <summary>
+        ///     Checks if repeated create raises a conflict.
+        /// </summary>
         [Fact]
         public async Task DoubleCreateConflictCheck()
         {
             var userId = Guid.NewGuid().ToString();
-            var claims = this.GetClaims(
-                    this.RequiredCreateRoles,
-                    userId)
-                .ToArray();
-
-            var create = this.GetValidCreateEntry();
             var client = new TFactory().CreateClient();
             var url = await this.GetUrl(
                 this.UrnNamespace,
-                Urn.Create);
-            await client.AddApiKey(this.ApiKey)
-            .AddToken(claims)
-            .PostAsync<TCreate, TCreateResult>(
+                Urn.Create,
+                client,
+                userId);
+
+            client.Clear()
+            .AddApiKey(this.ApiKey)
+            .AddToken(
+                this.RequiredCreateRoles,
+                userId);
+
+            var create = this.GetValidCreateEntry();
+
+            await client.PostAsync<TCreate, TCreateResult>(
                 url,
                 create,
                 HttpStatusCode.Created);
 
-            await client.AddApiKey(this.ApiKey)
-            .AddToken(claims)
-            .PostAsync<TCreate, TCreateResult>(
+            await client.PostAsync<TCreate, TCreateResult>(
                 url,
                 create,
                 this.RaiseDoubleCreateConflict ? HttpStatusCode.Conflict : HttpStatusCode.Created);
         }
 
+        /// <summary>
+        ///     Reading by id fails if the id is invalid.
+        /// </summary>
         [Fact]
         public async Task ReadByIdFailsIfIdIsInvalid()
         {
             var userId = Guid.NewGuid().ToString();
             var client = new TFactory().CreateClient();
-            var createResult = await this.Create(
+            var url = await this.GetUrl(
+                this.UrnNamespace,
+                Urn.ReadById,
                 client,
                 userId);
-            Assert.NotNull(createResult);
-            var url = this.FindOperationUrl(
-                createResult,
-                Urn.ReadById);
+
             url = string.Join(
                 "/",
                 url.Split("/")[..^1].Append(this.GetInvalidId));
 
-            await client.AddApiKey(this.ApiKey)
+            await client.Clear()
+                .AddApiKey(this.ApiKey)
                 .AddToken(
                     this.GetClaims(
                         this.RequiredReadByIdRoles,
@@ -232,23 +313,26 @@
                     HttpStatusCode.BadRequest);
         }
 
+        /// <summary>
+        ///     Reading by id fails if the id is unknown.
+        /// </summary>
         [Fact]
         public async Task ReadByIdFailsIfIdIsUnknown()
         {
             var userId = Guid.NewGuid().ToString();
             var client = new TFactory().CreateClient();
-            var createResult = await this.Create(
+            var url = await this.GetUrl(
+                this.UrnNamespace,
+                Urn.ReadById,
                 client,
                 userId);
-            Assert.NotNull(createResult);
-            var url = this.FindOperationUrl(
-                createResult,
-                Urn.ReadById);
+
             url = string.Join(
                 "/",
                 url.Split("/")[..^1].Append(this.GetValidId));
 
-            await client.AddApiKey(this.ApiKey)
+            await client.Clear()
+                .AddApiKey(this.ApiKey)
                 .AddToken(
                     this.GetClaims(
                         this.RequiredReadByIdRoles,
@@ -258,6 +342,9 @@
                     HttpStatusCode.NotFound);
         }
 
+        /// <summary>
+        ///     Reading by id fails if a role is missing.
+        /// </summary>
         [Fact]
         public async Task ReadByIdFailsIfRoleIsMissing()
         {
@@ -269,6 +356,9 @@
                     HttpStatusCode.Forbidden));
         }
 
+        /// <summary>
+        ///     Reading an entry by its id succeeds.
+        /// </summary>
         [Fact]
         public async Task ReadByIdSucceeds()
         {
@@ -304,23 +394,40 @@
         /// <param name="readResult">The actual read result that should match the created result.</param>
         protected abstract void AssertEntry(TCreateResult createResult, TReadResult readResult);
 
+        /// <summary>
+        ///     Create a new entry.
+        /// </summary>
+        /// <param name="httpClient">The optional http client.</param>
+        /// <param name="userId">The optional id of the user.</param>
+        /// <returns>A <see cref="Task{T}" /> whose result is the created entry.</returns>
         protected async Task<TCreateResult?> Create(HttpClient? httpClient = null, string? userId = null)
         {
+            var client = httpClient ?? new TFactory().CreateClient();
+            var validUserId = userId ?? Guid.NewGuid().ToString();
             var url = await this.GetUrl(
                 this.UrnNamespace,
-                Urn.Create);
-            var client = httpClient ?? new TFactory().CreateClient();
-            return await client.AddApiKey(this.ApiKey)
+                Urn.Create,
+                client,
+                validUserId);
+
+            return await client.Clear()
+                .AddApiKey(this.ApiKey)
                 .AddToken(
                     this.GetClaims(
                         this.RequiredCreateRoles,
-                        userId ?? Guid.NewGuid().ToString()))
+                        validUserId))
                 .PostAsync<TCreate, TCreateResult>(
                     url,
                     this.GetValidCreateEntry(),
                     HttpStatusCode.Created);
         }
 
+        /// <summary>
+        ///     Find the url depending on the given urn.
+        /// </summary>
+        /// <param name="linkResult">The link result to evaluate.</param>
+        /// <param name="urn">The requested operation.</param>
+        /// <returns>The requested url.</returns>
         protected string FindOperationUrl(ILinkResult linkResult, Urn urn)
         {
             return this.FindOperationUrl(
@@ -329,6 +436,13 @@
                 urn);
         }
 
+        /// <summary>
+        ///     Find the url depending on the given urn.
+        /// </summary>
+        /// <param name="linkResult">The link result to evaluate.</param>
+        /// <param name="urnNamespace">The urn namespace.</param>
+        /// <param name="urn">The requested operation.</param>
+        /// <returns>The requested url.</returns>
         protected string FindOperationUrl(ILinkResult linkResult, string urnNamespace, Urn urn)
         {
             var url = linkResult.Links.FirstOrDefault(link => link.Urn == $"urn:{urnNamespace}:{Urn.ReadById}")?.Url;
@@ -341,12 +455,30 @@
             return url;
         }
 
+        /// <summary>
+        ///     Get the claims depending on given roles and user id.
+        /// </summary>
+        /// <param name="roles">The roles of the user.</param>
+        /// <param name="userId">The id of the user.</param>
+        /// <returns>The requested claims.</returns>
         protected abstract IEnumerable<Claim> GetClaims(IEnumerable<Role> roles, string userId);
 
-        protected async Task<string> GetUrl(string urnNamespace, Urn urn)
+        /// <summary>
+        ///     Gets the url depending on urn and its namespace.
+        /// </summary>
+        /// <param name="urnNamespace">The requested urn namespace.</param>
+        /// <param name="urn">The requested operation.</param>
+        /// <param name="httpClient">The http client.</param>
+        /// <param name="userId">The id of the user.</param>
+        /// <returns>A <see cref="Task{T}" /> whose result is the requested url.</returns>
+        protected async Task<string> GetUrl(
+            string urnNamespace,
+            Urn urn,
+            HttpClient httpClient,
+            string userId
+        )
         {
             var key = $"urn:{urnNamespace}:{urn}";
-
             if (this.urlCache.TryGetValue(
                     key,
                     out var url))
@@ -354,165 +486,92 @@
                 return url;
             }
 
-            var links = new Queue<string>();
-            var visited = new List<string>();
+            var client = httpClient;
 
-            links.Enqueue(this.EntryPointUrl);
-            while (links.Any())
-            {
-                var next = links.Dequeue();
-                visited.Add(next);
-                var linkResult = await this.ClientHelper.AddApiKey(this.ApiKey)
-                    .AddToken(this.OptionsRoles)
-                    .OptionsAsync<LinkResult>(next);
-                foreach (var linkResultLink in linkResult.Links)
-                {
-                    if (linkResultLink.Urn.Split(":")[2] != Urn.Options.ToString())
-                    {
-                        this.urlCache[linkResultLink.Urn] = linkResultLink.Url;
-                    }
-                    else if (!visited.Contains(linkResultLink.Url))
-                    {
-                        links.Enqueue(linkResultLink.Url);
-                    }
-                }
-            }
-
-            if (this.urlCache.TryGetValue(
-                    key,
-                    out url))
-            {
-                return url;
-            }
-
-            throw new NotFoundException($"No url found for {urnNamespace} and {urn} in options request.");
-        }
-        /*
-        [Fact]
-        public async Task DoubleCreateCausesNoConflict()
-        {
-            var create = this.GetValidCreateEntry();
-            var client = new TFactory().CreateClient();
-            var url = await this.GetUrl(
+            var optionsResultLink = await this.GetUrl(
                 this.UrnNamespace,
-                Urn.Create);
-            await client.AddApiKey(this.ApiKey)
-                .AddToken(
-                    this.RequiredCreateRoles,
-                    Guid.NewGuid().ToString())
+                Urn.Options,
+                client,
+                this.EntryPointUrl,
+                true);
+            Assert.NotNull(optionsResultLink);
+            if (optionsResultLink.Urn == key)
+            {
+                return optionsResultLink.Url;
+            }
+
+            optionsResultLink = await this.GetUrl(
+                urnNamespace,
+                urn,
+                client,
+                optionsResultLink.Url,
+                false);
+
+            if (optionsResultLink is not null && key == optionsResultLink.Urn)
+            {
+                return optionsResultLink.Url;
+            }
+
+            if (!this.urlCache.TryGetValue(
+                    $"urn:{urnNamespace}:{Urn.Create}",
+                    out var createUrl))
+            {
+                Assert.Fail($"Cannot find urn:{urnNamespace}:{Urn.Create}");
+            }
+
+            var createResult = await client.AddToken(
+                    this.GetClaims(
+                        this.RequiredCreateRoles,
+                        userId))
                 .PostAsync<TCreate, TCreateResult>(
-                    url,
-                    create,
-                    HttpStatusCode.Created);
-            await client.AddApiKey(this.ApiKey)
-                .AddToken(
-                    this.RequiredCreateRoles,
-                    Guid.NewGuid().ToString())
-                .PostAsync<TCreate, TCreateResult>(
-                    url,
-                    create,
-                    HttpStatusCode.Created);
-        }
-        */
-        /*
-        [Fact]
-        public async Task DeleteFailsIfRoleIsMissing()
-        {
-            var (httpClient, url) = await this.GetValidDeleteUrl();
-            await this.FailsIfRoleIsMissing(
-                this.RequiredDeleteRoles,
-                client => client.DeleteAsync(
-                    url,
-                    HttpStatusCode.Forbidden),
-                httpClient);
+                    createUrl,
+                    this.GetValidCreateEntry(),
+                    HttpStatusCode.OK);
+            Assert.NotNull(createResult);
+
+            var requestedUrl = createResult.Links.FirstOrDefault(link => link.Urn == key)?.Url;
+
+            if (string.IsNullOrWhiteSpace(requestedUrl))
+            {
+                Assert.Fail($"Cannot find url for {key}");
+            }
+
+            return requestedUrl;
         }
 
-        [Fact]
-        public async Task ReadAllFailsIfRoleIsMissing()
-        {
-            await this.FailsIfRoleIsMissing(
-                Urn.ReadAll,
-                this.RequiredReadAllRoles,
-                (client, url) => client.GetAsync<IEnumerable<TReadResult>>(
-                    url,
-                    HttpStatusCode.Forbidden));
-        }
-
-        [Fact]
-        public async Task ReadByIdFailsIfRoleIsMissing()
-        {
-            await this.FailsIfRoleIsMissing(
-                Urn.ReadById,
-                this.RequiredReadByIdRoles,
-                (client, url) => client.GetAsync<TReadResult>(
-                    url,
-                    HttpStatusCode.Forbidden));
-        }
-
-        [Fact]
-        public async Task UpdateFailsIfRoleIsMissing()
-        {
-            await this.FailsIfRoleIsMissing(
-                Urn.Update,
-                this.RequiredUpdateRoles,
-                (client, url) => client.PutAsync<TUpdate, TUpdateResult>(
-                    url,
-                    null,
-                    HttpStatusCode.Forbidden));
-        }*/
-
+        /// <summary>
+        ///     Gets a valid create entry.
+        /// </summary>
         protected abstract TCreate GetValidCreateEntry();
 
-        protected async Task<(HttpClient, string)> GetValidDeleteUrl(HttpClient? httpClient = null)
-        {
-            var client = httpClient ?? new TFactory().CreateClient();
-            var (_, created) = await this.CallCreateAsync(client);
-            var url = created.Links.First(link => link.Urn == $"urn:{this.UrnNamespace}:{Urn.Delete}").Url;
-            return (client, url);
-        }
-
+        /// <summary>
+        ///     Gets a valid update entry.
+        /// </summary>
         protected abstract TUpdate GetValidUpdateEntry();
 
-        private async Task<(HttpClient client, TCreateResult createResult)> CallCreateAsync(
-            HttpClient? httpClient = null
-        )
-        {
-            var client = httpClient?.Clear() ?? new TFactory().CreateClient();
-
-            var url = await this.GetUrl(
-                this.UrnNamespace,
-                Urn.Create);
-
-            var created = await client.AddApiKey(this.ApiKey)
-                .AddToken(this.RequiredCreateRoles)
-                .PostAsync<TCreate, TCreateResult>(
-                    url,
-                    this.GetValidCreateEntry(),
-                    HttpStatusCode.Created);
-
-            Assert.NotNull(created);
-            client.Clear();
-
-            return (client, created);
-        }
-
+        /// <summary>
+        ///     Execute a test that checks if an operation fails without a required role.
+        /// </summary>
+        /// <param name="urn">The operation to be executed.</param>
+        /// <param name="requiredRoles">All required roles for executing the operation.</param>
+        /// <param name="execute">A function that executes the operation.</param>
+        /// <returns>A <see cref="Task" /> whose result indicates success.</returns>
         private async Task FailsIfRoleIsMissing(
             Urn urn,
             IEnumerable<Role> requiredRoles,
             Func<HttpClient, string, Task> execute
         )
         {
-            // create an entry to access all urn options
             var userId = Guid.NewGuid().ToString();
             var client = new TFactory().CreateClient();
-            var created = await this.Create(
+
+            var url = await this.GetUrl(
+                this.UrnNamespace,
+                urn,
                 client,
                 userId);
-            Assert.NotNull(created);
 
-            // get url for the test
-            var url = created.Links.FirstOrDefault(link => link.Urn == $"urn:{this.UrnNamespace}:{Urn.Create}")?.Url;
-            Assert.NotNull(url);
+            client.Clear().AddApiKey(this.ApiKey);
 
             // iterate roles
             var allRequiredRoles = requiredRoles.ToArray();
@@ -528,6 +587,45 @@
                             userId)),
                     url);
             }
+        }
+
+        /// <summary>
+        ///     Gets the link depending on urn and its namespace.
+        /// </summary>
+        /// <param name="urnNamespace">The requested urn namespace.</param>
+        /// <param name="urn">The requested operation.</param>
+        /// <param name="client">The http client.</param>
+        /// <param name="url">The options url to be used.</param>
+        /// <param name="checkResult">Check the result of the given <paramref name="url" />.</param>
+        /// <returns>A <see cref="Task{T}" /> whose result is the requested link.</returns>
+        private async Task<Link?> GetUrl(
+            string urnNamespace,
+            Urn urn,
+            HttpClient client,
+            string url,
+            bool checkResult
+        )
+        {
+            var optionsResult = await client.AddApiKey(this.ApiKey).OptionsAsync<LinkResult>(url);
+            optionsResult.Links.Where(link => !this.urlCache.ContainsKey(link.Urn))
+                .ToList()
+                .ForEach(
+                    link =>
+                    {
+                        this.urlCache.Add(
+                            link.Urn,
+                            link.Url);
+                    });
+
+            var link = optionsResult.Links.FirstOrDefault(
+                optionsLink => optionsLink.Urn == $"urn:{urnNamespace}:{urn}");
+            if (checkResult && link is null)
+            {
+                Assert.Fail(
+                    $"Cannot find urn:{urnNamespace}:{urn} in {string.Join(",", optionsResult.Links.Select(l => l.Urn))}");
+            }
+
+            return link;
         }
     }
 }

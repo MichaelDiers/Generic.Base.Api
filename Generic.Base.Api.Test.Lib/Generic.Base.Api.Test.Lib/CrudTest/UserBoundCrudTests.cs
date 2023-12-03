@@ -7,6 +7,16 @@
     using Generic.Base.Api.Test.Lib.Extensions;
     using Microsoft.AspNetCore.Mvc.Testing;
 
+    /// <summary>
+    ///     Base class for user bound crud tests.
+    /// </summary>
+    /// <typeparam name="TEntryPoint">The type of the entry point.</typeparam>
+    /// <typeparam name="TFactory">The type of the factory.</typeparam>
+    /// <typeparam name="TCreate">The type of the data for creating a entry.</typeparam>
+    /// <typeparam name="TCreateResult">The type of the create result.</typeparam>
+    /// <typeparam name="TReadResult">The type of the read result.</typeparam>
+    /// <typeparam name="TUpdate">The type of the data for updating an entry.</typeparam>
+    /// <typeparam name="TUpdateResult">The type of the update result.</typeparam>
     public abstract class
         UserBoundCrudTests<TEntryPoint, TFactory, TCreate, TCreateResult, TReadResult, TUpdate, TUpdateResult>
         : CrudTestsBase<TEntryPoint, TFactory, TCreate, TCreateResult, TReadResult, TUpdate, TUpdateResult>
@@ -19,20 +29,39 @@
         where TUpdateResult : class
 
     {
+        /// <summary>
+        ///     Initializes a new instance of the
+        ///     <see cref="UserBoundCrudTests{TEntryPoint, TFactory, TCreate, TCreateResult, TReadResult, TUpdate, TUpdateResult}" />
+        ///     class.
+        /// </summary>
+        /// <param name="apiKey">The valid API key.</param>
         protected UserBoundCrudTests(string apiKey)
             : base(apiKey)
         {
         }
 
+        /// <summary>
+        ///     Gets a value indicating whether a double create raises a conflict.
+        /// </summary>
+        /// <value>
+        ///     <c>true</c> if a double create raises a conflict; otherwise, <c>false</c>.
+        /// </value>
         protected override bool RaiseDoubleCreateConflict => false;
 
+        /// <summary>
+        ///     Creating an entry fails without a user id claim.
+        /// </summary>
         [Fact]
         public async Task CreateFailsWithoutUserIdClaim()
         {
+            var userId = Guid.NewGuid().ToString();
+            var client = new TFactory().CreateClient();
             var url = await this.GetUrl(
                 this.UrnNamespace,
-                Urn.Create);
-            await new TFactory().CreateClient()
+                Urn.Create,
+                client,
+                userId);
+            await client.Clear()
                 .AddApiKey(this.ApiKey)
                 .AddToken(this.RequiredCreateRoles)
                 .PostAsync<TCreate, TCreateResult>(
@@ -41,6 +70,9 @@
                     HttpStatusCode.Unauthorized);
         }
 
+        /// <summary>
+        ///     Reads an entry fails without a user id claim.
+        /// </summary>
         [Fact]
         public async Task ReadByIdFailsWithoutUserIdClaim()
         {
@@ -61,6 +93,12 @@
                 HttpStatusCode.Unauthorized);
         }
 
+        /// <summary>
+        ///     Gets the claims depending on the given roles and the user id.
+        /// </summary>
+        /// <param name="roles">The roles that are added to the result claims.</param>
+        /// <param name="userId">The user identifier that is added as a claim.</param>
+        /// <returns>The created claims.</returns>
         protected override IEnumerable<Claim> GetClaims(IEnumerable<Role> roles, string userId)
         {
             return roles.Select(
@@ -72,52 +110,5 @@
                         Constants.UserIdClaimType,
                         userId));
         }
-
-        /*
-        [Fact]
-        public async Task DeleteFailsIfRoleIsMissing()
-        {
-            var (httpClient, url) = await this.GetValidDeleteUrl();
-            await this.FailsIfRoleIsMissing(
-                this.requiredDeleteRoles,
-                client => client.DeleteAsync(
-                    url,
-                    HttpStatusCode.Forbidden),
-                httpClient);
-        }
-
-        [Fact]
-        public async Task ReadAllFailsIfRoleIsMissing()
-        {
-            await this.FailsIfRoleIsMissing(
-                Urn.ReadAll,
-                this.requiredReadAllRoles,
-                (client, url) => client.GetAsync<IEnumerable<TReadResult>>(
-                    url,
-                    HttpStatusCode.Forbidden));
-        }
-
-        [Fact]
-        public async Task ReadByIdFailsIfRoleIsMissing()
-        {
-            await this.FailsIfRoleIsMissing(
-                Urn.ReadById,
-                this.requiredReadByIdRoles,
-                (client, url) => client.GetAsync<TReadResult>(
-                    url,
-                    HttpStatusCode.Forbidden));
-        }
-
-        [Fact]
-        public async Task UpdateFailsIfRoleIsMissing()
-        {
-            await this.FailsIfRoleIsMissing(
-                Urn.Update,
-                this.requiredUpdateRoles,
-                (client, url) => client.PutAsync<TUpdate, TUpdateResult>(
-                    url,
-                    null,
-                    HttpStatusCode.Forbidden));
-        }*/
     }
 }
