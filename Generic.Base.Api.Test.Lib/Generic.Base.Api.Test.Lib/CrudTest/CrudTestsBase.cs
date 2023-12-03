@@ -290,6 +290,133 @@
         }
 
         /// <summary>
+        ///     Send an options request and check the result as anonymous.
+        /// </summary>
+        [Fact]
+        public async Task OptionsAsAnonymous()
+        {
+            var client = new TFactory().CreateClient().AddApiKey(this.ApiKey);
+            var linkResult = await client.OptionsAsync<LinkResult>(this.EntryPointUrl);
+
+            var optionsUrl = linkResult.Links
+                .FirstOrDefault(link => link.Urn == $"urn:{this.UrnNamespace}:{Urn.Options}")
+                ?.Url;
+            Assert.NotNull(optionsUrl);
+
+            linkResult = await client.OptionsAsync<LinkResult>(optionsUrl);
+
+            Assert.Contains(
+                linkResult.Links,
+                link => link.Urn == $"urn:{this.UrnNamespace}:{Urn.Options}");
+            var count = 1;
+            if (!this.RequiredCreateRoles.Any())
+            {
+                ++count;
+                Assert.Contains(
+                    linkResult.Links,
+                    link => link.Urn == $"urn:{this.UrnNamespace}:{Urn.Create}");
+            }
+
+            if (!this.RequiredReadAllRoles.Any())
+            {
+                ++count;
+                Assert.Contains(
+                    linkResult.Links,
+                    link => link.Urn == $"urn:{this.UrnNamespace}:{Urn.ReadAll}");
+            }
+
+            Assert.Equal(
+                count,
+                linkResult.Links.Count());
+        }
+
+        /// <summary>
+        ///     Send an options request and check the result using create roles.
+        /// </summary>
+        [Fact]
+        public async Task OptionsAsCreator()
+        {
+            var client = new TFactory().CreateClient().AddApiKey(this.ApiKey);
+            var linkResult = await client.OptionsAsync<LinkResult>(this.EntryPointUrl);
+
+            var optionsUrl = linkResult.Links
+                .FirstOrDefault(link => link.Urn == $"urn:{this.UrnNamespace}:{Urn.Options}")
+                ?.Url;
+            Assert.NotNull(optionsUrl);
+
+            linkResult = await client.AddToken(
+                    this.GetClaims(
+                        this.RequiredCreateRoles,
+                        Guid.NewGuid().ToString()))
+                .OptionsAsync<LinkResult>(optionsUrl);
+
+            Assert.Contains(
+                linkResult.Links,
+                link => link.Urn == $"urn:{this.UrnNamespace}:{Urn.Options}");
+            var count = 1;
+
+            ++count;
+            Assert.Contains(
+                linkResult.Links,
+                link => link.Urn == $"urn:{this.UrnNamespace}:{Urn.Create}");
+
+            if (!this.RequiredReadAllRoles.All(role1 => this.RequiredCreateRoles.Any(role2 => role1 == role2)))
+            {
+                ++count;
+                Assert.Contains(
+                    linkResult.Links,
+                    link => link.Urn == $"urn:{this.UrnNamespace}:{Urn.ReadAll}");
+            }
+
+            Assert.Equal(
+                count,
+                linkResult.Links.Count());
+        }
+
+        /// <summary>
+        ///     Send an options request and check the result using read all roles.
+        /// </summary>
+        [Fact]
+        public async Task OptionsAsReadAll()
+        {
+            var client = new TFactory().CreateClient().AddApiKey(this.ApiKey);
+            var linkResult = await client.OptionsAsync<LinkResult>(this.EntryPointUrl);
+
+            var optionsUrl = linkResult.Links
+                .FirstOrDefault(link => link.Urn == $"urn:{this.UrnNamespace}:{Urn.Options}")
+                ?.Url;
+            Assert.NotNull(optionsUrl);
+
+            linkResult = await client.AddToken(
+                    this.GetClaims(
+                        this.RequiredReadAllRoles,
+                        Guid.NewGuid().ToString()))
+                .OptionsAsync<LinkResult>(optionsUrl);
+
+            Assert.Contains(
+                linkResult.Links,
+                link => link.Urn == $"urn:{this.UrnNamespace}:{Urn.Options}");
+            var count = 1;
+
+            ++count;
+            Assert.Contains(
+                linkResult.Links,
+                link => link.Urn == $"urn:{this.UrnNamespace}:{Urn.ReadAll}");
+
+            if (!this.RequiredCreateRoles.All(role1 => this.RequiredReadAllRoles.Any(role2 => role1 == role2)))
+            {
+                ++count;
+                Assert.Contains(
+                    linkResult.Links,
+                    link => link.Urn == $"urn:{this.UrnNamespace}:{Urn.Create}");
+            }
+
+            Assert.Equal(
+                count,
+                linkResult.Links.Count());
+        }
+
+        /// <summary>
         ///     Reading by id fails if the id is invalid.
         /// </summary>
         [Fact]
