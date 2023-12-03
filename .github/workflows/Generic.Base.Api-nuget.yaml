@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - Generic.Base.Api/Generic.Base.Api/**
+  workflow_dispatch:  
 permissions:
   contents: write
   packages: write
