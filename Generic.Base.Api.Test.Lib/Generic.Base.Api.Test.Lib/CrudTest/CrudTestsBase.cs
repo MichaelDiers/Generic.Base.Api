@@ -256,6 +256,46 @@
         }
 
         /// <summary>
+        ///     Deleting an entry fails if a role is missing.
+        /// </summary>
+        [Fact]
+        public async Task DeleteFailsIfRoleIsMissing()
+        {
+            await this.FailsIfRoleIsMissing(
+                Urn.Delete,
+                this.RequiredDeleteRoles,
+                (client, url) => client.DeleteAsync(
+                    url,
+                    HttpStatusCode.Forbidden));
+        }
+
+        /// <summary>
+        ///     Deleting an entry succeeds.
+        /// </summary>
+        [Fact]
+        public async Task DeleteSucceeds()
+        {
+            var client = new TFactory().CreateClient();
+            var userId = Guid.NewGuid().ToString();
+            var url = await this.GetUrl(
+                this.UrnNamespace,
+                Urn.Delete,
+                client,
+                userId,
+                this.RequiredDeleteRoles);
+
+            await client.Clear()
+                .AddApiKey(this.ApiKey)
+                .AddToken(
+                    this.GetClaims(
+                        this.RequiredDeleteRoles,
+                        userId))
+                .DeleteAsync(
+                    url,
+                    HttpStatusCode.NoContent);
+        }
+
+        /// <summary>
         ///     Checks if repeated create raises a conflict.
         /// </summary>
         [Fact]
