@@ -296,6 +296,79 @@
         }
 
         /// <summary>
+        ///     Deleting an entry fails using an invalid api key.
+        /// </summary>
+        [Fact]
+        public async Task DeleteUsingInvalidApiKeyFails()
+        {
+            var userId = Guid.NewGuid().ToString();
+            var client = new TFactory().CreateClient();
+            var url = await this.GetUrl(
+                this.UrnNamespace,
+                Urn.Delete,
+                client,
+                userId,
+                this.RequiredDeleteRoles);
+
+            await client.Clear()
+                .AddApiKey(Guid.NewGuid().ToString())
+                .AddToken(
+                    this.GetClaims(
+                        this.RequiredDeleteRoles,
+                        userId))
+                .DeleteAsync(
+                    url,
+                    HttpStatusCode.Forbidden);
+        }
+
+        /// <summary>
+        ///     Deleting an entry fails without an api key.
+        /// </summary>
+        [Fact]
+        public async Task DeleteWithoutApiKeyFails()
+        {
+            var userId = Guid.NewGuid().ToString();
+            var client = new TFactory().CreateClient();
+            var url = await this.GetUrl(
+                this.UrnNamespace,
+                Urn.Delete,
+                client,
+                userId,
+                this.RequiredDeleteRoles);
+
+            await client.Clear()
+                .AddToken(
+                    this.GetClaims(
+                        this.RequiredCreateRoles,
+                        userId))
+                .DeleteAsync(
+                    url,
+                    HttpStatusCode.Unauthorized);
+        }
+
+        /// <summary>
+        ///     Deleting an entry without a token fails.
+        /// </summary>
+        [Fact]
+        public async Task DeleteWithoutTokenFails()
+        {
+            var userId = Guid.NewGuid().ToString();
+            var client = new TFactory().CreateClient();
+            var url = await this.GetUrl(
+                this.UrnNamespace,
+                Urn.Delete,
+                client,
+                userId,
+                this.RequiredDeleteRoles);
+
+            await client.Clear()
+            .AddApiKey(this.ApiKey)
+            .DeleteAsync(
+                url,
+                HttpStatusCode.Unauthorized);
+        }
+
+        /// <summary>
         ///     Checks if repeated create raises a conflict.
         /// </summary>
         [Fact]
@@ -313,8 +386,9 @@
             client.Clear()
             .AddApiKey(this.ApiKey)
             .AddToken(
-                this.RequiredCreateRoles,
-                userId);
+                this.GetClaims(
+                    this.RequiredCreateRoles,
+                    userId));
 
             var create = this.GetValidCreateEntry();
 
@@ -327,6 +401,37 @@
                 url,
                 create,
                 this.RaiseDoubleCreateConflict ? HttpStatusCode.Conflict : HttpStatusCode.Created);
+        }
+
+        /// <summary>
+        ///     Checks if repeated create raises a conflict.
+        /// </summary>
+        [Fact]
+        public async Task DoubleDeleteFails()
+        {
+            var userId = Guid.NewGuid().ToString();
+            var client = new TFactory().CreateClient();
+            var url = await this.GetUrl(
+                this.UrnNamespace,
+                Urn.Delete,
+                client,
+                userId,
+                this.RequiredDeleteRoles);
+
+            client.Clear()
+            .AddApiKey(this.ApiKey)
+            .AddToken(
+                this.GetClaims(
+                    this.RequiredDeleteRoles,
+                    userId));
+
+            await client.DeleteAsync(
+                url,
+                HttpStatusCode.NoContent);
+
+            await client.DeleteAsync(
+                url,
+                HttpStatusCode.NotFound);
         }
 
         /// <summary>
@@ -794,8 +899,9 @@
         {
             var optionsResult = await client.AddApiKey(this.ApiKey)
                 .AddToken(
-                    requiredRoles,
-                    userId)
+                    this.GetClaims(
+                        requiredRoles,
+                        userId))
                 .OptionsAsync<LinkResult>(url);
             optionsResult.Links.Where(link => !this.urlCache.ContainsKey(link.Urn))
                 .ToList()
