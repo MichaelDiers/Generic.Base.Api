@@ -72,7 +72,29 @@
         }
 
         /// <summary>
-        ///     Reads an entry fails without a user id claim.
+        ///     Deleting an entry fails without a user id claim.
+        /// </summary>
+        [Fact]
+        public async Task DeleteFailsWithoutUserIdClaim()
+        {
+            var userId = Guid.NewGuid().ToString();
+            var client = new TFactory().CreateClient();
+            var url = await this.GetUrl(
+                this.UrnNamespace,
+                Urn.Delete,
+                client,
+                userId,
+                this.RequiredDeleteRoles);
+            await client.Clear()
+            .AddApiKey(this.ApiKey)
+            .AddToken(this.RequiredDeleteRoles)
+            .DeleteAsync(
+                url,
+                HttpStatusCode.Unauthorized);
+        }
+
+        /// <summary>
+        ///     Reading an an entry by id fails without an user id claim.
         /// </summary>
         [Fact]
         public async Task ReadByIdFailsWithoutUserIdClaim()
