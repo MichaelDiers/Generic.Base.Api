@@ -581,6 +581,32 @@
         }
 
         /// <summary>
+        ///     Reading all entries fails using an invalid api key.
+        /// </summary>
+        [Fact]
+        public async Task ReadAllUsingInvalidApiKeyFails()
+        {
+            var userId = Guid.NewGuid().ToString();
+            var client = new TFactory().CreateClient();
+            var url = await this.GetUrl(
+                this.UrnNamespace,
+                Urn.ReadAll,
+                client,
+                userId,
+                this.RequiredReadAllRoles);
+
+            await client.Clear()
+                .AddApiKey(Guid.NewGuid().ToString())
+                .AddToken(
+                    this.GetClaims(
+                        this.RequiredReadAllRoles,
+                        userId))
+                .GetAsync<IEnumerable<TReadResult>>(
+                    url,
+                    HttpStatusCode.Forbidden);
+        }
+
+        /// <summary>
         ///     Reading by id fails if the id is invalid.
         /// </summary>
         [Fact]
@@ -686,6 +712,32 @@
         }
 
         /// <summary>
+        ///     Reading an entry by id fails using an invalid api key.
+        /// </summary>
+        [Fact]
+        public async Task ReadByIdUsingInvalidApiKeyFails()
+        {
+            var userId = Guid.NewGuid().ToString();
+            var client = new TFactory().CreateClient();
+            var url = await this.GetUrl(
+                this.UrnNamespace,
+                Urn.ReadById,
+                client,
+                userId,
+                this.RequiredReadByIdRoles);
+
+            await client.Clear()
+                .AddApiKey(Guid.NewGuid().ToString())
+                .AddToken(
+                    this.GetClaims(
+                        this.RequiredReadByIdRoles,
+                        userId))
+                .GetAsync<TReadResult>(
+                    url,
+                    HttpStatusCode.Forbidden);
+        }
+
+        /// <summary>
         ///     The data validation fails for updating a new entry.
         /// </summary>
         [Fact]
@@ -754,7 +806,7 @@
                 this.RequiredUpdateRoles);
 
             await client.Clear()
-                .AddApiKey(Guid.NewGuid().ToString())
+                .AddApiKey(this.ApiKey)
                 .AddToken(
                     this.GetClaims(
                         this.RequiredUpdateRoles,
@@ -763,6 +815,33 @@
                     url,
                     this.GetValidUpdateEntry(),
                     HttpStatusCode.NoContent);
+        }
+
+        /// <summary>
+        ///     Updating an entry fails using an invalid api key.
+        /// </summary>
+        [Fact]
+        public async Task UpdateUsingInvalidApiKeyFails()
+        {
+            var userId = Guid.NewGuid().ToString();
+            var client = new TFactory().CreateClient();
+            var url = await this.GetUrl(
+                this.UrnNamespace,
+                Urn.Update,
+                client,
+                userId,
+                this.RequiredUpdateRoles);
+
+            await client.Clear()
+                .AddApiKey(Guid.NewGuid().ToString())
+                .AddToken(
+                    this.GetClaims(
+                        this.RequiredUpdateRoles,
+                        userId))
+                .PutAsync<TUpdate, TUpdateResult>(
+                    url,
+                    this.GetValidUpdateEntry(),
+                    HttpStatusCode.Forbidden);
         }
 
         /// <summary>
