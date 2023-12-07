@@ -14,21 +14,18 @@
     /// <typeparam name="TCreateResult">The type of the create result.</typeparam>
     /// <typeparam name="TReadResult">The type of the read result.</typeparam>
     /// <typeparam name="TUpdate">The type of the data for updating an entry.</typeparam>
-    /// <typeparam name="TUpdateResult">The type of the update result.</typeparam>
-    public abstract class CrudTests<TEntryPoint, TFactory, TCreate, TCreateResult, TReadResult, TUpdate, TUpdateResult>
-        : CrudTestsBase<TEntryPoint, TFactory, TCreate, TCreateResult, TReadResult, TUpdate, TUpdateResult>
+    public abstract class CrudTests<TEntryPoint, TFactory, TCreate, TCreateResult, TReadResult, TUpdate>
+        : CrudTestsBase<TEntryPoint, TFactory, TCreate, TCreateResult, TReadResult, TUpdate>
         where TEntryPoint : class
         where TFactory : WebApplicationFactory<TEntryPoint>, new()
         where TCreate : class
         where TCreateResult : class, ILinkResult
         where TReadResult : class, ILinkResult
         where TUpdate : class
-        where TUpdateResult : class
-
     {
         /// <summary>
         ///     Initializes a new instance of the
-        ///     <see cref="CrudTests{TEntryPoint, TFactory, TCreate, TCreateResult, TReadResult, TUpdate, TUpdateResult}" />
+        ///     <see cref="CrudTests{TEntryPoint, TFactory, TCreate, TCreateResult, TReadResult, TUpdate}" />
         ///     class.
         /// </summary>
         /// <param name="apiKey">The valid API key.</param>

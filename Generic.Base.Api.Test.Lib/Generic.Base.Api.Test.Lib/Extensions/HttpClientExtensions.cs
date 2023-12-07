@@ -176,20 +176,19 @@
         ///     Sends a put request.
         /// </summary>
         /// <typeparam name="TRequestData">The type of the request data.</typeparam>
-        /// <typeparam name="TResponseData">The type of the response data.</typeparam>
         /// <param name="client">The http client.</param>
         /// <param name="url">The URL.</param>
         /// <param name="requestData">The request data.</param>
         /// <param name="expectedStatusCode">The expected status code.</param>
         /// <returns>The parsed json response.</returns>
-        public static Task<TResponseData?> PutAsync<TRequestData, TResponseData>(
+        public static Task PutAsync<TRequestData>(
             this HttpClient client,
             string url,
             TRequestData? requestData,
             HttpStatusCode expectedStatusCode
-        ) where TResponseData : class
+        )
         {
-            return client.SendAsync<TRequestData, TResponseData>(
+            return client.SendAsync(
                 HttpMethod.Put,
                 url,
                 requestData,
@@ -296,6 +295,34 @@
             Assert.NotNull(responseData);
 
             return responseData;
+        }
+
+        /// <summary>
+        ///     Sends a http request.
+        /// </summary>
+        /// <typeparam name="TRequestData">The type of the request data.</typeparam>
+        /// <param name="client">The client.</param>
+        /// <param name="httpMethod">The HTTP method.</param>
+        /// <param name="url">The URL.</param>
+        /// <param name="requestData">The request data.</param>
+        /// <param name="expectedStatusCode">The expected status code.</param>
+        /// <returns>The parsed json response.</returns>
+        private static async Task SendAsync<TRequestData>(
+            this HttpClient client,
+            HttpMethod httpMethod,
+            string url,
+            TRequestData? requestData,
+            HttpStatusCode expectedStatusCode
+        )
+        {
+            var message = new HttpRequestMessage(
+                httpMethod,
+                url) {Content = JsonContent.Create(requestData)};
+            var response = await client.SendAsync(message);
+
+            await HttpClientExtensions.AssertStatusCode(
+                response,
+                expectedStatusCode);
         }
     }
 }

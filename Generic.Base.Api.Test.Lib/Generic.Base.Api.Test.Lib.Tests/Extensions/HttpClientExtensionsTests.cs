@@ -330,7 +330,7 @@
             using var client = new TestFactory().CreateClient();
 
             await Assert.ThrowsAsync<FailException>(
-                () => client.PutAsync<string, string>(
+                () => client.PutAsync(
                     $"/HelloWorld/{(int) HttpStatusCode.BadRequest}",
                     "Hello World",
                     HttpStatusCode.OK));
@@ -339,19 +339,15 @@
         [Fact]
         public async Task PutSucceeds()
         {
-            var expectedResult = "Hello World";
-            var expectedStatusCode = HttpStatusCode.OK;
+            const string expectedResult = "Hello World";
+            const HttpStatusCode expectedStatusCode = HttpStatusCode.OK;
 
             using var client = new TestFactory().CreateClient();
 
-            var result = await client.PutAsync<string, string>(
+            await client.PutAsync(
                 $"/{expectedResult}/{(int) expectedStatusCode}",
                 expectedResult,
                 expectedStatusCode);
-
-            Assert.Equal(
-                expectedResult,
-                result);
         }
 
         private static void SetUp()

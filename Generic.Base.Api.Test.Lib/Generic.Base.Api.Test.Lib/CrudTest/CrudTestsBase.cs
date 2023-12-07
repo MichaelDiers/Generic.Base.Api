@@ -16,16 +16,13 @@
     /// <typeparam name="TCreateResult">The type of the create result.</typeparam>
     /// <typeparam name="TReadResult">The type of the read result.</typeparam>
     /// <typeparam name="TUpdate">The type of the data for updating an entry.</typeparam>
-    /// <typeparam name="TUpdateResult">The type of the update result.</typeparam>
-    public abstract class
-        CrudTestsBase<TEntryPoint, TFactory, TCreate, TCreateResult, TReadResult, TUpdate, TUpdateResult>
+    public abstract class CrudTestsBase<TEntryPoint, TFactory, TCreate, TCreateResult, TReadResult, TUpdate>
         where TEntryPoint : class
         where TFactory : WebApplicationFactory<TEntryPoint>, new()
         where TCreate : class
         where TCreateResult : class, ILinkResult
         where TReadResult : class, ILinkResult
         where TUpdate : class
-        where TUpdateResult : class
     {
         /// <summary>
         ///     A cache for requested urls.
@@ -763,7 +760,7 @@
             {
                 try
                 {
-                    await client.PutAsync<TUpdate, TUpdateResult>(
+                    await client.PutAsync(
                         url,
                         update,
                         HttpStatusCode.BadRequest);
@@ -784,7 +781,7 @@
             await this.FailsIfRoleIsMissing(
                 Urn.Update,
                 this.RequiredUpdateRoles,
-                (client, url) => client.PutAsync<TUpdate, TUpdateResult>(
+                (client, url) => client.PutAsync(
                     url,
                     this.GetValidUpdateEntry(),
                     HttpStatusCode.Forbidden));
@@ -811,7 +808,7 @@
                     this.GetClaims(
                         this.RequiredUpdateRoles,
                         userId))
-                .PutAsync<TUpdate, TUpdateResult>(
+                .PutAsync(
                     url,
                     this.GetValidUpdateEntry(),
                     HttpStatusCode.NoContent);
@@ -838,7 +835,7 @@
                     this.GetClaims(
                         this.RequiredUpdateRoles,
                         userId))
-                .PutAsync<TUpdate, TUpdateResult>(
+                .PutAsync(
                     url,
                     this.GetValidUpdateEntry(),
                     HttpStatusCode.Forbidden);
