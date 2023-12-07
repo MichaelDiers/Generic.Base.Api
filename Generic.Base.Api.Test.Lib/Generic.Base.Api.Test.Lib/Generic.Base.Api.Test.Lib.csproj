@@ -11,7 +11,7 @@
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<RepositoryUrl>https://github.com/MichaelDiers/demos</RepositoryUrl>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<Version>0.0.60</Version>
+		<Version>0.0.61</Version>
 	</PropertyGroup>
 
 	
