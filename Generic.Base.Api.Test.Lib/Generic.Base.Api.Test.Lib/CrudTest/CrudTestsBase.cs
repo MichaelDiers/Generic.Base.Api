@@ -113,6 +113,11 @@
         protected abstract IEnumerable<Role> RequiredUpdateRoles { get; }
 
         /// <summary>
+        ///     Gets test data for that the data validation fails in the update context.
+        /// </summary>
+        protected abstract IEnumerable<(TUpdate updateData, string testInfo)> UpdateDataValidationFailsTestData { get; }
+
+        /// <summary>
         ///     Gets the urn namespace for the services under test.
         /// </summary>
         protected abstract string UrnNamespace { get; }
@@ -681,10 +686,48 @@
         }
 
         /// <summary>
+        ///     The data validation fails for updating a new entry.
+        /// </summary>
+        [Fact]
+        public async Task UpdateDataValidationFails()
+        {
+            var client = new TFactory().CreateClient();
+            var userId = Guid.NewGuid().ToString();
+
+            var url = await this.GetUrl(
+                this.UrnNamespace,
+                Urn.Update,
+                client,
+                userId,
+                this.RequiredUpdateRoles);
+
+            client.Clear()
+            .AddApiKey(this.ApiKey)
+            .AddToken(
+                this.GetClaims(
+                    this.RequiredUpdateRoles,
+                    userId));
+            foreach (var (update, info) in this.UpdateDataValidationFailsTestData)
+            {
+                try
+                {
+                    await client.PutAsync<TUpdate, TUpdateResult>(
+                        url,
+                        update,
+                        HttpStatusCode.BadRequest);
+                }
+                catch (Exception ex)
+                {
+                    Assert.Fail($"{info}: {ex}");
+                }
+            }
+        }
+
+        /// <summary>
         ///     Updating an entry fails if a required role is missing.
         /// </summary>
         [Fact]
-        public async Task UpdateAllFailsIfRoleIsMissing()
+        public async Task UpdateFailsIfRoleIsMissing()
         {
             await this.FailsIfRoleIsMissing(
                 Urn.Update,
@@ -693,6 +736,33 @@
                     url,
                     this.GetValidUpdateEntry(),
                     HttpStatusCode.Forbidden));
+        }
+
+        /// <summary>
+        ///     Updating an entry succeeds.
+        /// </summary>
+        [Fact]
+        public async Task UpdateSucceeds()
+        {
+            var userId = Guid.NewGuid().ToString();
+            var client = new TFactory().CreateClient();
+            var url = await this.GetUrl(
+                this.UrnNamespace,
+                Urn.Update,
+                client,
+                userId,
+                this.RequiredUpdateRoles);
+
+            await client.Clear()
+                .AddApiKey(Guid.NewGuid().ToString())
+                .AddToken(
+                    this.GetClaims(
+                        this.RequiredUpdateRoles,
+                        userId))
+                .PutAsync<TUpdate, TUpdateResult>(
+                    url,
+                    this.GetValidUpdateEntry(),
+                    HttpStatusCode.NoContent);
         }
 
         /// <summary>
