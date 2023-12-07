@@ -562,6 +562,20 @@
         }
 
         /// <summary>
+        ///     Reading all entries fails if a required role is missing.
+        /// </summary>
+        [Fact]
+        public async Task ReadAllFailsIfRoleIsMissing()
+        {
+            await this.FailsIfRoleIsMissing(
+                Urn.ReadAll,
+                this.RequiredReadAllRoles,
+                (client, url) => client.GetAsync<IEnumerable<TReadResult>>(
+                    url,
+                    HttpStatusCode.Forbidden));
+        }
+
+        /// <summary>
         ///     Reading by id fails if the id is invalid.
         /// </summary>
         [Fact]
@@ -664,6 +678,21 @@
             this.AssertEntry(
                 createResult,
                 readResult);
+        }
+
+        /// <summary>
+        ///     Updating an entry fails if a required role is missing.
+        /// </summary>
+        [Fact]
+        public async Task UpdateAllFailsIfRoleIsMissing()
+        {
+            await this.FailsIfRoleIsMissing(
+                Urn.Update,
+                this.RequiredUpdateRoles,
+                (client, url) => client.PutAsync<TUpdate, TUpdateResult>(
+                    url,
+                    this.GetValidUpdateEntry(),
+                    HttpStatusCode.Forbidden));
         }
 
         /// <summary>
