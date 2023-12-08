@@ -31,7 +31,7 @@
 
         /// <summary>
         ///     Initializes a new instance of the
-        ///     <see cref="CrudTestsBase{TEntryPoint, TFactory, TCreate, TCreateResult, TReadResult, TUpdate, TUpdateResult}" />
+        ///     <see cref="CrudTestsBase{TEntryPoint, TFactory, TCreate, TCreateResult, TReadResult, TUpdate}" />
         ///     class.
         /// </summary>
         /// <param name="apiKey">The valid API key.</param>
@@ -604,6 +604,53 @@
         }
 
         /// <summary>
+        ///     Reading all entries without an api key fails.
+        /// </summary>
+        [Fact]
+        public async Task ReadAllWithoutApiKeyFails()
+        {
+            var userId = Guid.NewGuid().ToString();
+            var client = new TFactory().CreateClient();
+            var url = await this.GetUrl(
+                this.UrnNamespace,
+                Urn.ReadAll,
+                client,
+                userId,
+                this.RequiredReadAllRoles);
+
+            await client.Clear()
+                .AddToken(
+                    this.GetClaims(
+                        this.RequiredReadAllRoles,
+                        userId))
+                .GetAsync<IEnumerable<TReadResult>>(
+                    url,
+                    HttpStatusCode.Unauthorized);
+        }
+
+        /// <summary>
+        ///     Reading all entries without a token fails.
+        /// </summary>
+        [Fact]
+        public async Task ReadAllWithoutTokenFails()
+        {
+            var userId = Guid.NewGuid().ToString();
+            var client = new TFactory().CreateClient();
+            var url = await this.GetUrl(
+                this.UrnNamespace,
+                Urn.ReadAll,
+                client,
+                userId,
+                this.RequiredReadAllRoles);
+
+            await client.Clear()
+            .AddApiKey(this.ApiKey)
+            .GetAsync<IEnumerable<TReadResult>>(
+                url,
+                HttpStatusCode.Unauthorized);
+        }
+
+        /// <summary>
         ///     Reading by id fails if the id is invalid.
         /// </summary>
         [Fact]
@@ -735,6 +782,53 @@
         }
 
         /// <summary>
+        ///     Reading an entry by id fails without an api key.
+        /// </summary>
+        [Fact]
+        public async Task ReadByIdWithoutApiKeyFails()
+        {
+            var userId = Guid.NewGuid().ToString();
+            var client = new TFactory().CreateClient();
+            var url = await this.GetUrl(
+                this.UrnNamespace,
+                Urn.ReadById,
+                client,
+                userId,
+                this.RequiredReadByIdRoles);
+
+            await client.Clear()
+                .AddToken(
+                    this.GetClaims(
+                        this.RequiredReadByIdRoles,
+                        userId))
+                .GetAsync<TReadResult>(
+                    url,
+                    HttpStatusCode.Unauthorized);
+        }
+
+        /// <summary>
+        ///     Reading an entry by id without a token fails.
+        /// </summary>
+        [Fact]
+        public async Task ReadByIdWithoutTokenFails()
+        {
+            var userId = Guid.NewGuid().ToString();
+            var client = new TFactory().CreateClient();
+            var url = await this.GetUrl(
+                this.UrnNamespace,
+                Urn.ReadById,
+                client,
+                userId,
+                this.RequiredReadByIdRoles);
+
+            await client.Clear()
+            .AddApiKey(this.ApiKey)
+            .GetAsync<TReadResult>(
+                url,
+                HttpStatusCode.Unauthorized);
+        }
+
+        /// <summary>
         ///     The data validation fails for updating a new entry.
         /// </summary>
         [Fact]
@@ -839,6 +933,55 @@
                     url,
                     this.GetValidUpdateEntry(),
                     HttpStatusCode.Forbidden);
+        }
+
+        /// <summary>
+        ///     Updating an entry fails without an api key.
+        /// </summary>
+        [Fact]
+        public async Task UpdateWithoutApiKeyFails()
+        {
+            var userId = Guid.NewGuid().ToString();
+            var client = new TFactory().CreateClient();
+            var url = await this.GetUrl(
+                this.UrnNamespace,
+                Urn.Update,
+                client,
+                userId,
+                this.RequiredUpdateRoles);
+
+            await client.Clear()
+                .AddToken(
+                    this.GetClaims(
+                        this.RequiredUpdateRoles,
+                        userId))
+                .PutAsync(
+                    url,
+                    this.GetValidUpdateEntry(),
+                    HttpStatusCode.Unauthorized);
+        }
+
+        /// <summary>
+        ///     Updating an entry without a token fails.
+        /// </summary>
+        [Fact]
+        public async Task UpdateWithoutTokenFails()
+        {
+            var userId = Guid.NewGuid().ToString();
+            var client = new TFactory().CreateClient();
+            var url = await this.GetUrl(
+                this.UrnNamespace,
+                Urn.Update,
+                client,
+                userId,
+                this.RequiredUpdateRoles);
+
+            await client.Clear()
+            .AddApiKey(this.ApiKey)
+            .PutAsync(
+                url,
+                this.GetValidUpdateEntry(),
+                HttpStatusCode.Unauthorized);
         }
 
         /// <summary>
