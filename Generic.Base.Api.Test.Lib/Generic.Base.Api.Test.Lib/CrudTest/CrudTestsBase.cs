@@ -1086,12 +1086,10 @@
                 return url;
             }
 
-            var client = httpClient;
-
             var optionsResultLink = await this.GetUrl(
                 this.UrnNamespace,
                 Urn.Options,
-                client,
+                httpClient,
                 this.EntryPointUrl,
                 true,
                 userId,
@@ -1105,7 +1103,7 @@
             optionsResultLink = await this.GetUrl(
                 urnNamespace,
                 urn,
-                client,
+                httpClient,
                 optionsResultLink.Url,
                 false,
                 userId,
@@ -1123,7 +1121,7 @@
                 Assert.Fail($"Cannot find urn:{urnNamespace}:{Urn.Create}");
             }
 
-            var createResult = await client.AddToken(
+            var createResult = await httpClient.AddToken(
                     this.GetClaims(
                         this.RequiredCreateRoles,
                         userId))

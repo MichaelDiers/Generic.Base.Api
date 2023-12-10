@@ -203,7 +203,7 @@
         [Fact]
         public async Task DeleteSucceeds()
         {
-            var expectedStatusCode = HttpStatusCode.OK;
+            const HttpStatusCode expectedStatusCode = HttpStatusCode.OK;
 
             using var client = new TestFactory().CreateClient();
 
@@ -241,8 +241,8 @@
         [Fact]
         public async Task GetSucceeds()
         {
-            var expectedResult = "Hello World";
-            var expectedStatusCode = HttpStatusCode.OK;
+            const string expectedResult = "Hello World";
+            const HttpStatusCode expectedStatusCode = HttpStatusCode.OK;
 
             using var client = new TestFactory().CreateClient();
 
@@ -267,8 +267,8 @@
         [Fact]
         public async Task OptionsSucceeds()
         {
-            var expectedResult = "Hello World";
-            var expectedStatusCode = HttpStatusCode.OK;
+            const string expectedResult = "Hello World";
+            const HttpStatusCode expectedStatusCode = HttpStatusCode.OK;
 
             using var client = new TestFactory().CreateClient();
 
@@ -309,8 +309,8 @@
         [Fact]
         public async Task PostSucceeds()
         {
-            var expectedResult = "Hello World";
-            var expectedStatusCode = HttpStatusCode.OK;
+            const string expectedResult = "Hello World";
+            const HttpStatusCode expectedStatusCode = HttpStatusCode.OK;
 
             using var client = new TestFactory().CreateClient();
 
