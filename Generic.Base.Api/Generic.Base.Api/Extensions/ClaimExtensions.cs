@@ -5,7 +5,7 @@
     /// <summary>
     ///     Extensions for <see cref="Claim" /> and <see cref="IEnumerable{T}" /> of <see cref="Claim" />.
     /// </summary>
-    internal static class ClaimExtensions
+    public static class ClaimExtensions
     {
         /// <summary>
         ///     Tries to get the user identifier.

@@ -2,6 +2,9 @@
 {
     using Generic.Base.Api.Database;
 
+    [Trait(
+        "TestType",
+        "UnitTest")]
     public class IdEntryTests
     {
         [Fact]

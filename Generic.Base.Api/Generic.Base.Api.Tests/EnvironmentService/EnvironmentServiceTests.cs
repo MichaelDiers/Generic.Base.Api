@@ -12,6 +12,21 @@
     public class EnvironmentServiceTests
     {
         [Theory]
+        [InlineData("ENV_SERVICE_TEST_VAR")]
+        public void EmptyValue(string key)
+        {
+            Environment.SetEnvironmentVariable(
+                key,
+                string.Empty);
+
+            var service =
+                TestHostApplicationBuilder.GetService<IEnvironmentService>(
+                    EnvironmentServiceDependencies.AddEnvironmentService);
+
+            Assert.Throws<ArgumentException>(() => service.Get(key));
+        }
+
+        [Theory]
         [InlineData(
             "ENV_SERVICE_TEST_VAR",
             "the value")]
