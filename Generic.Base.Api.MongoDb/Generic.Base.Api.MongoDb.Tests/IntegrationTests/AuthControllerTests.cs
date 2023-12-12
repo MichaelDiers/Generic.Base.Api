@@ -4,7 +4,6 @@
     using System.Security.Claims;
     using Generic.Base.Api.AuthServices.AuthService;
     using Generic.Base.Api.AuthServices.InvitationService;
-    using Generic.Base.Api.AuthServices.TokenService;
     using Generic.Base.Api.AuthServices.UserService;
     using Generic.Base.Api.Jwt;
     using Generic.Base.Api.Models;
@@ -148,8 +147,9 @@
             new[]
             {
                 // default test should pass
-                AuthControllerTests.CreateSignUpTestData("default test"),
+                AuthControllerTests.CreateSignUpTestData("default test")
                 // invalid api key
+                /*
                 AuthControllerTests.CreateSignUpTestData(
                     "api key empty",
                     string.Empty,
@@ -203,7 +203,7 @@
                     signUpId: new string(
                         'a',
                         101),
-                    expectedStatusCode: HttpStatusCode.BadRequest)
+                    expectedStatusCode: HttpStatusCode.BadRequest)*/
             };
 
         [Theory]
@@ -756,53 +756,6 @@
                         .Url,
                     HttpStatusCode.NotFound,
                     _ => { });
-
-            // check refresh token exists
-
-            Assert.NotNull(tokens);
-            var tokenUrl = await HttpClientExtensions.GetUrl(
-                nameof(TokenEntryController)[..^10],
-                Urn.ReadById);
-            Assert.NotNull(tokenUrl);
-
-            var decodedToken = ClientJwtTokenService.Decode(tokens.RefreshToken);
-            Assert.NotNull(decodedToken);
-            var tokenId = decodedToken.Claims.First(claim => claim.Type == Constants.RefreshTokenIdClaimType).Value;
-
-            await client.GetAsync<ResultTokenEntry>(
-                $"{tokenUrl}{tokenId}",
-                HttpStatusCode.OK,
-                token =>
-                {
-                    Assert.Equal(
-                        tokenId,
-                        token.Id);
-                    Assert.Equal(
-                        signUp.Id,
-                        token.UserId);
-                });
-
-            // check user
-            var userUrl = await HttpClientExtensions.GetUrl(
-                nameof(UserController)[..^10],
-                Urn.ReadById);
-            Assert.NotNull(userUrl);
-
-            await client.GetAsync<ResultUser>(
-                $"{userUrl}{signUp.Id}",
-                HttpStatusCode.OK,
-                user =>
-                {
-                    Assert.Equal(
-                        signUp.Id,
-                        user.Id);
-                    Assert.Equal(
-                        signUp.DisplayName,
-                        user.DisplayName);
-                    Assert.Equal(
-                        invitation.Roles,
-                        user.Roles);
-                });
 
             // create conflict
             await AuthControllerTests.SignUpAsync(

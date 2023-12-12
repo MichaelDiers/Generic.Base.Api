@@ -14,8 +14,8 @@
 	</PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Generic.Base.Api" Version="0.0.48" />
-    <PackageReference Include="MongoDB.Driver" Version="2.22.0" />
+    <PackageReference Include="Generic.Base.Api" Version="0.0.49" />
+    <PackageReference Include="MongoDB.Driver" Version="2.23.0" />
   </ItemGroup>
 
 </Project>
