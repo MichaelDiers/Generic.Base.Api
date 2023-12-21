@@ -103,11 +103,11 @@
                     Urn.ChangePassword,
                     $"{baseUrl}/{AuthControllerBase.ChangePasswordTemplate}",
                     Role.Accessor),
+                // omit the refresher role. otherwise the route information is not accessible.
                 ClaimLink.Create(
                     this.GetType().Name[..^10],
                     Urn.Refresh,
-                    $"{baseUrl}/{AuthControllerBase.RefreshTemplate}",
-                    Role.Refresher),
+                    $"{baseUrl}/{AuthControllerBase.RefreshTemplate}"),
                 ClaimLink.Create(
                     this.GetType().Name[..^10],
                     Urn.Options,
@@ -182,7 +182,7 @@
         /// </summary>
         /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
         /// <returns>A <see cref="Task{T}" /> whose result are access and refresh tokens.</returns>
-        [HttpGet("refresh")]
+        [HttpPost("refresh")]
         [Authorize(Roles = nameof(Role.Refresher))]
         public async Task<ActionResult<IToken>> Post(CancellationToken cancellationToken)
         {

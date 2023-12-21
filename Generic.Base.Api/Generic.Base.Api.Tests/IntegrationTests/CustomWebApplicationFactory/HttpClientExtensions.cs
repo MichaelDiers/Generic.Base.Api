@@ -291,7 +291,7 @@
 
             var response = await client.SendAsync(
                 new HttpRequestMessage(
-                    HttpMethod.Get,
+                    HttpMethod.Post,
                     url));
             Assert.Equal(
                 statusCode,
