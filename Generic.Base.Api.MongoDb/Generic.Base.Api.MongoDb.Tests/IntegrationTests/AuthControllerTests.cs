@@ -424,14 +424,16 @@
             new Role[0],
             Urn.Options,
             Urn.SignIn,
-            Urn.SignUp)]
+            Urn.SignUp,
+            Urn.Refresh)]
         [InlineData(
             new[] {Role.Accessor},
             Urn.Options,
             Urn.SignIn,
             Urn.SignUp,
             Urn.ChangePassword,
-            Urn.Delete)]
+            Urn.Delete,
+            Urn.Refresh)]
         [InlineData(
             new[] {Role.Refresher},
             Urn.Refresh,
