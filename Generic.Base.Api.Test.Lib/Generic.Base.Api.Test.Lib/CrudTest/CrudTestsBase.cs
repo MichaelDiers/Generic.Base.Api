@@ -667,7 +667,7 @@
 
             url = string.Join(
                 "/",
-                url.Split("/")[..^1].Append(this.GetInvalidId));
+                url.TrimEnd('/').Split("/")[..^1].Append(this.GetInvalidId));
 
             await client.Clear()
                 .AddApiKey(this.ApiKey)
